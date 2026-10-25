@@ -1,0 +1,2432 @@
+<!DOCTYPE html>
+<html lang="nb">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>The Forge</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;700;800&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  --bg: #ECEFEA;
+  --surface: #FFFFFF;
+  --surface-2: #E4E9E3;
+  --ink: #13201A;
+  --muted: #56655D;
+  --line: #D1D9D1;
+  --line-strong: #B2BEB4;
+  /* "blue" is the historical token name; it now carries the forge green */
+  --blue: #1F5A43;
+  --blue-ink: #143D2D;
+  --blue-soft: #DAE8DF;
+  --on-primary: #FFFFFF;
+  --key-bg: #F5E4B0;
+  --key-ink: #3A2C00;
+  --gold: #A87A0A;
+  --gold-soft: rgba(212, 160, 23, 0.28);
+  --ok: #2B7A4B;
+  --warn: #B26A0E;
+  --bad: #B3362A;
+  --bar-track: #E0E6DF;
+  --band-1: #1B3328;
+  --band-2: #10201A;
+  --band-ink: #F2E6C4;
+  --band-muted: #A9BCB1;
+  --spark: #F3C969;
+  --shadow: 0 8px 28px rgba(19, 32, 26, 0.14);
+  --radius: 10px;
+  --font: "IBM Plex Sans", "Segoe UI", system-ui, -apple-system, Roboto, Helvetica, Arial, sans-serif;
+  --display: "Big Shoulders Display", "Arial Narrow", "Roboto Condensed", sans-serif-condensed, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --bg: #0C1310;
+    --surface: #141D19;
+    --surface-2: #1B2621;
+    --ink: #E6EDE8;
+    --muted: #93A49A;
+    --line: #26322C;
+    --line-strong: #3A4740;
+    --blue: #7CC6A1;
+    --blue-ink: #A9DDC2;
+    --blue-soft: #17302A;
+    --on-primary: #0C1310;
+    --key-bg: #3D3312;
+    --key-ink: #F4DB8E;
+    --gold: #E8C15A;
+    --gold-soft: rgba(232, 193, 90, 0.30);
+    --ok: #62B57F;
+    --warn: #E0A04A;
+    --bad: #E0736A;
+    --bar-track: #26322C;
+    --band-1: #16291F;
+    --band-2: #0A1410;
+    --band-ink: #F2E6C4;
+    --band-muted: #93A89C;
+    --spark: #F3C969;
+    --shadow: 0 8px 28px rgba(0, 0, 0, 0.5);
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #0C1310;
+  --surface: #141D19;
+  --surface-2: #1B2621;
+  --ink: #E6EDE8;
+  --muted: #93A49A;
+  --line: #26322C;
+  --line-strong: #3A4740;
+  --blue: #7CC6A1;
+  --blue-ink: #A9DDC2;
+  --blue-soft: #17302A;
+  --on-primary: #0C1310;
+  --key-bg: #3D3312;
+  --key-ink: #F4DB8E;
+  --gold: #E8C15A;
+  --gold-soft: rgba(232, 193, 90, 0.30);
+  --ok: #62B57F;
+  --warn: #E0A04A;
+  --bad: #E0736A;
+  --bar-track: #26322C;
+  --band-1: #16291F;
+  --band-2: #0A1410;
+  --band-ink: #F2E6C4;
+  --band-muted: #93A89C;
+  --spark: #F3C969;
+  --shadow: 0 8px 28px rgba(0, 0, 0, 0.5);
+}
+html { scroll-padding-top: env(safe-area-inset-top, 0px); height: 100%; }
+*, *::before, *::after { box-sizing: inherit; }
+body {
+  margin: 0;
+  min-height: 100%;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font);
+  font-size: 16px;
+  line-height: 1.45;
+  font-variant-numeric: tabular-nums;
+  -webkit-font-smoothing: antialiased;
+}
+button, input, select, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; animation: none !important; } }
+
+.app { max-width: 760px; margin: 0 auto; padding: 0 16px 92px; }
+/* while typing on a phone: just enough extra room (hidden behind the keyboard) to lift the field above it */
+.app { padding-bottom: calc(92px + var(--kbpad, 0px)); }
+.notice {
+  background: var(--blue-soft); color: var(--blue-ink); border: 1px solid var(--line);
+  border-radius: var(--radius); padding: 10px 12px; font-size: 0.92rem; margin: 6px 0 12px;
+}
+.notice.bad { background: transparent; border-color: var(--bad); color: var(--bad); }
+[hidden] { display: none !important; }
+
+/* ---------- plan header ---------- */
+.plan-head {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 6px 0 12px;
+}
+.plan-name {
+  background: none; border: 0; padding: 4px 0; text-align: left;
+  font-size: 1.45rem; font-weight: 600; letter-spacing: -0.02em; line-height: 1.2;
+  display: flex; align-items: center; gap: 8px;
+}
+.plan-name .chev { font-size: 0.9rem; color: var(--muted); font-weight: 400; }
+.plan-meta { color: var(--muted); font-size: 0.88rem; }
+
+/* ---------- budget (the hero) ---------- */
+.budget {
+  background: var(--surface); border: 1px solid var(--line); border-radius: 14px;
+  padding: 14px 16px 6px; margin-bottom: 20px;
+}
+.budget h2 { font-size: 0.88rem; font-weight: 500; color: var(--muted); margin: 0 0 10px; }
+.gauge { padding: 8px 0 10px; border-top: 1px solid var(--line); }
+.gauge:first-of-type { border-top: 0; }
+.gauge-row { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+.gauge-label { font-weight: 500; }
+.gauge-nums { display: flex; align-items: baseline; gap: 8px; }
+.gauge-val { font-size: 1.35rem; font-weight: 600; letter-spacing: -0.02em; }
+.gauge-val.key { background: var(--key-bg); color: var(--key-ink); padding: 0 6px; border-radius: 5px; }
+.gauge-target { color: var(--muted); font-size: 0.88rem; }
+.gauge-status { font-size: 0.85rem; font-weight: 500; }
+.gauge-status.ok { color: var(--ok); }
+.gauge-status.warn { color: var(--warn); }
+.gauge-status.bad { color: var(--bad); }
+.bar { position: relative; height: 8px; background: var(--bar-track); border-radius: 4px; margin-top: 7px; overflow: visible; }
+.bar-fill { position: absolute; left: 0; top: 0; bottom: 0; background: var(--blue); border-radius: 4px; transition: width 520ms cubic-bezier(0.22, 1, 0.36, 1), background-color 300ms ease; }
+.bar-fill.warn { background: var(--warn); }
+.bar-fill.bad { background: var(--bad); }
+.bar-fill.ok { background: var(--ok); }
+.tick { position: absolute; top: -4px; width: 2px; height: 16px; background: var(--ink); opacity: 0.7; border-radius: 1px; }
+.tick.max { opacity: 0.35; }
+.window { position: absolute; top: 0; bottom: 0; background: var(--blue-soft); }
+.gauge.small .gauge-val { font-size: 1.05rem; }
+
+/* ---------- meals ---------- */
+.meal { margin-bottom: 18px; }
+.meal-head { display: flex; align-items: baseline; justify-content: space-between; padding: 0 0 6px; border-bottom: 2px solid var(--ink); }
+.meal-head h3 { margin: 0; font-size: 1rem; font-weight: 600; }
+.meal-head .kcal { font-weight: 500; }
+.meal-head .kcal small { color: var(--muted); font-weight: 400; margin-left: 4px; }
+.item {
+  display: grid; grid-template-columns: 1fr auto auto auto; align-items: center; gap: 8px;
+  padding: 8px 0; border-bottom: 1px solid var(--line);
+}
+.item-name { min-width: 0; }
+.item-name .n { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; overflow-wrap: anywhere; line-height: 1.25; }
+.item-name .m { display: block; color: var(--muted); font-size: 0.8rem; }
+.amount { display: flex; align-items: center; border: 1px solid var(--line-strong); border-radius: 8px; overflow: hidden; background: var(--surface); }
+.amount input {
+  width: 62px; border: 0; padding: 6px 8px; text-align: right; background: transparent; color: var(--blue); font-weight: 500;
+  -moz-appearance: textfield;
+}
+.amount input::-webkit-outer-spin-button, .amount input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.amount .unit {
+  border: 0; border-left: 1px solid var(--line); background: var(--surface-2); padding: 6px 8px; font-size: 0.82rem; color: var(--muted); min-width: 40px;
+  max-width: 88px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.amount .unit.toggle { color: var(--blue); }
+.item-kcal { width: 58px; text-align: right; font-weight: 500; }
+.icon-btn { background: none; border: 0; color: var(--muted); padding: 6px; border-radius: 6px; line-height: 1; font-size: 1.1rem; }
+.icon-btn:hover { color: var(--bad); background: var(--surface-2); }
+.add-row { padding: 8px 0; display: flex; flex-wrap: wrap; gap: 4px 18px; align-items: baseline; }
+.add-row .tools { margin-left: auto; display: flex; gap: 16px; }
+.add-row .tools .link-btn { color: var(--muted); font-weight: 500; }
+.add-row .tools .link-btn:hover { color: var(--blue); }
+.meal-head .saved { display: block; font-size: 0.8rem; color: var(--muted); font-weight: 400; font-family: var(--font); letter-spacing: 0; margin-top: 1px; }
+.mlist button.pickmeal { display: grid; grid-template-columns: 1fr auto; gap: 10px; width: 100%; text-align: left; background: none; border: 0; padding: 10px 0; align-items: baseline; }
+.mlist .row-wrap { display: grid; grid-template-columns: 1fr auto; align-items: center; border-bottom: 1px solid var(--line); }
+.mlist .n { display: block; font-weight: 500; }
+.mlist .m { display: block; color: var(--muted); font-size: 0.8rem; line-height: 1.3; }
+.mlist .k { font-weight: 600; white-space: nowrap; }
+.mlist .k small { color: var(--muted); font-weight: 400; }
+.mlist .cur .n::after { content: ' · i planen nå'; color: var(--ok); font-weight: 500; font-size: 0.8rem; }
+.mlist details.others { margin-top: 14px; }
+.mlist details.others summary { cursor: pointer; padding: 8px 0; font-size: 0.9rem; font-weight: 500; color: var(--muted); list-style: none; }
+.mlist details.others summary::-webkit-details-marker { display: none; }
+.mlist details.others summary::before { content: '▸'; display: inline-block; width: 1.1em; transition: transform 150ms ease; }
+.mlist details.others[open] summary::before { transform: rotate(90deg); }
+.mlist details.others summary span { font-weight: 400; }
+.unsaved { background: var(--key-bg); color: var(--key-ink); border-radius: 10px; padding: 9px 12px; margin: 4px 0 10px; font-size: 0.9rem; display: flex; justify-content: space-between; gap: 10px; align-items: center; flex-wrap: wrap; }
+.link-btn { background: none; border: 0; color: var(--blue); font-weight: 500; padding: 4px 0; }
+.empty { color: var(--muted); font-size: 0.92rem; padding: 10px 0; }
+
+/* ---------- generic ---------- */
+.btn {
+  border: 1px solid var(--line-strong); background: var(--surface); color: var(--ink);
+  padding: 9px 14px; border-radius: 9px; font-weight: 500; font-size: 0.95rem;
+}
+.btn.primary { background: var(--blue); border-color: var(--blue); color: var(--on-primary); }
+.btn.danger { color: var(--bad); border-color: var(--bad); }
+.btn.small { padding: 6px 10px; font-size: 0.88rem; }
+.row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.row.between { justify-content: space-between; }
+.stack { display: grid; gap: 10px; }
+label.f { display: grid; gap: 4px; font-size: 0.88rem; color: var(--muted); align-content: start; }
+label.f input, label.f select, label.f textarea {
+  border: 1px solid var(--line-strong); border-radius: 8px; padding: 9px 10px; background: var(--surface); color: var(--blue); font-weight: 500; font-size: 1rem;
+  width: 100%; min-width: 0;
+}
+label.f textarea { color: var(--ink); font-weight: 400; min-height: 60px; resize: vertical; }
+label.f select { color: var(--ink); }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+@media (max-width: 420px) { .grid3 { grid-template-columns: 1fr 1fr; } }
+fieldset { border: 0; padding: 0; margin: 0; }
+legend { font-size: 0.88rem; color: var(--muted); padding: 0; margin-bottom: 6px; }
+.radios { display: grid; gap: 6px; }
+.radio {
+  display: grid; grid-template-columns: auto 1fr auto; gap: 10px; align-items: center;
+  border: 1px solid var(--line); border-radius: 9px; padding: 9px 12px; background: var(--surface);
+}
+.radio input { margin: 0; accent-color: var(--blue); }
+.radio .d { color: var(--muted); font-size: 0.85rem; }
+.radio .k { color: var(--muted); font-size: 0.88rem; }
+.radio:has(input:checked) { border-color: var(--blue); background: var(--blue-soft); }
+.out { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 14px; }
+@media (max-width: 420px) { .out { grid-template-columns: 1fr; } }
+.out > div { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; }
+.out .l { color: var(--muted); font-size: 0.85rem; }
+.out .v { font-size: 1.35rem; font-weight: 600; letter-spacing: -0.02em; }
+.out .v.key { background: var(--key-bg); color: var(--key-ink); display: inline-block; padding: 0 6px; border-radius: 5px; }
+h2.sec { font-size: 1.05rem; font-weight: 600; margin: 22px 0 10px; }
+details.adv { border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; margin-top: 12px; }
+details.adv summary { cursor: pointer; font-weight: 500; }
+.help { color: var(--muted); font-size: 0.88rem; }
+
+/* ---------- lager (inventory) ---------- */
+.inv-group h4 { margin: 16px 0 2px; font-size: 0.85rem; font-weight: 500; color: var(--muted); display: flex; justify-content: space-between; }
+.inv-row { display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--line); }
+.inv-row .name { background: none; border: 0; padding: 0; text-align: left; min-width: 0; }
+.inv-row .name .n { display: block; overflow-wrap: anywhere; line-height: 1.25; }
+.inv-row .name .m { display: block; color: var(--muted); font-size: 0.8rem; }
+.inv-row.empty .name .n { color: var(--muted); }
+.stepper { display: flex; align-items: center; border: 1px solid var(--line-strong); border-radius: 9px; overflow: hidden; background: var(--surface); }
+.stepper button { border: 0; background: var(--surface-2); width: 34px; height: 34px; font-size: 1.1rem; color: var(--ink); line-height: 1; }
+.stepper input { width: 52px; border: 0; text-align: center; background: transparent; color: var(--blue); font-weight: 600; padding: 6px 2px; }
+.stepper .u { font-size: 0.78rem; color: var(--muted); padding: 0 6px 0 0; min-width: 0; white-space: nowrap; }
+.stepper button.u { width: auto; background: transparent; color: var(--blue); text-decoration: underline dotted; text-underline-offset: 3px; font-size: 0.78rem; padding: 0 6px 0 0; }
+.basis-tag { font-size: 0.78rem; color: var(--ok); border: 1px solid var(--line); border-radius: 999px; padding: 3px 9px; white-space: nowrap; }
+.inv { display: inline-block; width: 1.15em; text-align: center; font-weight: 700; margin-right: 3px; }
+.inv.ok { color: var(--ok); } .inv.low { color: var(--warn); } .inv.miss { color: var(--bad); }
+.home-tag { font-size: 0.72rem; color: var(--ok); font-weight: 600; margin-left: 6px; white-space: nowrap; }
+.can-make { font-size: 0.78rem; color: var(--ok); font-weight: 600; }
+.food.picked .n::after { content: ' ✓'; color: var(--ok); font-weight: 700; }
+.day-actions { display: flex; justify-content: center; padding: 6px 0 18px; }
+
+/* ---------- foods ---------- */
+.search { width: 100%; border: 1px solid var(--line-strong); border-radius: 10px; padding: 10px 12px; background: var(--surface); color: var(--ink); font-weight: 400; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; padding: 8px 0 6px; }
+.chip { flex: 0 0 auto; border: 1px solid var(--line-strong); background: var(--surface); border-radius: 999px; padding: 5px 11px; font-size: 0.86rem; color: var(--ink); }
+.chip.on { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.food-group h4 { margin: 14px 0 4px; font-size: 0.85rem; font-weight: 500; color: var(--muted); }
+.food {
+  display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: center;
+  width: 100%; text-align: left; background: none; border: 0; border-bottom: 1px solid var(--line); padding: 9px 0;
+}
+.food .n { display: block; }
+.food .m { display: block; color: var(--muted); font-size: 0.8rem; }
+.food .k { font-weight: 500; white-space: nowrap; }
+.food .k small { color: var(--muted); font-weight: 400; }
+
+/* ---------- tabs ---------- */
+nav.tabs {
+  position: fixed; left: 0; right: 0; bottom: 0;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  background: var(--surface); border-top: 1px solid var(--line);
+  display: flex; justify-content: center; z-index: 20;
+}
+nav.tabs .inner { display: flex; width: 100%; max-width: 760px; }
+nav.tabs button {
+  flex: 1; background: none; border: 0; padding: 12px 6px 10px; color: var(--muted); font-weight: 500; font-size: 0.9rem;
+  border-top: 2px solid transparent; margin-top: -1px;
+}
+nav.tabs button.on { color: var(--blue); border-top-color: var(--blue); font-weight: 600; }
+
+/* ---------- sheet ---------- */
+.scrim { position: fixed; inset: 0; background: rgba(10, 14, 12, 0.45); z-index: 30; touch-action: none; }
+.sheet {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 31;
+  background: var(--surface); border-radius: 16px 16px 0 0; box-shadow: var(--shadow);
+  max-height: 88vh; max-height: 88dvh; display: flex; flex-direction: column;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  overscroll-behavior: contain;
+}
+.sheet .inner { width: 100%; max-width: 760px; margin: 0 auto; display: flex; flex-direction: column; min-height: 0; }
+.sheet-head { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px 8px; }
+.sheet-head h3 { margin: 0; font-size: 1.05rem; font-weight: 600; }
+.sheet-body { padding: 4px 16px 16px; overflow-y: auto; min-height: 0; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
+.sheet-foot { padding: 10px 16px 14px; border-top: 1px solid var(--line); display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap; }
+.plan-list button {
+  display: grid; grid-template-columns: 1fr auto; gap: 10px; width: 100%; text-align: left;
+  background: none; border: 0; border-bottom: 1px solid var(--line); padding: 11px 0;
+}
+.plan-list .cur { color: var(--ok); font-size: 0.85rem; font-weight: 500; }
+.toast {
+  position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(70px + env(safe-area-inset-bottom, 0px));
+  background: var(--ink); color: var(--bg); padding: 9px 14px; border-radius: 9px; font-size: 0.9rem; z-index: 40; box-shadow: var(--shadow);
+}
+.wide { overflow-x: auto; }
+table.t { border-collapse: collapse; width: 100%; font-size: 0.92rem; }
+table.t th, table.t td { text-align: right; padding: 6px 8px; border-bottom: 1px solid var(--line); }
+table.t th:first-child, table.t td:first-child { text-align: left; }
+table.t input { width: 70px; text-align: right; border: 1px solid var(--line-strong); border-radius: 6px; padding: 4px 6px; background: var(--surface); color: var(--blue); font-weight: 500; }
+
+/* ---------- sections / header ---------- */
+/* ---------- display type: headings and headline numbers ---------- */
+.plan-name { font-family: var(--display); font-weight: 800; font-size: 2rem; letter-spacing: 0.005em; line-height: 1; }
+h2.sec, .week-head h3 { font-family: var(--display); font-weight: 700; font-size: 1.55rem; letter-spacing: 0.01em; line-height: 1.05; }
+.meal-head h3, .entry-head h3, .sheet-head h3 { font-family: var(--display); font-weight: 700; font-size: 1.3rem; letter-spacing: 0.01em; }
+.gauge-val { font-family: var(--display); font-weight: 700; font-size: 1.8rem; letter-spacing: 0; line-height: 1.05; }
+.gauge.small .gauge-val { font-size: 1.3rem; }
+.stat .v, .out .v, .mcell .v { font-family: var(--display); font-weight: 700; font-size: 1.6rem; letter-spacing: 0; line-height: 1.1; }
+.mcell .v { font-size: 1.3rem; }
+.lift .rm { font-family: var(--display); font-weight: 700; font-size: 1.25rem; }
+.hist .u { font-family: var(--display); font-weight: 700; font-size: 1.2rem; }
+
+/* ---------- sparks: a short burst when something is earned ---------- */
+.spark-burst { position: fixed; width: 0; height: 0; pointer-events: none; z-index: 60; }
+.spark-burst i {
+  position: absolute; left: -1.5px; top: -8px; width: 3px; height: 16px; border-radius: 2px;
+  background: linear-gradient(to top, rgba(243, 201, 105, 0), var(--spark) 45%, #FFF3D0);
+  transform-origin: 50% 100%; opacity: 0;
+  animation: spark-fly var(--d, 640ms) cubic-bezier(0.15, 0.7, 0.3, 1) var(--delay, 0ms) forwards;
+}
+.spark-burst b {
+  position: absolute; left: -36px; top: -36px; width: 72px; height: 72px; border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(255, 190, 80, 0.55), rgba(255, 190, 80, 0));
+  animation: spark-glow 700ms ease-out forwards;
+}
+@keyframes spark-fly {
+  0% { opacity: 1; transform: rotate(var(--a)) translateY(-6px) scaleY(0.6); }
+  60% { opacity: 1; }
+  100% { opacity: 0; transform: rotate(var(--a)) translateY(calc(-1 * var(--r, 46px))) scaleY(0.35); }
+}
+@keyframes spark-glow { 0% { opacity: 0; transform: scale(0.4); } 25% { opacity: 1; } 100% { opacity: 0; transform: scale(1.3); } }
+
+/* ---------- header: the forge band ---------- */
+header.top {
+  display: grid; grid-template-columns: 1fr auto auto; align-items: center; gap: 12px 4px;
+  margin: 0 -16px 14px; padding: 16px 16px 14px;
+  background: linear-gradient(180deg, var(--band-1), var(--band-2));
+  color: var(--band-ink); border-radius: 0 0 20px 20px;
+  position: relative; overflow: hidden;
+}
+header.top::before { /* the anvil's glow, low behind the brand */
+  content: ''; position: absolute; left: -40px; top: -60px; width: 220px; height: 180px; pointer-events: none;
+  background: radial-gradient(closest-side, rgba(255, 181, 71, 0.22), rgba(255, 181, 71, 0));
+}
+.brand { display: flex; align-items: center; gap: 10px; min-width: 0; position: relative; }
+.brand svg { width: 34px; height: 34px; flex: 0 0 auto; }
+header.top h1 { font-family: var(--display); font-weight: 800; font-size: 1.85rem; line-height: 0.95; margin: 0; letter-spacing: 0.01em; color: var(--band-ink); }
+.status { font-size: 0.82rem; color: var(--band-muted); margin-top: 3px; white-space: nowrap; }
+.status b { color: var(--band-ink); font-weight: 600; margin-right: 6px; }
+.status .soon { color: var(--spark); }
+.seg { grid-column: 1 / -1; display: flex; border: 1px solid rgba(242, 230, 196, 0.18); border-radius: 999px; padding: 3px; background: rgba(0, 0, 0, 0.22); position: relative; }
+.seg button { flex: 1; border: 0; background: none; padding: 7px 12px; border-radius: 999px; font-weight: 500; font-size: 0.92rem; color: var(--band-muted); }
+.seg button.on { background: var(--band-ink); color: var(--band-2); font-weight: 600; }
+.fsbtn { grid-column: 2; grid-row: 1; background: none; border: 0; padding: 7px; border-radius: 9px; color: var(--band-muted); line-height: 0; position: relative; }
+.fsbtn svg { width: 20px; height: 20px; }
+.gear { grid-column: 3; grid-row: 1; background: none; border: 0; font-size: 1.2rem; padding: 7px; border-radius: 9px; color: var(--band-muted); line-height: 1; position: relative; }
+.gear.on { color: var(--band-2); background: var(--band-ink); }
+
+/* ---------- logg ---------- */
+.hero {
+  background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 14px 16px 12px; margin: 0 0 14px;
+}
+.hero-top { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+.hero .d { font-weight: 600; }
+.hero .s { color: var(--muted); font-size: 0.86rem; text-align: right; }
+.hero .amount { display: inline-flex; align-items: baseline; border: 0; border-bottom: 2px solid var(--line-strong); border-radius: 0; background: none; overflow: visible; margin: 2px 0 12px; transition: border-color 200ms ease; }
+.hero .amount:focus-within { border-bottom-color: var(--blue); }
+.hero .amount input { width: 2.2ch; padding: 0; font-family: var(--display); font-weight: 800; font-size: 4rem; line-height: 1; color: var(--ink); text-align: left; }
+.hero .amount input::placeholder { color: var(--line-strong); }
+.hero .amount .unit { border: 0; background: none; padding: 0 0 0 4px; min-width: 0; font-family: var(--display); font-weight: 600; font-size: 1.5rem; color: var(--muted); }
+.since { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; border-top: 1px solid var(--line); padding-top: 10px; }
+.since .l { display: block; color: var(--muted); font-size: 0.8rem; }
+.since .v { display: block; font-family: var(--display); font-weight: 700; font-size: 1.45rem; line-height: 1.1; }
+.since .v.pos { color: var(--ok); }
+.since .v.neg { color: var(--bad); }
+.since-cap { grid-column: 1 / -1; color: var(--muted); font-size: 0.8rem; margin-top: -2px; }
+.chartbox { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 10px 8px 6px; margin-bottom: 14px; }
+.chartbox svg { width: 100%; height: auto; display: block; }
+.chartbox .legend { display: flex; gap: 6px 12px; padding: 4px 8px 2px; font-size: 0.82rem; color: var(--muted); }
+.legend i { display: inline-block; width: 14px; height: 3px; vertical-align: middle; margin-right: 5px; border-radius: 2px; }
+.week-card { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 12px 16px 6px; margin-bottom: 14px; }
+.week-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; margin-bottom: 8px; }
+.week-head h3 { margin: 0; font-size: 1.15rem; font-weight: 600; letter-spacing: -0.01em; }
+.week-head .nav button { background: none; border: 1px solid var(--line-strong); border-radius: 8px; padding: 3px 9px; color: var(--ink); }
+.days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin: 6px 0 10px; }
+.day { display: grid; gap: 2px; text-align: center; }
+.day span { font-size: 0.78rem; color: var(--muted); }
+.day input { width: 100%; min-width: 0; border: 1px solid var(--line-strong); border-radius: 7px; padding: 7px 2px; text-align: center; background: var(--surface); color: var(--blue); font-weight: 500; font-size: 0.95rem; }
+.day.is-today input { border-color: var(--blue); box-shadow: 0 0 0 2px var(--blue-soft); }
+.day.is-today span { color: var(--blue); font-weight: 600; }
+/* a new lowest weight ever gets a gold frame */
+.day.record input, .day.is-today.record input { border: 2px solid var(--gold); box-shadow: 0 0 0 3px var(--gold-soft); color: var(--ink); font-weight: 600; }
+.day.record span::after { content: ' ★'; color: var(--gold); }
+.hero .amount.record { border-bottom-color: var(--gold); }
+.hero .amount.record input { color: var(--gold); }
+.hero .rec { color: var(--gold); font-weight: 600; }
+.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 10px; }
+.stat { border-top: 2px solid var(--ink); padding-top: 4px; }
+.stat .l { color: var(--muted); font-size: 0.8rem; }
+.stat .v { font-size: 1.25rem; font-weight: 600; letter-spacing: -0.02em; }
+.stat .v.key { background: var(--key-bg); color: var(--key-ink); display: inline-block; padding: 0 6px; border-radius: 5px; }
+.wk-fields { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+@media (max-width: 420px) { .wk-fields { grid-template-columns: 1fr 1fr; } }
+.hist button { display: grid; grid-template-columns: 3.2rem 1fr auto auto; gap: 10px; width: 100%; text-align: left; background: none; border: 0; border-bottom: 1px solid var(--line); padding: 9px 0; align-items: baseline; }
+.hist .u { font-weight: 600; }
+.hist .n { color: var(--muted); font-size: 0.85rem; }
+.hist .v { font-weight: 500; white-space: nowrap; }
+.hist .dlt { font-size: 0.85rem; white-space: nowrap; min-width: 4.5rem; text-align: right; }
+.pos { color: var(--ok); } .neg { color: var(--bad); }
+.banner { background: var(--key-bg); color: var(--key-ink); border-radius: 12px; padding: 10px 14px; margin: 0 0 14px; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.banner button { border: 1px solid currentColor; background: none; color: inherit; border-radius: 8px; padding: 5px 10px; font-weight: 500; }
+
+/* ---------- styrke ---------- */
+.lift { display: grid; grid-template-columns: 1fr auto auto; gap: 10px; align-items: center; width: 100%; text-align: left; background: none; border: 0; border-bottom: 1px solid var(--line); padding: 9px 0; }
+.lift .n { display: block; }
+.lift .m { display: block; color: var(--muted); font-size: 0.8rem; }
+.lift .best { font-weight: 500; white-space: nowrap; }
+.lift .rm { white-space: nowrap; min-width: 4.4rem; text-align: right; display: grid; justify-items: end; gap: 2px; }
+.lift .rm svg { width: 64px; height: 18px; display: block; overflow: visible; }
+.lift.pr .rm .num { color: var(--gold); }
+.lift .rm small { font-family: var(--font); font-size: 0.72rem; font-weight: 500; color: var(--muted); }
+.lift .rm small { color: var(--muted); font-weight: 400; }
+.lift.none .n, .lift.none .best { color: var(--muted); }
+.rating { display: flex; gap: 4px; }
+.rating button { flex: 1; border: 1px solid var(--line-strong); background: var(--surface); border-radius: 7px; padding: 7px 0; font-weight: 500; }
+.rating button.on { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.pick { display: flex; gap: 4px; border: 1px solid var(--line-strong); border-radius: 12px; padding: 3px; background: var(--surface); }
+.pick button { flex: 1; border: 0; background: none; border-radius: 9px; padding: 9px 0; font-weight: 500; color: var(--muted); }
+.pick button.on { background: var(--blue); color: var(--on-primary); font-weight: 600; }
+.entry { border-bottom: 1px solid var(--line); padding: 12px 0; }
+.entry-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+.entry-head h3 { margin: 0; font-size: 1rem; font-weight: 600; }
+.chips-r { display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0; }
+.chips-r span { font-size: 0.8rem; color: var(--muted); border: 1px solid var(--line); border-radius: 999px; padding: 2px 8px; }
+.entry .txt { white-space: pre-wrap; margin: 6px 0 0; line-height: 1.5; }
+.mgrid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+@media (max-width: 480px) { .mgrid { grid-template-columns: repeat(2, 1fr); } }
+.mcell { border: 1px solid var(--line); border-radius: 9px; padding: 7px 9px; }
+.mcell .l { color: var(--muted); font-size: 0.78rem; }
+.mcell .v { font-weight: 600; }
+.mcell .dlt { font-size: 0.8rem; }
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <div class="brand">
+      <svg viewBox="130 200 690 610" aria-hidden="true">
+        <defs><linearGradient id="anvilGold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F3D27A"/><stop offset="1" stop-color="#C08A1E"/></linearGradient></defs>
+        <g stroke="#FFD27A" stroke-width="26" stroke-linecap="round"><line x1="512" y1="300" x2="512" y2="220"/><line x1="430" y1="320" x2="380" y2="255"/><line x1="594" y1="320" x2="644" y2="255"/><line x1="370" y1="380" x2="300" y2="350"/><line x1="654" y1="380" x2="724" y2="350"/></g>
+        <path fill="url(#anvilGold)" d="M 230 420 L 760 420 Q 800 420 800 455 L 800 470 Q 800 500 770 505 Q 690 515 640 545 Q 600 570 600 610 L 600 660 L 680 660 Q 700 660 700 680 L 700 740 L 324 740 L 324 680 Q 324 660 344 660 L 424 660 L 424 610 Q 424 565 360 545 Q 280 520 230 500 Q 170 478 150 440 Q 180 420 230 420 Z"/>
+        <rect x="300" y="760" width="424" height="40" rx="14" fill="#C08A1E"/>
+      </svg>
+      <div><h1>The Forge</h1><div class="status" id="hdrStatus"></div></div>
+    </div>
+    <div class="seg" role="tablist" aria-label="Del">
+      <button data-sec="kosthold" role="tab">Kosthold</button>
+      <button data-sec="trening" role="tab">Trening</button>
+    </div>
+    <button class="fsbtn" id="fsBtn" type="button" aria-label="Fullskjerm" title="Fullskjerm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path id="fsIcon" d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
+    <button class="gear" id="profileBtn" aria-label="Profil og innstillinger" title="Profil">⚙</button>
+  </header>
+  <div class="notice" id="dbNotice" hidden></div>
+
+  <!-- ================= DAGSPLAN ================= -->
+  <section id="view-plan">
+    <div class="plan-head">
+      <button class="plan-name" id="planNameBtn" aria-haspopup="dialog">
+        <span id="planName">Laster …</span><span class="chev">▾</span>
+      </button>
+      <span class="plan-meta" id="planMeta"></span>
+    </div>
+    <div class="budget" id="budget"></div>
+    <div id="meals"></div>
+  </section>
+
+  <!-- ================= LAGER ================= -->
+  <section id="view-lager" hidden>
+    <div class="row between" style="margin:6px 0 4px">
+      <h2 class="sec" style="margin:0">Lager</h2>
+      <button class="btn small" id="invAddBtn">Legg til</button>
+    </div>
+    <p class="help" id="invSub" style="margin:0 0 6px"></p>
+    <div id="invList"></div>
+  </section>
+
+  <!-- ================= MATVARER ================= -->
+  <section id="view-foods" hidden>
+    <div class="row between" style="margin:6px 0 10px">
+      <h2 class="sec" style="margin:0">Matvarer</h2>
+      <button class="btn small" id="newFoodBtn">Ny matvare</button>
+    </div>
+    <input class="search" id="foodSearch" type="search" placeholder="Søk i matvarer" autocomplete="off">
+    <div class="chips" id="foodChips"></div>
+    <div id="foodList"></div>
+  </section>
+
+  <!-- ================= PROFIL ================= -->
+  <section id="view-profile" hidden>
+    <h2 class="sec" style="margin-top:6px">Profil</h2>
+    <div class="stack">
+      <fieldset>
+        <legend>Kjønn</legend>
+        <div class="radios" id="kjonnRadios"></div>
+      </fieldset>
+      <div class="grid2">
+        <label class="f">Vekt (kg)<input id="pVekt" type="text" inputmode="decimal"><button class="link-btn" id="useAvgBtn" type="button" style="justify-self:start;font-size:0.85rem"></button></label>
+        <label class="f">Høyde (cm)<input id="pHoyde" type="text" inputmode="decimal"></label>
+        <label class="f">Alder<input id="pAlder" type="text" inputmode="numeric"></label>
+        <label class="f">Kroppsfett (%)<input id="pFett" type="text" inputmode="decimal"></label>
+      </div>
+      <fieldset>
+        <legend>Aktivitetsnivå</legend>
+        <div class="radios" id="aktRadios"></div>
+      </fieldset>
+      <fieldset>
+        <legend>Treningsmål</legend>
+        <div class="radios" id="malRadios"></div>
+      </fieldset>
+    </div>
+    <div class="out" id="profileOut"></div>
+    <p class="help" id="proteinRule"></p>
+    <details class="adv">
+      <summary>Faktorer</summary>
+      <p class="help">Justér hvis du vil. Aktivitetsfaktorene ganger grunnforbrenningen; målfaktoren ganger vedlikeholdsbehovet.</p>
+      <div class="wide"><table class="t" id="factorTable"></table></div>
+    </details>
+    <h2 class="sec">Utseende</h2>
+    <div class="pick" id="themePick" role="radiogroup" aria-label="Tema">
+      <button type="button" role="radio" data-theme-opt="auto">Automatisk</button>
+      <button type="button" role="radio" data-theme-opt="light">Lys</button>
+      <button type="button" role="radio" data-theme-opt="dark">Mørk</button>
+    </div>
+    <p class="help">Automatisk følger innstillingen på telefonen eller PC-en. Valget gjelder alle enhetene dine.</p>
+    <label class="radio" id="fsAutoRow" style="margin-top:10px"><input type="checkbox" id="fsAuto"><span>Fullskjerm ved første trykk<br><span class="d">Bare på denne enheten. Nettleseren tillater ikke fullskjerm før du har trykket et sted.</span></span><span></span></label>
+    <h2 class="sec">Sikkerhetskopi</h2>
+    <p class="help">Alt lagres i appen. Last ned en kopi nå og da, så dataene aldri er innelåst. Excel-filen har de samme arkene som treningsloggen, pluss dagsplan og matvarer.</p>
+    <div class="row">
+      <button class="btn primary" id="exportXlsxBtn">Last ned Excel (alle ark)</button>
+      <button class="btn" id="exportJsonBtn">Last ned alt (JSON)</button>
+      <button class="btn" id="exportCsvBtn">Last ned dagsplanen (CSV)</button>
+      <button class="btn" id="importBtn">Importer JSON</button>
+      <input type="file" id="importFile" accept="application/json,.json" hidden>
+    </div>
+  </section>
+
+  <!-- ================= TRENING: LOGG ================= -->
+  <section id="view-logg" hidden>
+    <div id="loggToday"></div>
+    <div id="loggBanner"></div>
+    <div class="chartbox" id="loggChart"></div>
+    <div id="loggWeek"></div>
+    <h2 class="sec">Alle uker</h2>
+    <div class="hist" id="loggHistory"></div>
+  </section>
+
+  <!-- ================= TRENING: STYRKE ================= -->
+  <section id="view-styrke" hidden>
+    <div class="week-head" style="margin:6px 0 4px">
+      <h3 id="styrkeTitle">Styrke</h3>
+      <span class="nav"><button id="styrkePrev" aria-label="Forrige uke">‹</button> <button id="styrkeNext" aria-label="Neste uke">›</button></span>
+    </div>
+    <div class="row between" style="margin-bottom:8px">
+      <span class="help" id="styrkeSub"></span>
+      <button class="btn small" id="importJefitBtn">Importer fra Jefit</button>
+      <input type="file" id="jefitFile" accept=".csv,text/csv" hidden>
+    </div>
+    <div id="styrkeList"></div>
+  </section>
+
+  <!-- ================= TRENING: DAGBOK ================= -->
+  <section id="view-dagbok" hidden>
+    <h2 class="sec" style="margin-top:6px">Dagbok</h2>
+    <div id="dagbokList"></div>
+  </section>
+
+  <!-- ================= TRENING: MÅL ================= -->
+  <section id="view-maal" hidden>
+    <div class="row between" style="margin:6px 0 10px">
+      <h2 class="sec" style="margin:0">Månedsmål</h2>
+      <button class="btn small" id="newMaalBtn">Ny måling</button>
+    </div>
+    <p class="help">Hver 4. uke: omkrets, kaliper i millimeter og bilder. Samme morgen-rutine som veiing.</p>
+    <div id="maalList"></div>
+  </section>
+</div>
+
+<nav class="tabs" aria-label="Sider"><div class="inner">
+  <button data-tab="plan" data-sec="kosthold" class="on">Dagsplan</button>
+  <button data-tab="lager" data-sec="kosthold">Lager</button>
+  <button data-tab="foods" data-sec="kosthold">Matvarer</button>
+  <button data-tab="logg" data-sec="trening" hidden>Logg</button>
+  <button data-tab="styrke" data-sec="trening" hidden>Styrke</button>
+  <button data-tab="dagbok" data-sec="trening" hidden>Dagbok</button>
+  <button data-tab="maal" data-sec="trening" hidden>Mål</button>
+</div></nav>
+
+<div id="sheetRoot"></div>
+<div id="toastRoot"></div>
+
+<script>
+(() => {
+'use strict';
+
+/* =============================== state =============================== */
+const MEALS = [
+  { id: 'frokost', navn: 'Frokost' },
+  { id: 'lunsj', navn: 'Lunsj' },
+  { id: 'pre', navn: 'Pre-workout' },
+  { id: 'post', navn: 'Post-workout' },
+  { id: 'kvelds', navn: 'Kveldsmat' },
+];
+const DEFAULT_PROFILE = {
+  kjonn: 'mann', vekt: 98, hoyde: 186, alder: 40, fett: 27, aktivitet: 3, mal: 'definere',
+  aktivitetsfaktorer: [
+    { navn: 'Stillesittende', beskrivelse: 'lite eller ingen trening', faktor: 1.15 },
+    { navn: 'Lett aktivitet', beskrivelse: '1–3 timer trening per uke', faktor: 1.3 },
+    { navn: 'Moderat aktivitet', beskrivelse: '4–6 timer trening per uke', faktor: 1.4 },
+    { navn: 'Veldig aktiv', beskrivelse: '7–9 timer trening per uke', faktor: 1.7 },
+    { navn: 'Ekstra aktiv', beskrivelse: '10+ timer trening per uke', faktor: 1.9 },
+  ],
+  malfaktorer: { definere: 0.78, bygge: 1.1, vedlikeholde: 1.0 },
+};
+const MAL = [
+  { id: 'definere', navn: 'Definere', beskrivelse: 'kutte fett' },
+  { id: 'bygge', navn: 'Bygge', beskrivelse: 'bygge muskler' },
+  { id: 'vedlikeholde', navn: 'Vedlikeholde', beskrivelse: 'holde vekten' },
+];
+
+const S = {
+  db: null, dl: null,
+  profile: null,
+  app: { currentPlanId: null },
+  foods: new Map(),
+  plans: new Map(),
+  meals: new Map(),
+  inv: new Map(),
+  planId: null,
+  tab: 'plan',
+  foodQuery: '', foodCat: '',
+  lastWrittenPlan: null,
+  ready: { foods: false, plans: false, profile: false, app: false, weeks: false, months: false, trening: false },
+  section: 'kosthold', lastTab: {},
+  weeks: new Map(), months: new Map(), trening: null, weeksDirty: new Set(),
+  loggWeekNo: null, styrkeWeekNo: null,
+};
+
+/* =============================== helpers =============================== */
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const num = (v, d = 0) => (v === null || v === undefined || v === '' || Number.isNaN(Number(v))) ? d : Number(v);
+const parseNum = (s) => { const t = String(s ?? '').trim().replace(/\s/g, '').replace(',', '.'); if (t === '') return null; const n = Number(t); return Number.isFinite(n) ? n : null; };
+const fmt = (v, dec = 0) => num(v).toLocaleString('nb-NO', { minimumFractionDigits: dec, maximumFractionDigits: dec });
+const fmtSigned = (v, dec = 0) => (v > 0 ? '+' : '') + fmt(v, dec);
+const newId = (p) => p + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+const deepEq = (a, b) => JSON.stringify(a) === JSON.stringify(b);
+const clone = (o) => JSON.parse(JSON.stringify(o));
+const todayIso = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; };
+let toastT;
+function toast(msg) {
+  const r = $('toastRoot'); r.innerHTML = `<div class="toast">${esc(msg)}</div>`;
+  clearTimeout(toastT); toastT = setTimeout(() => { r.innerHTML = ''; }, 2400);
+}
+
+/* =============================== calculations =============================== */
+function profileCalc(p) {
+  const w = num(p.vekt), h = num(p.hoyde), a = num(p.alder);
+  const bmr = p.kjonn === 'kvinne' ? (10 * w) + (6.25 * h) - (5 * a) - 161 : (10 * w) + (6.25 * h) - (5 * a) + 5;
+  const af = num(p.aktivitetsfaktorer?.[num(p.aktivitet, 3) - 1]?.faktor, 1.4);
+  const mf = num(p.malfaktorer?.[p.mal], 1);
+  const vedlikehold = bmr * af;
+  const kcal = vedlikehold * mf;
+  // Protein from lean body mass: one continuous rule, no jump at any body-fat threshold.
+  const fettPct = Math.min(Math.max(num(p.fett), 0), 60);
+  const fettfri = w * (1 - fettPct / 100);
+  const gPerKg = p.mal === 'definere' ? 2.5 : 2.0;
+  const proteinMin = fettfri * gPerKg;
+  const proteinRegel = `Fettfri masse ${fmt(fettfri, 1)} kg × ${fmt(gPerKg, 1)} g per kg (${p.mal === 'definere' ? 'Definere' : 'Bygge/Vedlikeholde'}).`;
+  return { bmr, af, mf, vedlikehold, kcal, proteinMin, proteinRegel, karbMin: (kcal * 0.3) / 4, fettMin: (kcal * 0.2) / 9 };
+}
+// The carb and fat ceilings are dynamic remainders — same logic as the spreadsheet (Q7/Q8).
+function windows(t, intake) {
+  const P5 = t.kcal, P6 = t.proteinMin, P7 = t.karbMin, P8 = t.fettMin, O7 = intake.karb, O8 = intake.fett;
+  const karbMax = (O8 > P8 * 0.95 && O7 <= (P5 - P6 * 4 - P8 * 9) / 4) ? (P5 - P6 * 4 - O8 * 9) / 4 : (P5 - P6 * 4 - P8 * 9) / 4;
+  const fettMax = (O7 > P7 * 0.95 && O8 <= (P5 - P6 * 4 - P7 * 4) / 9) ? (P5 - P6 * 4 - O7 * 4) / 9 : (P5 - P6 * 4 - P7 * 4) / 9;
+  return { karbMax, fettMax };
+}
+const NKEYS = ['kj100', 'kcal100', 'karb100', 'protein100', 'fett100', 'fiber100'];
+const PLURAL = { stk: 'stk', skive: 'skiver', glass: 'glass', pakke: 'pakker', boks: 'bokser', pose: 'poser', porsjon: 'porsjoner',
+  måleskje: 'måleskjeer', teskje: 'teskjeer', spiseskje: 'spiseskjeer', terning: 'terninger', potet: 'poteter', lefse: 'lefser', egg: 'egg', flaske: 'flasker', kopp: 'kopper', brødskive: 'brødskiver', bit: 'biter' };
+function unitName(f, n) {
+  const base = (f?.enhet || '').trim() || (isRett(f) ? 'porsjon' : 'stk');
+  if (n === 1) return base;
+  const key = base.toLowerCase();
+  return PLURAL[key] || base;
+}
+const isRett = (f) => !!f && f.type === 'rett';
+// A dish ("rett") is the sum of its ingredients; one portion is the sum of their grams.
+// effectiveFood() turns either kind into the same shape: per-100 g values plus gramPerEnhet.
+function effectiveFood(f) {
+  if (!f) return null;
+  if (!isRett(f)) return f;
+  const tot = { kj100: 0, kcal100: 0, karb100: 0, protein100: 0, fett100: 0, fiber100: 0 };
+  let grams = 0;
+  for (const ing of f.ingredienser || []) {
+    const base = S.foods.get(ing.foodId); if (!base || isRett(base)) continue;
+    const g = num(ing.gram); grams += g;
+    for (const k of NKEYS) tot[k] += num(base[k]) / 100 * g;
+  }
+  const per100 = {};
+  for (const k of NKEYS) per100[k] = grams > 0 ? tot[k] / grams * 100 : 0;
+  return Object.assign({}, f, per100, { gramPerEnhet: grams, porsjon: tot });
+}
+function itemGrams(it, food) {
+  if (!food) return 0;
+  if (it.gram !== null && it.gram !== undefined && it.gram !== '') return num(it.gram);
+  if (!(num(food.gramPerEnhet) > 0)) return num(it.antall, 0);   // no unit weight: the number is grams
+  return num(food.gramPerEnhet) * num(it.antall, 1);
+}
+function itemNutrition(it) {
+  const raw = S.foods.get(it.foodId);
+  const f = effectiveFood(raw);
+  const g = itemGrams(it, f);
+  const k = (key) => f ? num(f[key]) / 100 * g : 0;
+  return { gram: g, kj: k('kj100'), kcal: k('kcal100'), karb: k('karb100'), protein: k('protein100'), fett: k('fett100'), fiber: k('fiber100'), food: f };
+}
+function sumItems(items) {
+  const s = { kj: 0, kcal: 0, karb: 0, protein: 0, fett: 0, fiber: 0 };
+  for (const it of items) { const n = itemNutrition(it); for (const key of Object.keys(s)) s[key] += n[key]; }
+  return s;
+}
+function planTotals(plan) {
+  const all = [];
+  for (const m of MEALS) all.push(...(plan?.meals?.[m.id] || []));
+  return sumItems(all);
+}
+
+/* =============================== db =============================== */
+let planWriteChain = Promise.resolve();
+let planSaveTimer = null;
+let planWriteInFlight = false;
+function queueWrite(fn) {
+  planWriteChain = planWriteChain.then(fn).catch((e) => { console.error(e); toast('Lagring feilet: ' + (e?.code || e?.message || e)); });
+  return planWriteChain;
+}
+function currentPlan() { return S.planId ? S.plans.get(S.planId) : null; }
+function savePlanSoon() {
+  const plan = currentPlan(); if (!plan) return;
+  clearTimeout(planSaveTimer);
+  planSaveTimer = setTimeout(() => { planSaveTimer = null; savePlanNow(); }, 450);
+}
+function savePlanNow() {
+  clearTimeout(planSaveTimer); planSaveTimer = null;
+  const plan = currentPlan(); if (!plan || !S.db) return;
+  const body = clone(plan); body.oppdatert = todayIso();
+  const id = S.planId;
+  planWriteInFlight = true;
+  queueWrite(() => S.db.doc('plans/' + id).set(body)).finally(() => { planWriteInFlight = false; });
+}
+function saveProfile() {
+  if (!S.db) return;
+  const body = clone(S.profile);
+  queueWrite(() => S.db.doc('settings/profile').set(body));
+}
+function saveApp() {
+  if (!S.db) return;
+  const body = clone(S.app);
+  queueWrite(() => S.db.doc('settings/app').set(body));
+}
+function saveFood(id, food) {
+  if (!S.db) { S.foods.set(id, food); renderAll(); return Promise.resolve(); }
+  return queueWrite(() => S.db.doc('foods/' + id).set(clone(food)));
+}
+function deleteFood(id) {
+  if (!S.db) { S.foods.delete(id); renderAll(); return Promise.resolve(); }
+  return queueWrite(() => S.db.doc('foods/' + id).delete());
+}
+
+async function connectDb() {
+  let db = null;
+  try { db = await window.claude?.use?.('db'); } catch (e) { db = null; }
+  S.db = db;
+  try { S.dl = await window.claude?.use?.('downloads'); } catch (e) { S.dl = null; }
+  if (!db) {
+    S.profile = clone(DEFAULT_PROFILE); S.trening = clone(DEFAULT_TRENING);
+    const n = $('dbNotice'); n.hidden = false; n.className = 'notice bad';
+    n.textContent = 'Ingen lagring er tilgjengelig i denne visningen. Endringer forsvinner når siden lukkes.';
+    for (const k of Object.keys(S.ready)) S.ready[k] = true;
+    renderAll();
+    return;
+  }
+  const onErr = (what) => (e) => { console.error(what, e); toast('Databasefeil (' + what + '): ' + e.code); };
+
+  db.doc('settings/profile').onSnapshot((snap) => {
+    S.profile = snap.exists ? Object.assign(clone(DEFAULT_PROFILE), clone(snap.data())) : clone(DEFAULT_PROFILE);
+    S.ready.profile = true; renderAll();
+  }, onErr('profil'));
+
+  db.doc('settings/app').onSnapshot((snap) => {
+    S.app = snap.exists ? Object.assign({ currentPlanId: null }, clone(snap.data())) : { currentPlanId: null };
+    applyTheme(S.app.tema || 'auto');
+    if (!S.planId || !S.plans.has(S.planId)) S.planId = S.app.currentPlanId;
+    S.ready.app = true; renderAll();
+  }, onErr('innstillinger'));
+
+  db.collection('foods').onSnapshot((snap) => {
+    S.foods = new Map(snap.docs.map((d) => [d.id, clone(d.data())]));
+    S.ready.foods = true; renderAll();
+  }, onErr('matvarer'));
+
+  db.doc('settings/trening').onSnapshot((snap) => {
+    S.trening = snap.exists ? Object.assign(clone(DEFAULT_TRENING), clone(snap.data())) : clone(DEFAULT_TRENING);
+    S.ready.trening = true; renderAll();
+  }, onErr('treningsinnstillinger'));
+
+  db.collection('weeks').onSnapshot((snap) => {
+    const incoming = new Map(snap.docs.map((d) => [d.id, clone(d.data())]));
+    for (const n of [...weekTimers.keys(), ...S.weeksDirty]) { const id = weekId(n); if (S.weeks.has(id)) incoming.set(id, S.weeks.get(id)); }
+    S.weeks = incoming; S.ready.weeks = true; renderAll();
+  }, onErr('uker'));
+
+  db.collection('months').onSnapshot((snap) => {
+    S.months = new Map(snap.docs.map((d) => [d.id, clone(d.data())]));
+    S.ready.months = true; renderAll();
+  }, onErr('månedsmål'));
+
+  db.collection('inventory').onSnapshot((snap) => {
+    S.inv = new Map(snap.docs.map((d) => [d.id, clone(d.data())]));
+    renderAll();
+  }, onErr('lager'));
+
+  db.collection('meals').onSnapshot((snap) => {
+    S.meals = new Map(snap.docs.map((d) => [d.id, clone(d.data())]));
+    renderAll();
+  }, onErr('måltider'));
+
+  db.collection('plans').onSnapshot((snap) => {
+    const incoming = new Map(snap.docs.map((d) => [d.id, clone(d.data())]));
+    // keep our own unsaved or in-flight edits to the current plan from being clobbered by an echo of an older version
+    const cur = currentPlan();
+    if (cur && incoming.has(S.planId) && (planSaveTimer || planWriteInFlight)) incoming.set(S.planId, cur);
+    S.plans = incoming;
+    if (!S.planId || !S.plans.has(S.planId)) {
+      S.planId = (S.app.currentPlanId && S.plans.has(S.app.currentPlanId)) ? S.app.currentPlanId : (S.plans.keys().next().value || null);
+    }
+    S.ready.plans = true; renderAll();
+  }, onErr('dagsplaner'));
+}
+
+/* =============================== render: shell =============================== */
+function setTab(tab) {
+  S.tab = tab;
+  if (tab !== 'profile') S.lastTab[S.section] = tab;
+  for (const b of document.querySelectorAll('nav.tabs button')) b.classList.toggle('on', b.dataset.tab === tab);
+  $('profileBtn').classList.toggle('on', tab === 'profile');
+  for (const v of ['plan', 'lager', 'foods', 'profile', 'logg', 'styrke', 'dagbok', 'maal']) $('view-' + v).hidden = tab !== v;
+  try { localStorage.setItem('forge.nav', JSON.stringify({ section: S.section, tab })); } catch (e) { /* ignore */ }
+  window.scrollTo({ top: 0 });
+  renderAll();
+}
+// Every database snapshot asks for a render. Coalesce them into one per frame, and only
+// rebuild the view that is actually on screen — rebuilding everything on every echo made
+// the page stall on phones.
+let renderQueued = false;
+function renderAll() {
+  if (renderQueued) return;
+  renderQueued = true;
+  requestAnimationFrame(() => { renderQueued = false; renderNow(); });
+}
+function renderNow() {
+  if (!S.profile || !S.trening) return;
+  renderStatus();
+  try {
+    if (S.tab === 'plan') renderPlan();
+    else if (S.tab === 'foods') renderFoods();
+    else if (S.tab === 'lager') renderInventory();
+    else if (S.tab === 'profile') renderProfile();
+    else renderTrening();
+  } catch (e) { console.error(e); toast('Visningsfeil: ' + (e?.message || e)); }
+}
+
+/* =============================== render: plan =============================== */
+function renderBudget() {
+  const plan = currentPlan();
+  const t = profileCalc(S.profile);
+  const tot = plan ? planTotals(plan) : { kj: 0, kcal: 0, karb: 0, protein: 0, fett: 0, fiber: 0 };
+  const w = windows(t, tot);
+  const rows = [];
+
+  // kalorier
+  {
+    const diff = tot.kcal - t.kcal;
+    const pct = Math.min(100, t.kcal > 0 ? tot.kcal / t.kcal * 100 : 0);
+    let cls = 'ok', txt = fmt(Math.abs(diff)) + (diff <= 0 ? ' igjen' : ' over');
+    if (diff > 25) cls = 'bad'; else if (diff > 0) cls = 'warn';
+    rows.push(`<div class="gauge">
+      <div class="gauge-row"><span class="gauge-label">Kalorier</span>
+        <span class="gauge-nums"><span class="gauge-val key">${fmt(tot.kcal)}</span><span class="gauge-target">av ${fmt(t.kcal)} kcal</span></span></div>
+      <div class="bar"><div class="bar-fill ${cls}" style="width:${pct}%"></div><div class="tick" style="left:calc(100% - 1px)"></div></div>
+      <div class="gauge-row"><span class="gauge-status ${cls}">${txt}</span><span class="gauge-target">${fmt(tot.kj)} kJ</span></div>
+    </div>`);
+  }
+  // protein (minimum)
+  {
+    const diff = tot.protein - t.proteinMin;
+    const scale = Math.max(t.proteinMin * 1.25, 1);
+    const pct = Math.min(100, tot.protein / scale * 100);
+    const cls = diff >= 0 ? 'ok' : (diff > -10 ? 'warn' : 'bad');
+    const txt = diff >= 0 ? fmtSigned(diff) + ' g over minimum' : fmt(Math.abs(diff)) + ' g under minimum';
+    rows.push(`<div class="gauge">
+      <div class="gauge-row"><span class="gauge-label">Protein</span>
+        <span class="gauge-nums"><span class="gauge-val">${fmt(tot.protein)} g</span><span class="gauge-target">min ${fmt(t.proteinMin)} g</span></span></div>
+      <div class="bar"><div class="bar-fill ${cls}" style="width:${pct}%"></div><div class="tick" style="left:${t.proteinMin / scale * 100}%"></div></div>
+      <div class="gauge-row"><span class="gauge-status ${cls}">${txt}</span></div>
+    </div>`);
+  }
+  // karbohydrater (window)
+  rows.push(gaugeWindow('Karbohydrater', tot.karb, t.karbMin, w.karbMax));
+  // fett (window)
+  rows.push(gaugeWindow('Fett', tot.fett, t.fettMin, w.fettMax));
+  // fiber (tracked)
+  rows.push(`<div class="gauge small"><div class="gauge-row"><span class="gauge-label">Fiber</span>
+    <span class="gauge-nums"><span class="gauge-val">${fmt(tot.fiber, 1)} g</span><span class="gauge-target">ingen mål</span></span></div></div>`);
+
+  const host = $('budget');
+  const prevW = [...host.querySelectorAll('.bar-fill')].map((el) => el.style.width);
+  host.innerHTML = `<h2>Dagens budsjett</h2>${rows.join('')}`;
+  // grow each bar from where it was (from zero on first load), so a change reads as movement
+  const fills = [...host.querySelectorAll('.bar-fill')];
+  fills.forEach((el, i) => { el.dataset.w = el.style.width; el.style.width = prevW[i] || '0%'; });
+  void host.offsetWidth;
+  fills.forEach((el) => { el.style.width = el.dataset.w; });
+}
+function gaugeWindow(label, val, min, max) {
+  const tight = max < min;
+  if (tight) max = min;
+  const scale = Math.max(max * 1.15, val * 1.05, 1);
+  const pct = Math.min(100, val / scale * 100);
+  let cls, txt;
+  if (val < min) { cls = val < min * 0.9 ? 'bad' : 'warn'; txt = fmt(min - val) + ' g under minimum'; }
+  else if (val > max) { cls = val > max + 5 ? 'bad' : 'warn'; txt = fmt(val - max) + ' g over maks'; }
+  else { cls = 'ok'; txt = 'innenfor'; }
+  if (tight) txt += ' · budsjettet gir ikke rom over minimum';
+  return `<div class="gauge">
+    <div class="gauge-row"><span class="gauge-label">${label}</span>
+      <span class="gauge-nums"><span class="gauge-val">${fmt(val)} g</span><span class="gauge-target">${fmt(min)}–${fmt(max)} g</span></span></div>
+    <div class="bar">
+      <div class="window" style="left:${min / scale * 100}%;width:${Math.max(0, (max - min) / scale * 100)}%"></div>
+      <div class="bar-fill ${cls}" style="width:${pct}%"></div>
+      <div class="tick" style="left:${min / scale * 100}%"></div><div class="tick max" style="left:${max / scale * 100}%"></div>
+    </div>
+    <div class="gauge-row"><span class="gauge-status ${cls}">${txt}</span></div>
+  </div>`;
+}
+
+function renderPlan() {
+  const plan = currentPlan();
+  const loading = !(S.ready.plans && S.ready.foods && S.ready.app);
+  $('planName').textContent = loading ? 'Laster …' : (plan ? plan.navn : 'Ingen dagsplan');
+  $('planMeta').textContent = plan?.oppdatert ? 'endret ' + plan.oppdatert : '';
+  renderBudget();
+
+  const host = $('meals');
+  if (!plan) {
+    host.innerHTML = loading ? '' : `<div class="empty">Ingen dagsplan ennå. <button class="link-btn" id="firstPlanBtn">Lag den første</button></div>`;
+    $('firstPlanBtn')?.addEventListener('click', () => newPlan());
+    return;
+  }
+  // Skip a full rebuild while the user is typing in an amount field and the data hasn't changed underneath.
+  const active = document.activeElement;
+  if (active && host.contains(active) && host.dataset.planJson === JSON.stringify(plan.meals)) { refreshSavedLabels(); return; }
+  host.dataset.planJson = JSON.stringify(plan.meals);
+
+  const parts = [];
+  const dayItems = []; for (const m of MEALS) dayItems.push(...(plan.meals?.[m.id] || []));
+  const dayNeed = invTracked() ? needsFor(dayItems) : null;
+  for (const m of MEALS) {
+    const items = plan.meals?.[m.id] || [];
+    const sum = sumItems(items);
+    const rows = items.map((it, i) => {
+      const n = itemNutrition(it);
+      const f = n.food;
+      const byGram = it.gram !== null && it.gram !== undefined && it.gram !== '';
+      const canToggle = f && num(f.gramPerEnhet) > 0;
+      const meta = f ? (byGram ? `${fmt(n.protein)} g protein` : `${fmt(it.antall, 2).replace(/,?0+$/, '')} ${unitName(f, num(it.antall))} · ${fmt(n.gram)} g · ${fmt(n.protein)} g protein`) : 'matvaren finnes ikke lenger';
+      const unitBtn = canToggle
+        ? `<button class="unit toggle" data-act="toggle" data-meal="${m.id}" data-i="${i}" title="Bytt mellom ${esc(unitName(f, 1))} og gram">${byGram ? 'g' : esc(unitName(f, 1))}</button>`
+        : `<span class="unit">g</span>`;
+      return `<div class="item">
+        <div class="item-name"><span class="n">${(() => { const s2 = dayNeed && itemStock(it, dayNeed); return s2 ? `<span class="inv ${s2.st}" title="${esc(s2.title)}" aria-label="${esc(s2.title)}">${s2.st === 'ok' ? '✓' : s2.st === 'low' ? '!' : '✗'}</span>` : ''; })()}${esc(f?.navn || it.foodId)}</span><span class="m">${meta}</span></div>
+        <div class="amount"><input type="text" inputmode="decimal" aria-label="Mengde" data-act="amount" data-meal="${m.id}" data-i="${i}" value="${byGram ? fmt(it.gram, 0) : fmt(it.antall, 2).replace(/,?0+$/, '')}">${unitBtn}</div>
+        <div class="item-kcal">${fmt(n.kcal)}</div>
+        <button class="icon-btn" data-act="remove" data-meal="${m.id}" data-i="${i}" aria-label="Fjern">×</button>
+      </div>`;
+    }).join('');
+    parts.push(`<section class="meal">
+      <div class="meal-head"><h3>${m.navn}<span class="saved" data-saved="${m.id}"></span></h3><span class="kcal">${fmt(sum.kcal)}<small>kcal · ${fmt(sum.protein)} g protein</small></span></div>
+      ${rows}
+      <div class="add-row"><button class="link-btn" data-act="add" data-meal="${m.id}">+ Legg til matvare</button>
+        <span class="tools"><button class="link-btn" data-act="swap" data-meal="${m.id}">Bytt måltid</button>${items.length ? `<button class="link-btn" data-act="savemeal" data-meal="${m.id}">Lagre</button>` : ''}</span></div>
+    </section>`);
+  }
+  if (invTracked()) parts.push(`<div class="day-actions"><button class="btn small" id="subtractDayBtn">Trekk dagens plan fra lageret</button></div>`);
+  host.innerHTML = parts.join('');
+  $('subtractDayBtn')?.addEventListener('click', subtractDay);
+  refreshSavedLabels();
+}
+// Under each meal heading: the name of the saved meal it matches, if any. Kept separate so it
+// stays right while amounts are being typed (when the meal list itself isn't rebuilt).
+function refreshSavedLabels() {
+  const plan = currentPlan(); if (!plan) return;
+  for (const el of document.querySelectorAll('#meals [data-saved]')) {
+    const items = plan.meals?.[el.dataset.saved] || [];
+    const sm = matchSavedMeal(items);
+    const base = sm ? null : baseSavedMeal(items, el.dataset.saved);
+    el.textContent = sm ? sm.navn : base ? base[1].navn + ' (justert)' : '';
+    el.hidden = !sm && !base;
+  }
+}
+
+// One delegated handler for the whole plan area.
+$('meals').addEventListener('click', (e) => {
+  const b = e.target.closest('button[data-act]'); if (!b) return;
+  const plan = currentPlan(); if (!plan) return;
+  const meal = b.dataset.meal, i = Number(b.dataset.i);
+  if (b.dataset.act === 'add') { openFoodPicker(meal); return; }
+  if (b.dataset.act === 'swap') { openMealSwap(meal); return; }
+  if (b.dataset.act === 'savemeal') { saveCurrentAsMeal(meal); return; }
+  const items = plan.meals[meal] || (plan.meals[meal] = []);
+  const it = items[i]; if (!it) return;
+  if (b.dataset.act === 'remove') { items.splice(i, 1); }
+  else if (b.dataset.act === 'toggle') {
+    const f = effectiveFood(S.foods.get(it.foodId));
+    const byGram = it.gram !== null && it.gram !== undefined && it.gram !== '';
+    if (byGram) { it.antall = Math.round(num(it.gram) / num(f.gramPerEnhet, 1) * 100) / 100; it.gram = null; }
+    else { it.gram = Math.round(num(it.antall, 1) * num(f.gramPerEnhet)); it.antall = null; }
+  }
+  savePlanSoon(); renderPlan();
+});
+$('meals').addEventListener('input', (e) => {
+  const inp = e.target.closest('input[data-act="amount"]'); if (!inp) return;
+  const plan = currentPlan(); if (!plan) return;
+  const it = plan.meals?.[inp.dataset.meal]?.[Number(inp.dataset.i)]; if (!it) return;
+  const v = parseNum(inp.value); if (v === null) return;
+  const byGram = it.gram !== null && it.gram !== undefined && it.gram !== '';
+  if (byGram) it.gram = v; else it.antall = v;
+  // targeted update: this row's kcal + meta, the meal header, and the budget
+  const n = itemNutrition(it);
+  const row = inp.closest('.item');
+  row.querySelector('.item-kcal').textContent = fmt(n.kcal);
+  row.querySelector('.m').textContent = byGram ? `${fmt(n.protein)} g protein` : `${fmt(v, 2).replace(/,?0+$/, '')} ${unitName(n.food, v)} · ${fmt(n.gram)} g · ${fmt(n.protein)} g protein`;
+  const sum = sumItems(plan.meals[inp.dataset.meal]);
+  row.closest('.meal').querySelector('.meal-head .kcal').innerHTML = `${fmt(sum.kcal)}<small>kcal · ${fmt(sum.protein)} g protein</small>`;
+  $('meals').dataset.planJson = JSON.stringify(plan.meals);
+  refreshSavedLabels();
+  renderBudget();
+  savePlanSoon();
+});
+$('meals').addEventListener('change', (e) => {
+  const inp = e.target.closest('input[data-act="amount"]'); if (!inp) return;
+  const v = parseNum(inp.value); if (v === null) { renderPlan(); return; }
+  inp.value = fmt(v, 2).replace(/,?0+$/, '');
+});
+
+/* =============================== plans: sheet =============================== */
+$('planNameBtn').addEventListener('click', openPlanSheet);
+function openPlanSheet() {
+  const plan = currentPlan();
+  const list = [...S.plans.entries()].sort((a, b) => (b[1].opprettet || '').localeCompare(a[1].opprettet || ''));
+  const body = `
+    ${plan ? `<div class="stack" style="margin-bottom:14px">
+      <label class="f">Navn på denne dagsplanen<input id="planRename" value="${esc(plan.navn)}"></label>
+      <div class="row">
+        <button class="btn small" id="planDup">Dupliser</button>
+        ${S.app.currentPlanId === S.planId ? '' : '<button class="btn small" id="planSetCur">Sett som gjeldende</button>'}
+        <button class="btn small danger" id="planDel">Slett</button>
+      </div>
+    </div>` : ''}
+    <div class="row between"><span class="help">Alle dagsplaner</span><button class="btn small" id="planNew">Ny tom dagsplan</button></div>
+    <div class="plan-list">${list.map(([id, p]) => `<button data-open="${id}"><span>${esc(p.navn)}<br><span class="help">${p.opprettet || ''}</span></span>${id === S.app.currentPlanId ? '<span class="cur">gjeldende</span>' : ''}</button>`).join('')}</div>`;
+  const sh = openSheet('Dagsplaner', body, `<button class="btn" data-close>Lukk</button>`);
+  sh.querySelector('#planNew')?.addEventListener('click', () => { closeSheet(); newPlan(); });
+  sh.querySelector('#planDup')?.addEventListener('click', () => { closeSheet(); duplicatePlan(); });
+  sh.querySelector('#planSetCur')?.addEventListener('click', () => { S.app.currentPlanId = S.planId; saveApp(); closeSheet(); toast('Satt som gjeldende'); renderPlan(); });
+  sh.querySelector('#planDel')?.addEventListener('click', async () => {
+    if (!(await askConfirm('Slett dagsplan', `Slette «${plan.navn}»?`))) return;
+    const id = S.planId;
+    S.plans.delete(id);
+    if (S.db) queueWrite(() => S.db.doc('plans/' + id).delete());
+    if (S.app.currentPlanId === id) { S.app.currentPlanId = S.plans.keys().next().value || null; saveApp(); }
+    S.planId = S.app.currentPlanId || S.plans.keys().next().value || null;
+    closeSheet(); renderPlan();
+  });
+  sh.querySelector('#planRename')?.addEventListener('change', (e) => { plan.navn = e.target.value.trim() || plan.navn; savePlanNow(); renderPlan(); });
+  for (const b of sh.querySelectorAll('button[data-open]')) b.addEventListener('click', () => { S.planId = b.dataset.open; closeSheet(); renderPlan(); });
+}
+function emptyMeals() { const m = {}; for (const x of MEALS) m[x.id] = []; return m; }
+function createPlan(navn, meals) {
+  const id = newId('p');
+  const plan = { navn, opprettet: todayIso(), oppdatert: todayIso(), meals };
+  S.plans.set(id, plan); S.planId = id;
+  if (S.db) queueWrite(() => S.db.doc('plans/' + id).set(clone(plan)));
+  if (!S.app.currentPlanId) { S.app.currentPlanId = id; saveApp(); }
+  renderPlan();
+  return id;
+}
+async function newPlan() {
+  const navn = await askText('Ny dagsplan', 'Navn på dagsplanen', 'Uke ' + isoWeek(new Date()), 'Lag');
+  if (navn === null) return;
+  createPlan(navn.trim() || 'Ny dagsplan', emptyMeals());
+}
+async function duplicatePlan() {
+  const plan = currentPlan(); if (!plan) return;
+  const navn = await askText('Dupliser dagsplan', 'Navn på kopien', plan.navn + ' (kopi)', 'Lag kopi');
+  if (navn === null) return;
+  createPlan(navn.trim() || plan.navn + ' (kopi)', clone(plan.meals));
+}
+function isoWeek(d) {
+  const t = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+  const day = t.getUTCDay() || 7; t.setUTCDate(t.getUTCDate() + 4 - day);
+  const y0 = new Date(Date.UTC(t.getUTCFullYear(), 0, 1));
+  return Math.ceil((((t - y0) / 86400000) + 1) / 7);
+}
+
+/* =============================== saved meals =============================== */
+// A saved meal is a reusable set of foods for one slot (a breakfast, a lunch ...), stored in the
+// `meals` collection. Picking one copies its foods into the day plan, so adjusting amounts in the
+// plan never changes the saved meal. Saving again under the same name updates it.
+const itemKey = (items) => JSON.stringify((items || []).map((it) => [it.foodId, it.antall ?? null, it.gram ?? null]));
+function matchSavedMeal(items) {
+  if (!items || !items.length) return null;
+  const k = itemKey(items);
+  for (const m of S.meals.values()) if (itemKey(m.items) === k) return m;
+  return null;
+}
+// The saved meal that has the same foods as `items` but different amounts: an adjusted version of it.
+// Prefers one saved for the same slot.
+const foodSetKey = (items) => (items || []).map((it) => it.foodId).sort().join('|');
+function baseSavedMeal(items, slot) {
+  if (!items || !items.length) return null;
+  const k = foodSetKey(items);
+  const hits = [...S.meals.entries()].filter(([, m]) => foodSetKey(m.items) === k);
+  return hits.find(([, m]) => m.slot === slot) || hits[0] || null;
+}
+function mealSummary(items) {
+  return (items || []).map((it) => S.foods.get(it.foodId)?.navn || it.foodId).join(', ');
+}
+function saveMealDoc(id, meal) {
+  S.meals.set(id, meal);
+  if (S.db) queueWrite(() => S.db.doc('meals/' + id).set(clone(meal)));
+}
+async function saveCurrentAsMeal(slot) {
+  const plan = currentPlan(); if (!plan) return;
+  const items = plan.meals[slot] || []; if (!items.length) return;
+  const slotName = MEALS.find((m) => m.id === slot).navn;
+  const already = matchSavedMeal(items);
+  if (already) { toast(`Allerede lagret som «${already.navn}»`); return; }
+  const navn = await askText('Lagre ' + slotName.toLowerCase(), 'Navn på måltidet', '');
+  if (!navn) return;
+  const same = [...S.meals.entries()].find(([, m]) => m.slot === slot && m.navn.toLowerCase() === navn.toLowerCase());
+  if (same && !(await askConfirm('Erstatte måltid?', `«${same[1].navn}» finnes allerede. Erstatte det med det som står i planen nå?`, 'Erstatt', false))) return;
+  const id = same ? same[0] : newId('m');
+  const finalName = same ? same[1].navn : navn;
+  saveMealDoc(id, { navn: finalName, slot, items: clone(items), opprettet: same?.[1].opprettet || todayIso(), oppdatert: todayIso() });
+  renderPlan(); toast((same ? 'Oppdaterte «' : 'Lagret som «') + finalName + '»');
+}
+function openMealSwap(slot) {
+  const plan = currentPlan(); if (!plan) return;
+  const slotName = MEALS.find((m) => m.id === slot).navn;
+  const items = plan.meals[slot] || [];
+  const unsaved = items.length && !matchSavedMeal(items);
+  const base = unsaved ? baseSavedMeal(items, slot) : null;
+  const row = ([id, m]) => {
+    const t = sumItems(m.items || []);
+    const cur = itemKey(m.items) === itemKey(items);
+    const can = invTracked() && canMakeMeal(m.items);
+    return `<div class="row-wrap"><button class="pickmeal ${cur ? 'cur' : ''}" data-meal-id="${id}"><span><span class="n">${esc(m.navn)}</span>${can ? '<span class="can-make">✓ alt hjemme</span>' : ''}<span class="m">${esc(mealSummary(m.items))}</span></span>
+      <span class="k">${fmt(t.kcal)} <small>kcal · ${fmt(t.protein)} g prot</small></span></button>
+      <button class="icon-btn" data-del-meal="${id}" aria-label="Slett ${esc(m.navn)}">×</button></div>`;
+  };
+  const canOf = (m) => (invTracked() && canMakeMeal(m.items) ? 0 : 1);
+  const sorted = [...S.meals.entries()].sort((a, b) => canOf(a[1]) - canOf(b[1]) || a[1].navn.localeCompare(b[1].navn, 'nb'));
+  const own = sorted.filter(([, m]) => m.slot === slot), other = sorted.filter(([, m]) => m.slot !== slot);
+  const draw = () => `
+    ${base ? `<div class="unsaved"><span>Justert versjon av «${esc(base[1].navn)}» – endringene forsvinner hvis du bytter.</span>
+        <span class="row" style="gap:6px;flex-wrap:nowrap"><button class="btn small" id="updateBase">Oppdater «${esc(base[1].navn)}»</button><button class="btn small" id="saveFirst">Lagre som ny</button></span></div>`
+      : unsaved ? `<div class="unsaved"><span>${slotName} i planen nå er ikke lagret og forsvinner hvis du bytter.</span><button class="btn small" id="saveFirst">Lagre først</button></div>` : ''}
+    <div class="mlist">
+      ${own.length ? own.map(row).join('') : `<div class="empty">Ingen lagrede måltider for ${slotName.toLowerCase()} ennå. Sett sammen et i planen og trykk «Lagre».</div>`}
+      ${other.length ? `<details class="others"><summary>Fra andre måltider <span>(${other.length})</span></summary>${other.map(row).join('')}</details>` : ''}
+    </div>`;
+  const sh = openSheet('Bytt ' + slotName.toLowerCase(), draw(), `<button class="btn" data-close>Lukk</button>`);
+  sh.querySelector('#saveFirst')?.addEventListener('click', () => { closeSheet(); saveCurrentAsMeal(slot); });
+  sh.querySelector('#updateBase')?.addEventListener('click', () => {
+    const [bid, bm] = base;
+    saveMealDoc(bid, Object.assign({}, bm, { items: clone(items), oppdatert: todayIso() }));
+    renderPlan(); openMealSwap(slot);
+    toast(`Oppdaterte «${bm.navn}»`);
+  });
+  sh.querySelector('.mlist').addEventListener('click', async (e) => {
+    const del = e.target.closest('button[data-del-meal]');
+    if (del) {
+      const mid = del.dataset.delMeal; const m = S.meals.get(mid); if (!m) return;
+      const yes = await askConfirm('Slett måltid', `Slette det lagrede måltidet «${m.navn}»? Dagsplanene påvirkes ikke.`);
+      if (yes) { S.meals.delete(mid); if (S.db) queueWrite(() => S.db.doc('meals/' + mid).delete()); renderPlan(); }
+      openMealSwap(slot); return;
+    }
+    const b = e.target.closest('button[data-meal-id]'); if (!b) return;
+    const m = S.meals.get(b.dataset.mealId); if (!m) return;
+    plan.meals[slot] = clone(m.items || []);
+    closeSheet(); savePlanNow(); renderPlan();
+    toast(`${slotName}: ${m.navn}`);
+  });
+}
+
+/* =============================== food picker =============================== */
+function foodsSorted() {
+  return [...S.foods.entries()].sort((a, b) => (a[1].kategori || '').localeCompare(b[1].kategori || '', 'nb') || (a[1].navn || '').localeCompare(b[1].navn || '', 'nb'));
+}
+function categories() { return [...new Set([...S.foods.values()].map((f) => f.kategori).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'nb')); }
+function openFoodPicker(mealId) {
+  const meal = MEALS.find((m) => m.id === mealId);
+  pickFood({ title: 'Legg til i ' + meal.navn, onPick: (id, f) => {
+    const plan = currentPlan(); if (!plan) return;
+    const ef = effectiveFood(f);
+    const items = plan.meals[mealId] || (plan.meals[mealId] = []);
+    items.push(num(ef.gramPerEnhet) > 0 ? { foodId: id, antall: 1, gram: null } : { foodId: id, antall: null, gram: 100 });
+    savePlanSoon(); renderPlan();
+    toast('La til ' + f.navn);
+  } });
+}
+// Generic picker: { title, onPick(id, food), filter(id, food) }
+function pickFood(opts) {
+  const body = `<input class="search" id="pickSearch" type="search" placeholder="Søk" autocomplete="off">
+    <div class="chips" id="pickChips"></div><div id="pickList"></div>`;
+  const sh = openSheet(opts.title, body, `<button class="btn ${opts.keepOpen ? 'primary' : ''}" data-close>${opts.keepOpen ? 'Ferdig' : 'Avbryt'}</button>`);
+  let q = '', cat = '';
+  const draw = () => {
+    sh.querySelector('#pickChips').innerHTML = ['', ...categories()].map((c) => `<button class="chip ${c === cat ? 'on' : ''}" data-cat="${esc(c)}">${c || 'Alle'}</button>`).join('');
+    const ql = q.toLowerCase();
+    const list = foodsSorted().filter(([id, f]) => (!opts.filter || opts.filter(id, f)) && (!cat || f.kategori === cat) && (!ql || (f.navn || '').toLowerCase().includes(ql)));
+    sh.querySelector('#pickList').innerHTML = list.length ? list.map(([id, f]) => foodRow(id, f, 'pick', opts.isPicked && opts.isPicked(id))).join('') : '<div class="empty">Ingen treff.</div>';
+  };
+  sh.querySelector('#pickSearch').addEventListener('input', (e) => { q = e.target.value; draw(); });
+  sh.querySelector('#pickChips').addEventListener('click', (e) => { const c = e.target.closest('.chip'); if (!c) return; cat = c.dataset.cat; draw(); });
+  sh.querySelector('#pickList').addEventListener('click', (e) => {
+    const b = e.target.closest('button[data-pick]'); if (!b) return;
+    const f = S.foods.get(b.dataset.pick); if (!f) return;
+    if (opts.keepOpen) { opts.onPick(b.dataset.pick, f); b.classList.add('picked'); return; }
+    closeSheet();
+    opts.onPick(b.dataset.pick, f);
+  });
+  draw();
+  if (hasFinePointer()) setTimeout(() => sh.querySelector('#pickSearch')?.focus(), 50);
+}
+function foodRow(id, raw, mode, picked) {
+  const f = effectiveFood(raw);
+  const unit = isRett(raw) ? `rett · ${fmt(f.gramPerEnhet)} g per ${esc(unitName(raw, 1))}` : (num(f.gramPerEnhet) > 0 ? `${fmt(f.gramPerEnhet)} g per ${esc(unitName(raw, 1))}` : 'veies i gram');
+  const attr = mode === 'pick' ? `data-pick="${id}"` : `data-edit="${id}"`;
+  const r = S.inv.get(id); const home = r && (r.basis || num(r.mengde) > 0);
+  return `<button class="food ${picked ? 'picked' : ''}" ${attr}><span><span class="n">${esc(f.navn)}${home && mode !== 'pick' ? '<span class="home-tag">hjemme</span>' : ''}</span><span class="m">${esc(f.kategori)} · ${unit}${f.kommentar ? ' · ' + esc(f.kommentar) : ''}</span></span>
+    <span class="k">${fmt(f.kcal100)} <small>kcal · ${fmt(f.protein100)} g prot /100 g</small></span></button>`;
+}
+
+/* =============================== lager (inventory) =============================== */
+// What's at home: one document per food in the `inventory` collection, id = the food's id.
+//   { mengde: grams, sted: 'kjoleskap' | 'fryser' | 'skap', basis: bool, oppdatert }
+// Amounts are kept in grams and shown in the food's own unit where it has one (pakker, bokser,
+// skiver ...). "Basisvarer" (salt, tran, smør ...) are always counted as in stock and never drawn down.
+const STEDER = [{ id: 'kjoleskap', navn: 'Kjøleskap' }, { id: 'fryser', navn: 'Fryser' }, { id: 'skap', navn: 'Skap' }];
+function defaultSted(f) {
+  const k = (f?.kategori || '').toLowerCase();
+  if (k.includes('ferdigmat')) return 'fryser';
+  if (k.includes('karbohydrat') || k.includes('kosttilskudd') || k.includes('tilbehør') || k.includes('ingrediens') || k.includes('godteri')) return 'skap';
+  return 'kjoleskap';
+}
+const invTracked = () => S.inv.size > 0;
+function saveInv(id, rec) {
+  rec.oppdatert = todayIso();
+  S.inv.set(id, rec);
+  if (S.db) queueWrite(() => S.db.doc('inventory/' + id).set(clone(rec)));
+}
+function deleteInv(id) { S.inv.delete(id); if (S.db) queueWrite(() => S.db.doc('inventory/' + id).delete()); }
+function fmtAmount(f, g) {
+  const gpe = num(f?.gramPerEnhet);
+  if (gpe > 0) { const u = Math.round(g / gpe * 10) / 10; return `${fmt(u, u % 1 ? 1 : 0)} ${unitName(f, u)}`; }
+  return g >= 1000 ? `${fmt(g / 1000, 2).replace(/,?0+$/, '')} kg` : `${fmt(g)} g`;
+}
+// Grams of each base food that a list of plan items needs. Dishes are expanded into their ingredients.
+function needsFor(items) {
+  const need = new Map();
+  const add = (id, g) => need.set(id, (need.get(id) || 0) + g);
+  for (const it of items || []) {
+    const raw = S.foods.get(it.foodId); if (!raw) continue;
+    if (isRett(raw)) {
+      const ef = effectiveFood(raw); const total = num(ef.gramPerEnhet); const g = itemGrams(it, ef);
+      const factor = total > 0 ? g / total : 0;
+      for (const ing of raw.ingredienser || []) add(ing.foodId, num(ing.gram) * factor);
+    } else add(it.foodId, itemGrams(it, raw));
+  }
+  return need;
+}
+// 'ok' | 'low' | 'miss' for one food against how much is needed.
+function stockStatus(id, needG) {
+  const rec = S.inv.get(id);
+  if (!rec) return 'miss';
+  if (rec.basis) return 'ok';
+  const have = num(rec.mengde);
+  if (have + 0.5 >= needG) return 'ok';
+  return have > 0 ? 'low' : 'miss';
+}
+const WORST = { ok: 0, low: 1, miss: 2 };
+function itemStock(it, dayNeed) {
+  const raw = S.foods.get(it.foodId); if (!raw) return null;
+  const ids = isRett(raw) ? (raw.ingredienser || []).map((x) => x.foodId) : [it.foodId];
+  let worst = 'ok', worstId = ids[0];
+  for (const id of ids) { const st = stockStatus(id, dayNeed.get(id) || 0); if (WORST[st] > WORST[worst]) { worst = st; worstId = id; } }
+  const f = S.foods.get(worstId); const rec = S.inv.get(worstId);
+  const title = worst === 'ok' ? 'Nok hjemme'
+    : worst === 'low' ? `${isRett(raw) ? f?.navn + ': ' : ''}har ${fmtAmount(f, num(rec?.mengde))}, dagen trenger ${fmtAmount(f, dayNeed.get(worstId) || 0)}`
+    : `${isRett(raw) ? f?.navn + ' ' : ''}ikke hjemme`;
+  return { st: worst, title };
+}
+function canMakeMeal(items) { const need = needsFor(items); for (const [id, g] of need) if (stockStatus(id, g) !== 'ok') return false; return need.size > 0; }
+
+$('invAddBtn').addEventListener('click', () => openInvAdd());
+const INV_GRAM = new Set(); // rows the user has switched to grams by tapping the unit
+function renderInventory() {
+  const host = $('invList');
+  const ae = document.activeElement;
+  if (ae && ae.tagName === 'INPUT' && host.contains(ae)) return; // don't rebuild under a typing finger
+  const entries = [...S.inv.entries()].filter(([id]) => S.foods.has(id));
+  $('invSub').textContent = entries.length ? `${entries.filter(([, r]) => r.basis || num(r.mengde) > 0).length} varer hjemme. Trykk på et navn for sted, basisvare eller fjerning. Trykk på enheten (f.eks. «stk» eller «poser») for å skrive inn gram i stedet.` : '';
+  if (!entries.length) { host.innerHTML = `<div class="empty">Lageret er tomt. Trykk «Legg til» og kryss av det du har hjemme.</div>`; return; }
+  host.innerHTML = STEDER.map((st) => {
+    const rows = entries.filter(([, r]) => (r.sted || 'kjoleskap') === st.id)
+      .sort((a, b) => (S.foods.get(a[0]).navn || '').localeCompare(S.foods.get(b[0]).navn || '', 'nb'));
+    if (!rows.length) return '';
+    return `<div class="inv-group"><h4><span>${st.navn}</span><span>${rows.length}</span></h4>${rows.map(([id, r]) => invRow(id, r)).join('')}</div>`;
+  }).join('');
+}
+function invRow(id, r) {
+  const f = S.foods.get(id); const gpe = num(f.gramPerEnhet);
+  const inG = !(gpe > 0) || INV_GRAM.has(id); // this row shown in grams (tap the unit to switch)
+  const g = num(r.mengde); const val = inG ? Math.round(g) : Math.round(g / gpe * 10) / 10;
+  const meta = r.basis ? 'basisvare' : gpe > 0 ? `${fmt(g)} g · ${fmt(gpe)} g per ${esc(unitName(f, 1))}` : (f.kategori || '');
+  const ctl = r.basis ? `<span class="basis-tag">alltid hjemme</span>`
+    : `<div class="stepper"><button data-inv-step="-1" data-id="${id}" aria-label="Mindre">−</button><input type="text" inputmode="decimal" data-inv-amt="${id}" value="${fmt(val, val % 1 ? 1 : 0)}" aria-label="Mengde">${gpe > 0 ? `<button class="u" data-inv-unit="${id}" title="Bytt mellom ${esc(unitName(f, 2))} og gram">${inG ? 'g' : esc(unitName(f, val))}</button>` : `<span class="u">g</span>`}<button data-inv-step="1" data-id="${id}" aria-label="Mer">+</button></div>`;
+  return `<div class="inv-row ${!r.basis && g <= 0 ? 'empty' : ''}"><button class="name" data-inv-edit="${id}"><span class="n">${esc(f.navn)}</span><span class="m">${!r.basis && g <= 0 ? 'tomt · ' : ''}${meta}</span></button>${ctl}</div>`;
+}
+$('invList').addEventListener('click', (e) => {
+  const step = e.target.closest('button[data-inv-step]');
+  if (step) {
+    const id = step.dataset.id; const r = S.inv.get(id); const f = S.foods.get(id); if (!r || !f) return;
+    const gpe = num(f.gramPerEnhet); const d = (gpe > 0 ? gpe : 50) * Number(step.dataset.invStep);
+    saveInv(id, Object.assign({}, r, { mengde: Math.max(0, Math.round((num(r.mengde) + d) * 10) / 10) }));
+    renderInventory(); return;
+  }
+  const un = e.target.closest('button[data-inv-unit]');
+  if (un) { const id = un.dataset.invUnit; INV_GRAM.has(id) ? INV_GRAM.delete(id) : INV_GRAM.add(id); renderInventory(); return; }
+  const ed = e.target.closest('button[data-inv-edit]'); if (ed) openInvEdit(ed.dataset.invEdit);
+});
+$('invList').addEventListener('change', (e) => {
+  const inp = e.target.closest('input[data-inv-amt]'); if (!inp) return;
+  const id = inp.dataset.invAmt; const r = S.inv.get(id); const f = S.foods.get(id); if (!r || !f) return;
+  // A plain number is in the row's own unit (portions, slices…). "1 kg" or "500 g" is always weight,
+  // so a whole pack can be entered without converting it to portions first.
+  const m = inp.value.trim().match(/^(.*?)\s*(kg|g)$/i);
+  const v = parseNum(m ? m[1] : inp.value); if (v === null || v < 0) { renderInventory(); return; }
+  const gpe = num(f.gramPerEnhet);
+  const grams = m ? v * (m[2].toLowerCase() === 'kg' ? 1000 : 1) : (gpe > 0 && !INV_GRAM.has(id)) ? v * gpe : v;
+  saveInv(id, Object.assign({}, r, { mengde: Math.round(grams * 10) / 10 }));
+  inp.blur(); renderInventory();
+});
+$('invList').addEventListener('focusout', () => setTimeout(() => { if (!$('invList').contains(document.activeElement)) renderInventory(); }, 0));
+function openInvEdit(id) {
+  const r = S.inv.get(id); const f = S.foods.get(id); if (!r || !f) return;
+  const body = `<p class="help" style="margin-top:0">${esc(f.kategori || '')}</p>
+    <fieldset><legend>Hvor</legend><div class="pick" id="ieSted">${STEDER.map((st) => `<button type="button" data-sted="${st.id}" class="${(r.sted || 'kjoleskap') === st.id ? 'on' : ''}">${st.navn}</button>`).join('')}</div></fieldset>
+    <label class="radio" style="margin-top:12px"><input type="checkbox" id="ieBasis" ${r.basis ? 'checked' : ''}><span>Basisvare<br><span class="d">Alltid hjemme, telles ikke og trekkes ikke fra (salt, tran, smør, krydder).</span></span><span></span></label>`;
+  const sh = openSheet(f.navn, body, `<button class="btn danger" id="ieDel">Fjern fra lageret</button><button class="btn primary" data-close>Ferdig</button>`);
+  sh.querySelector('#ieSted').addEventListener('click', (e) => {
+    const b = e.target.closest('button[data-sted]'); if (!b) return;
+    saveInv(id, Object.assign({}, S.inv.get(id), { sted: b.dataset.sted }));
+    for (const x of sh.querySelectorAll('#ieSted button')) x.classList.toggle('on', x === b);
+    renderInventory();
+  });
+  sh.querySelector('#ieBasis').addEventListener('change', (e) => { saveInv(id, Object.assign({}, S.inv.get(id), { basis: e.target.checked })); renderInventory(); });
+  sh.querySelector('#ieDel').addEventListener('click', () => { deleteInv(id); closeSheet(); renderInventory(); toast('Fjernet ' + f.navn); });
+}
+// Tick off a whole shopping trip: the picker stays open, each tap adds one unit (or 100 g).
+function openInvAdd() {
+  const added = new Set();
+  pickFood({ title: 'Legg til i lageret', keepOpen: true, filter: (id, f) => !isRett(f),
+    isPicked: (id) => added.has(id),
+    onPick: (id, f) => {
+      const gpe = num(f.gramPerEnhet); const r = S.inv.get(id);
+      const add = gpe > 0 ? gpe : 100;
+      saveInv(id, r ? Object.assign({}, r, { mengde: num(r.mengde) + add }) : { mengde: add, sted: defaultSted(f), basis: false });
+      added.add(id);
+      renderInventory();
+      toast(`${f.navn}: ${fmtAmount(f, num(S.inv.get(id).mengde))}`);
+    } });
+}
+// After the day is eaten: draw today's plan from the inventory.
+function subtractDay() {
+  const plan = currentPlan(); if (!plan) return;
+  const all = []; for (const m of MEALS) all.push(...(plan.meals?.[m.id] || []));
+  const need = needsFor(all);
+  const lines = [];
+  for (const [id, g] of need) { const r = S.inv.get(id); if (r && !r.basis && num(r.mengde) > 0) lines.push([id, g]); }
+  if (!lines.length) { toast('Ingenting å trekke fra – ingen av dagens varer er registrert i lageret.'); return; }
+  const done = S.app.lagerTrukket === todayIso() + '|' + S.planId;
+  askConfirm('Trekk fra lageret', `${done ? 'Dagens plan er allerede trukket fra i dag. ' : ''}Trekke dagens plan («${plan.navn}») fra lageret? ${lines.length} varer blir oppdatert.`, 'Trekk fra', false).then((ok) => {
+    if (!ok) return;
+    for (const [id, g] of lines) { const r = S.inv.get(id); saveInv(id, Object.assign({}, r, { mengde: Math.max(0, Math.round((num(r.mengde) - g) * 10) / 10) })); }
+    S.app.lagerTrukket = todayIso() + '|' + S.planId; saveApp();
+    renderAll(); toast(`Trakk ${lines.length} varer fra lageret`);
+  });
+}
+
+/* =============================== foods view =============================== */
+$('foodSearch').addEventListener('input', (e) => { S.foodQuery = e.target.value; renderFoods(); });
+$('foodChips').addEventListener('click', (e) => { const c = e.target.closest('.chip'); if (!c) return; S.foodCat = c.dataset.cat; renderFoods(); });
+$('newFoodBtn').addEventListener('click', () => openFoodEditor(null));
+$('foodList').addEventListener('click', (e) => { const b = e.target.closest('button[data-edit]'); if (b) openFoodEditor(b.dataset.edit); });
+function renderFoods() {
+  if (S.tab !== 'foods' && $('foodList').childElementCount) { /* still refresh cheaply */ }
+  $('foodChips').innerHTML = ['', ...categories()].map((c) => `<button class="chip ${c === S.foodCat ? 'on' : ''}" data-cat="${esc(c)}">${c || 'Alle'}</button>`).join('');
+  const ql = S.foodQuery.toLowerCase();
+  const list = foodsSorted().filter(([, f]) => (!S.foodCat || f.kategori === S.foodCat) && (!ql || (f.navn || '').toLowerCase().includes(ql)));
+  if (!list.length) { $('foodList').innerHTML = `<div class="empty">${S.foods.size ? 'Ingen treff.' : 'Ingen matvarer ennå. Legg til den første, eller importer en sikkerhetskopi under Profil.'}</div>`; return; }
+  let out = '', lastCat = null;
+  for (const [id, f] of list) {
+    if (f.kategori !== lastCat) { if (lastCat !== null) out += '</div>'; out += `<div class="food-group"><h4>${esc(f.kategori)}</h4>`; lastCat = f.kategori; }
+    out += foodRow(id, f, 'edit');
+  }
+  $('foodList').innerHTML = out + '</div>';
+}
+function openFoodEditor(id, draft) {
+  const f = draft || (id ? clone(S.foods.get(id)) : { kategori: S.foodCat || 'Protein', navn: '', kj100: null, kcal100: null, karb100: null, protein100: null, fett100: null, fiber100: null, gramPerEnhet: null, kommentar: '', type: 'mat', ingredienser: [] });
+  if (!f.ingredienser) f.ingredienser = [];
+  const rett = isRett(f);
+  const cats = categories();
+  const v = (x) => (x === null || x === undefined) ? '' : String(x).replace('.', ',');
+  const ef = effectiveFood(f);
+  const ingRows = f.ingredienser.map((ing, i) => {
+    const b = S.foods.get(ing.foodId);
+    return `<div class="item"><div class="item-name"><span class="n">${esc(b?.navn || ing.foodId)}</span><span class="m">${b ? fmt(num(b.kcal100) / 100 * num(ing.gram)) + ' kcal' : 'finnes ikke lenger'}</span></div>
+      <div class="amount"><input type="text" inputmode="decimal" aria-label="Gram" data-ing="${i}" value="${fmt(ing.gram)}"><span class="unit">g</span></div><span></span>
+      <button class="icon-btn" data-ing-remove="${i}" aria-label="Fjern">×</button></div>`;
+  }).join('');
+  const body = `<div class="stack">
+    <label class="f">Navn<input id="feNavn" value="${esc(f.navn)}" style="color:var(--ink)"></label>
+    <label class="f">Kategori<select id="feKat">${[...new Set([...cats, f.kategori].filter(Boolean))].map((c) => `<option value="${esc(c)}" ${c === f.kategori ? 'selected' : ''}>${esc(c)}</option>`).join('')}<option value="__ny">Ny kategori …</option></select></label>
+    <label class="f" id="feKatNyWrap" hidden>Navn på den nye kategorien<input id="feKatNy" style="color:var(--ink)"></label>
+    <label class="radio" style="grid-template-columns:auto 1fr"><input type="checkbox" id="feRett" ${rett ? 'checked' : ''}><span>Sammensatt rett<br><span class="d">næringsinnholdet regnes ut fra ingrediensene</span></span></label>
+    ${rett ? `
+      <div>${ingRows || '<div class="empty">Ingen ingredienser ennå.</div>'}
+        <div class="add-row"><button class="link-btn" id="feAddIng">+ Legg til ingrediens</button></div></div>
+      <p class="help">Én porsjon = ${fmt(ef.gramPerEnhet)} g · ${fmt(ef.porsjon.kcal100)} kcal · ${fmt(ef.porsjon.protein100)} g protein · ${fmt(ef.porsjon.karb100)} g karbohydrater · ${fmt(ef.porsjon.fett100)} g fett</p>
+    ` : `
+      <p class="help" style="margin:2px 0 -4px">Næringsinnhold per 100 g</p>
+      <div class="grid3">
+        <label class="f">kcal<input id="feKcal" inputmode="decimal" value="${v(f.kcal100)}"></label>
+        <label class="f">kJ<input id="feKj" inputmode="decimal" value="${v(f.kj100)}"></label>
+        <label class="f">Karbohydrater (g)<input id="feKarb" inputmode="decimal" value="${v(f.karb100)}"></label>
+        <label class="f">Protein (g)<input id="feProt" inputmode="decimal" value="${v(f.protein100)}"></label>
+        <label class="f">Fett (g)<input id="feFett" inputmode="decimal" value="${v(f.fett100)}"></label>
+        <label class="f">Fiber (g)<input id="feFiber" inputmode="decimal" value="${v(f.fiber100)}"></label>
+      </div>
+      <div class="grid2">
+        <label class="f">Gram per enhet <span class="help">(tomt = veies i gram)</span><input id="feGpe" inputmode="decimal" value="${v(f.gramPerEnhet)}"></label>
+        <label class="f">Enhet <span class="help">(skive, glass, boks …)</span><input id="feEnhet" value="${esc(f.enhet || '')}" style="color:var(--ink)"></label>
+      </div>
+    `}
+    ${rett ? `<label class="f">Enhet <span class="help">(porsjon, skål …)</span><input id="feEnhet" value="${esc(f.enhet || '')}" style="color:var(--ink)"></label>` : ''}
+    <label class="f">Kommentar<input id="feKomm" value="${esc(f.kommentar || '')}" style="color:var(--ink)"></label>
+  </div>`;
+  const sh = openSheet(id ? 'Rediger matvare' : 'Ny matvare', body,
+    `${id ? '<button class="btn danger" id="feDelete">Slett</button>' : ''}<button class="btn" data-close>Avbryt</button><button class="btn primary" id="feSave">Lagre</button>`);
+  const readForm = () => {
+    f.navn = sh.querySelector('#feNavn').value.trim();
+    const katSel = sh.querySelector('#feKat').value;
+    f.kategori = (katSel === '__ny' ? sh.querySelector('#feKatNy').value.trim() : katSel) || 'Annet';
+    f.kommentar = sh.querySelector('#feKomm').value.trim();
+    f.enhet = (sh.querySelector('#feEnhet')?.value || '').trim();
+    if (!rett) {
+      const g = (sel) => parseNum(sh.querySelector(sel).value);
+      f.kcal100 = num(g('#feKcal')); f.kj100 = num(g('#feKj')); f.karb100 = num(g('#feKarb')); f.protein100 = num(g('#feProt')); f.fett100 = num(g('#feFett')); f.fiber100 = num(g('#feFiber'));
+      f.gramPerEnhet = g('#feGpe');
+    } else {
+      for (const inp of sh.querySelectorAll('input[data-ing]')) { const val = parseNum(inp.value); if (val !== null) f.ingredienser[Number(inp.dataset.ing)].gram = val; }
+    }
+    return f;
+  };
+  sh.querySelector('#feKat').addEventListener('change', (e) => { const w = sh.querySelector('#feKatNyWrap'); w.hidden = e.target.value !== '__ny'; if (!w.hidden) sh.querySelector('#feKatNy').focus(); });
+  sh.querySelector('#feRett').addEventListener('change', (e) => { readForm(); f.type = e.target.checked ? 'rett' : 'mat'; if (e.target.checked && !f.kategori) f.kategori = 'Retter'; openFoodEditor(id, f); });
+  sh.querySelector('#feKcal')?.addEventListener('change', (e) => { const kj = sh.querySelector('#feKj'); if (!kj.value && parseNum(e.target.value) !== null) kj.value = String(Math.round(parseNum(e.target.value) * 4.184)); });
+  sh.querySelector('#feAddIng')?.addEventListener('click', () => {
+    readForm();
+    pickFood({ title: 'Legg til ingrediens', filter: (fid, ff) => !isRett(ff) && fid !== id, onPick: (fid, ff) => {
+      f.ingredienser.push({ foodId: fid, gram: num(ff.gramPerEnhet) > 0 ? num(ff.gramPerEnhet) : 100 });
+      openFoodEditor(id, f);
+    } });
+  });
+  sh.addEventListener('click', (e) => { const b = e.target.closest('button[data-ing-remove]'); if (!b) return; readForm(); f.ingredienser.splice(Number(b.dataset.ingRemove), 1); openFoodEditor(id, f); });
+  sh.addEventListener('change', (e) => { if (e.target.matches('input[data-ing]')) { readForm(); openFoodEditor(id, f); } });
+  sh.querySelector('#feSave').addEventListener('click', () => {
+    const food = clone(readForm());
+    if (!food.navn) { toast('Matvaren trenger et navn'); return; }
+    if (isRett(food) && !food.ingredienser.length) { toast('En rett trenger minst én ingrediens'); return; }
+    if (!isRett(food)) delete food.ingredienser;
+    const fid = id || newId('f');
+    S.foods.set(fid, food);
+    saveFood(fid, food);
+    closeSheet(); renderAll(); toast(id ? 'Lagret' : 'La til ' + food.navn);
+  });
+  sh.querySelector('#feDelete')?.addEventListener('click', async () => {
+    const usedInPlan = [...S.plans.values()].some((p) => MEALS.some((m) => (p.meals?.[m.id] || []).some((it) => it.foodId === id)));
+    const usedInDish = [...S.foods.values()].some((x) => isRett(x) && (x.ingredienser || []).some((ing) => ing.foodId === id));
+    const warn = usedInDish ? 'Matvaren er ingrediens i en rett. Slette likevel?' : usedInPlan ? 'Matvaren brukes i en dagsplan. Slette likevel?' : `Slette «${f.navn}»?`;
+    if (!(await askConfirm('Slett matvare', warn))) return;
+    S.foods.delete(id); deleteFood(id); renderAll(); toast('Slettet');
+  });
+  if (!draft && hasFinePointer()) setTimeout(() => sh.querySelector('#feNavn')?.focus(), 50);
+}
+
+/* =============================== profile view =============================== */
+let profileBound = false;
+function renderProfile() {
+  const p = S.profile;
+  const t = profileCalc(p);
+  $('kjonnRadios').innerHTML = [['mann', 'Mann'], ['kvinne', 'Kvinne']].map(([id, n]) => `<label class="radio"><input type="radio" name="kjonn" value="${id}" ${p.kjonn === id ? 'checked' : ''}><span>${n}</span><span></span></label>`).join('');
+  $('aktRadios').innerHTML = p.aktivitetsfaktorer.map((a, i) => `<label class="radio"><input type="radio" name="akt" value="${i + 1}" ${num(p.aktivitet) === i + 1 ? 'checked' : ''}><span>${esc(a.navn)}<br><span class="d">${esc(a.beskrivelse)}</span></span><span class="k">× ${fmt(a.faktor, 2)}</span></label>`).join('');
+  $('malRadios').innerHTML = MAL.map((m) => `<label class="radio"><input type="radio" name="mal" value="${m.id}" ${p.mal === m.id ? 'checked' : ''}><span>${m.navn}<br><span class="d">${m.beskrivelse}</span></span><span class="k">× ${fmt(p.malfaktorer[m.id], 2)}</span></label>`).join('');
+  const active = document.activeElement;
+  const setIf = (id, val) => { const el = $(id); if (el !== active) el.value = val; };
+  setIf('pVekt', fmt(p.vekt, 2).replace(/,?0+$/, '')); setIf('pHoyde', fmt(p.hoyde, 1).replace(/,?0+$/, '')); setIf('pAlder', fmt(p.alder)); setIf('pFett', fmt(p.fett, 1).replace(/,?0+$/, ''));
+  $('profileOut').innerHTML = `
+    <div><div class="l">Grunnforbrenning</div><div class="v">${fmt(t.bmr)}</div><div class="l">kcal per dag</div></div>
+    <div><div class="l">Vedlikehold</div><div class="v">${fmt(t.vedlikehold)}</div><div class="l">× ${fmt(t.af, 2)} aktivitet</div></div>
+    <div><div class="l">Dagsmål</div><div class="v key">${fmt(t.kcal)}</div><div class="l">× ${fmt(t.mf, 2)} ${MAL.find((m) => m.id === p.mal)?.navn.toLowerCase() || ''}</div></div>`;
+  { let src = null; for (let k = currentWeekNo(); k >= 0; k--) { const w = getWeek(k); const a = w ? weekAvg(w) : null; if (a !== null) { src = { uke: k, avg: a }; break; } }
+    const b = $('useAvgBtn'); if (src && Math.abs(src.avg - num(p.vekt)) > 0.004) { b.hidden = false; b.textContent = `Bruk siste ukesnitt: ${fmt(src.avg, 2)} kg (${weekLabel(src.uke).toLowerCase()})`; } else b.hidden = true; }
+  $('proteinRule').textContent = `Proteinmål ${fmt(t.proteinMin)} g. ${t.proteinRegel} Karbohydrater minst ${fmt(t.karbMin)} g (30 % av kaloriene), fett minst ${fmt(t.fettMin)} g (20 %).`;
+  if (!active || !$('factorTable').contains(active)) {
+    $('factorTable').innerHTML = `<tr><th>Aktivitetsnivå</th><th>Faktor</th></tr>` +
+      p.aktivitetsfaktorer.map((a, i) => `<tr><td>${esc(a.navn)}</td><td><input data-fak="akt" data-i="${i}" inputmode="decimal" value="${fmt(a.faktor, 2)}"></td></tr>`).join('') +
+      `<tr><th>Treningsmål</th><th>Faktor</th></tr>` +
+      MAL.map((m) => `<tr><td>${m.navn}</td><td><input data-fak="mal" data-id="${m.id}" inputmode="decimal" value="${fmt(p.malfaktorer[m.id], 2)}"></td></tr>`).join('');
+  }
+  if (!profileBound) bindProfile();
+}
+function bindProfile() {
+  profileBound = true;
+  const commit = () => { saveProfile(); renderAll(); };
+  for (const [id, key, dec] of [['pVekt', 'vekt', 2], ['pHoyde', 'hoyde', 1], ['pAlder', 'alder', 0], ['pFett', 'fett', 1]]) {
+    $(id).addEventListener('change', (e) => { const v = parseNum(e.target.value); if (v === null) { renderProfile(); return; } S.profile[key] = v; commit(); });
+  }
+  $('kjonnRadios').addEventListener('change', (e) => { S.profile.kjonn = e.target.value; commit(); });
+  $('aktRadios').addEventListener('change', (e) => { S.profile.aktivitet = Number(e.target.value); commit(); });
+  $('malRadios').addEventListener('change', (e) => { S.profile.mal = e.target.value; commit(); });
+  $('factorTable').addEventListener('change', (e) => {
+    const inp = e.target.closest('input[data-fak]'); if (!inp) return;
+    const v = parseNum(inp.value); if (v === null || v <= 0) { renderProfile(); return; }
+    if (inp.dataset.fak === 'akt') S.profile.aktivitetsfaktorer[Number(inp.dataset.i)].faktor = v; else S.profile.malfaktorer[inp.dataset.id] = v;
+    commit();
+  });
+  $('exportJsonBtn').addEventListener('click', exportJson);
+  $('exportCsvBtn').addEventListener('click', exportCsv);
+  $('importBtn').addEventListener('click', () => $('importFile').click());
+  $('importFile').addEventListener('change', importJson);
+}
+
+/* =============================== export / import =============================== */
+async function saveFile(filename, data) {
+  if (!S.dl) { toast('Nedlasting er ikke tilgjengelig i denne visningen'); return; }
+  try { await S.dl.save({ filename, data }); toast('Lagret ' + filename); }
+  catch (e) { if (e?.code !== 'declined') toast('Nedlasting feilet: ' + (e?.code || e)); }
+}
+function exportJson() {
+  const out = {
+    eksportert: new Date().toISOString(), profil: S.profile, app: S.app,
+    matvarer: [...S.foods.entries()].map(([id, f]) => ({ id, ...f })),
+    dagsplaner: [...S.plans.entries()].map(([id, p]) => ({ id, ...p })),
+    maaltider: [...S.meals.entries()].map(([id, m]) => ({ id, ...m })),
+    lager: [...S.inv.entries()].map(([id, r]) => ({ id, ...r })),
+    trening: S.trening,
+    uker: [...S.weeks.entries()].map(([id, w]) => ({ id, ...w })),
+    maanedsmaal: [...S.months.entries()].map(([id, m]) => ({ id, ...m })),
+  };
+  saveFile('kostholdskalkulator_' + todayIso() + '.json', JSON.stringify(out, null, 1));
+}
+function exportCsv() {
+  const plan = currentPlan(); if (!plan) { toast('Ingen dagsplan å eksportere'); return; }
+  const q = (s) => '"' + String(s ?? '').replace(/"/g, '""') + '"';
+  const n1 = (v) => String(Math.round(num(v) * 10) / 10).replace('.', ',');
+  const lines = [['Måltid', 'Matvare', 'Antall', 'Gram', 'kcal', 'Karbohydrater (g)', 'Protein (g)', 'Fett (g)', 'Fiber (g)'].join(';')];
+  for (const m of MEALS) for (const it of (plan.meals?.[m.id] || [])) {
+    const n = itemNutrition(it);
+    lines.push([q(m.navn), q(n.food?.navn || it.foodId), it.antall ?? '', n1(n.gram), n1(n.kcal), n1(n.karb), n1(n.protein), n1(n.fett), n1(n.fiber)].join(';'));
+  }
+  const tot = planTotals(plan);
+  lines.push(['TOTAL', '', '', '', n1(tot.kcal), n1(tot.karb), n1(tot.protein), n1(tot.fett), n1(tot.fiber)].join(';'));
+  saveFile((plan.navn || 'dagsplan').replace(/[^\wæøåÆØÅ -]/g, '') + '.csv', '\ufeff' + lines.join('\n'));
+}
+async function importJson(e) {
+  const file = e.target.files?.[0]; e.target.value = ''; if (!file) return;
+  let data; try { data = JSON.parse(await file.text()); } catch { toast('Kunne ikke lese filen'); return; }
+  const nf = (data.matvarer || []).length, np = (data.dagsplaner || []).length, nw = (data.uker || []).length, nm = (data.maanedsmaal || []).length;
+  if (!(await askConfirm('Importer sikkerhetskopi', `Importere ${nf} matvarer, ${np} dagsplaner, ${nw} uker og ${nm} månedsmål? Eksisterende oppføringer med samme id overskrives.`, 'Importer', false))) return;
+  if (data.trening) { S.trening = Object.assign(clone(DEFAULT_TRENING), data.trening); if (S.db) await queueWrite(() => S.db.doc('settings/trening').set(clone(S.trening))); }
+  for (const w of data.uker || []) { const { id, ...body } = w; if (id) { S.weeks.set(id, body); if (S.db) await queueWrite(() => S.db.doc('weeks/' + id).set(clone(body))); } }
+  for (const m of data.maanedsmaal || []) { const { id, ...body } = m; if (id) { S.months.set(id, body); if (S.db) await queueWrite(() => S.db.doc('months/' + id).set(clone(body))); } }
+  if (data.profil) { S.profile = Object.assign(clone(DEFAULT_PROFILE), data.profil); saveProfile(); }
+  for (const f of data.matvarer || []) { const { id, ...body } = f; if (id) { S.foods.set(id, body); await saveFood(id, body); } }
+  for (const r of data.lager || []) { const { id, ...body } = r; if (id) { S.inv.set(id, body); if (S.db) await queueWrite(() => S.db.doc('inventory/' + id).set(clone(body))); } }
+  for (const m of data.maaltider || []) { const { id, ...body } = m; if (id) { S.meals.set(id, body); if (S.db) await queueWrite(() => S.db.doc('meals/' + id).set(clone(body))); } }
+  for (const p of data.dagsplaner || []) { const { id, ...body } = p; if (id) { S.plans.set(id, body); if (S.db) await queueWrite(() => S.db.doc('plans/' + id).set(clone(body))); } }
+  if (data.app?.currentPlanId) { S.app.currentPlanId = data.app.currentPlanId; saveApp(); S.planId = S.app.currentPlanId; }
+  renderAll(); toast('Importert');
+}
+
+/* =============================== sheet component =============================== */
+function openSheet(title, bodyHtml, footHtml) {
+  const root = $('sheetRoot');
+  root.innerHTML = `<div class="scrim" data-close></div><div class="sheet" role="dialog" aria-modal="true" aria-label="${esc(title)}"><div class="inner">
+    <div class="sheet-head"><h3>${esc(title)}</h3><button class="icon-btn" data-close aria-label="Lukk">×</button></div>
+    <div class="sheet-body">${bodyHtml}</div><div class="sheet-foot">${footHtml}</div></div></div>`;
+  // one close listener for the lifetime of the page (it used to be added again on every open)
+  if (!root.dataset.bound) { root.dataset.bound = '1'; root.addEventListener('click', (e) => { if (e.target.closest('[data-close]')) closeSheet(); }); }
+  document.body.style.overflow = 'hidden';
+  $('toastRoot').innerHTML = ''; // a leftover message would sit on top of the sheet's fields
+  fitSheet();
+  return root.querySelector('.sheet');
+}
+function closeSheet() { $('sheetRoot').innerHTML = ''; document.body.style.overflow = ''; }
+// The browser's own prompt() and confirm() are blocked where the app runs (inside claude.ai),
+// so questions are asked in the app's own sheet instead. Both return a Promise.
+function askText(title, label, value = '', okLabel = 'Lagre') {
+  return new Promise((resolve) => {
+    let done = false; const finish = (v) => { if (done) return; done = true; resolve(v); };
+    const sh = openSheet(title, `<label class="f">${esc(label)}<input id="askInput" value="${esc(value)}" autocomplete="off"></label>`,
+      `<button class="btn" data-close>Avbryt</button><button class="btn primary" id="askOk">${esc(okLabel)}</button>`);
+    const inp = sh.querySelector('#askInput');
+    const ok = () => { const v = inp.value.trim(); if (!v) { inp.focus(); return; } finish(v); closeSheet(); };
+    sh.querySelector('#askOk').addEventListener('click', ok);
+    inp.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); ok(); } });
+    for (const b of document.querySelectorAll('#sheetRoot [data-close]')) b.addEventListener('click', () => finish(null));
+    setTimeout(() => { inp.focus(); inp.select(); }, 60);
+  });
+}
+function askConfirm(title, text, okLabel = 'Slett', danger = true) {
+  return new Promise((resolve) => {
+    let done = false; const finish = (v) => { if (done) return; done = true; resolve(v); };
+    const sh = openSheet(title, `<p style="margin:4px 0 8px">${esc(text)}</p>`,
+      `<button class="btn" data-close>Avbryt</button><button class="btn ${danger ? 'danger' : 'primary'}" id="askOk">${esc(okLabel)}</button>`);
+    sh.querySelector('#askOk').addEventListener('click', () => { finish(true); closeSheet(); });
+    for (const b of document.querySelectorAll('#sheetRoot [data-close]')) b.addEventListener('click', () => finish(false));
+  });
+}
+// Keep the sheet inside the part of the screen the on-screen keyboard leaves visible,
+// so its header, search field and close button never end up out of reach.
+function fitSheet() {
+  const sh = document.querySelector('#sheetRoot .sheet'); const vv = window.visualViewport;
+  if (!sh || !vv) return;
+  sh.style.maxHeight = Math.round(vv.height * 0.92) + 'px';
+  sh.style.bottom = Math.max(0, Math.round(window.innerHeight - vv.height - vv.offsetTop)) + 'px';
+}
+if (window.visualViewport) { visualViewport.addEventListener('resize', fitSheet); visualViewport.addEventListener('scroll', fitSheet); }
+// Autofocus only where there is a real keyboard; on phones it pops the keyboard and shoves the sheet off-screen.
+const hasFinePointer = () => { try { return window.matchMedia('(pointer: fine)').matches; } catch (e) { return false; } };
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && $('sheetRoot').childElementCount) closeSheet(); });
+
+// Number fields: select the whole number when tapped, so a new one can be typed straight away.
+// On phones: when a field on the page gets focus, lift it to sit just above the keyboard. If the page
+// is too short to scroll that far (the last fields), add exactly the missing room at the bottom -
+// it lies behind the keyboard, so it isn't seen - and take it away again when typing is done.
+const isTouch = () => { try { return matchMedia('(pointer: coarse)').matches; } catch (e) { return false; } };
+let typingT = 0;
+function keyboardHeight() {
+  // The real height when the browser reports it; inside claude.ai's frame it often doesn't, so then
+  // assume a phone keyboard with its suggestion bar: about half the app's height (measured on a Pixel 8).
+  const vv = window.visualViewport;
+  const measured = vv ? Math.round(window.innerHeight - vv.height - vv.offsetTop) : 0;
+  return measured > 80 ? measured : Math.round(window.innerHeight * 0.50);
+}
+function liftAboveKeyboard(el) {
+  if (document.activeElement !== el) return;
+  const kb = keyboardHeight();
+  const r = el.getBoundingClientRect();
+  const wantBottom = window.innerHeight - kb - 14;
+  const delta = r.bottom - wantBottom;
+  if (delta <= 0) return;
+  const room = document.documentElement.scrollHeight - (window.scrollY + window.innerHeight);
+  if (delta > room) document.documentElement.style.setProperty('--kbpad', Math.ceil(delta - room + 4) + 'px');
+  window.scrollBy({ top: delta, behavior: 'smooth' });
+}
+document.addEventListener('focusin', (e) => {
+  const el = e.target;
+  if (!(el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement)) return;
+  if (el.matches('input[inputmode="decimal"], input[inputmode="numeric"]')) {
+    setTimeout(() => { try { el.setSelectionRange(0, el.value.length); } catch (err) { try { el.select(); } catch (e2) { /* ignore */ } } }, 0);
+  }
+  if (!isTouch() || el.closest('.sheet') || el.type === 'checkbox' || el.type === 'file') return;
+  clearTimeout(typingT);
+  setTimeout(() => liftAboveKeyboard(el), 350); // after the keyboard has slid in
+});
+document.addEventListener('focusout', () => {
+  clearTimeout(typingT);
+  typingT = setTimeout(() => {
+    const a = document.activeElement;
+    if (!a || !a.matches || !a.matches('input, textarea')) document.documentElement.style.removeProperty('--kbpad');
+  }, 250);
+});
+
+/* =============================== boot =============================== */
+window.addEventListener('error', (e) => { console.error(e.error || e.message); toast('Feil: ' + (e.error?.message || e.message)); });
+window.addEventListener('unhandledrejection', (e) => { console.error(e.reason); toast('Feil: ' + (e.reason?.message || e.reason?.code || e.reason)); });
+
+/* =============================== TRENING =============================== */
+const DAYS = ['man', 'tir', 'ons', 'tor', 'fre', 'lor', 'son'];
+const DAY_NAMES = ['Man', 'Tir', 'Ons', 'Tor', 'Fre', 'Lør', 'Søn'];
+const NB_DAYS = ['søndag', 'mandag', 'tirsdag', 'onsdag', 'torsdag', 'fredag', 'lørdag'];
+const NB_MONTHS = ['januar', 'februar', 'mars', 'april', 'mai', 'juni', 'juli', 'august', 'september', 'oktober', 'november', 'desember'];
+const DEFAULT_TRENING = {
+  start: '2026-09-14', baseline: '2026-09-12', fotoHverUke: 4,
+  program: [
+    { dag: 'Man', navn: 'Push', ovelser: ['Barbell Bench Press', 'Barbell Incline Bench Press', 'Dumbbell Bench Press', 'Cable Tricep Pushdown (V-Bar)'] },
+    { dag: 'Tir', navn: 'Pull', ovelser: ['Barbell Deadlift', 'Dumbbell One-Arm Row', 'Cable Lat Pulldown (Wide Grip)', 'Dumbbell Alternating Bicep Curl'] },
+    { dag: 'Ons', navn: 'Upper Body A', ovelser: ['Dumbbell Seated Shoulder Press', 'Dumbbell Lateral Raise', 'Dumbbell Rear Lateral Raise', 'Dumbbell Seated Tricep Press'] },
+    { dag: 'Tor', navn: 'Legs', ovelser: ['Barbell Squat', 'Machine Seated Leg Curl', 'Machine Leg Press', 'Dumbbell Lunge'] },
+    { dag: 'Fre', navn: 'Upper Body B', ovelser: ['Barbell Bench Press (Close Grip)', 'Machine Assisted Chin-Up', 'Cable Seated Row', 'Barbell Curl'] },
+  ],
+};
+const RATINGS = [['stolhet', 'Stølhet'], ['energi', 'Energi'], ['sovn', 'Søvn'], ['motivasjon', 'Motivasjon']];
+
+const parseDate = (str) => { const [y, m, d] = String(str).split('-').map(Number); return new Date(Date.UTC(y, m - 1, d)); };
+const isoOf = (d) => d.toISOString().slice(0, 10);
+const addDays = (d, n) => new Date(d.getTime() + n * 86400000);
+const nbDate = (iso) => { const d = parseDate(iso); return `${NB_DAYS[d.getUTCDay()]} ${d.getUTCDate()}. ${NB_MONTHS[d.getUTCMonth()]}`; };
+const shortDate = (iso) => { if (!iso) return ''; const d = parseDate(iso); return `${d.getUTCDate()}. ${NB_MONTHS[d.getUTCMonth()].slice(0, 3)}`; };
+function weekNoOf(iso) { const diff = Math.floor((parseDate(iso) - parseDate(S.trening.start)) / 86400000); return diff < 0 ? 0 : Math.floor(diff / 7) + 1; }
+const weekId = (n) => 'w' + String(n).padStart(3, '0');
+const weekSaturday = (n) => isoOf(addDays(parseDate(S.trening.baseline), 7 * n));
+const weekMonday = (n) => isoOf(addDays(parseDate(S.trening.start), 7 * (n - 1)));
+// Every weigh-in in date order; a day is a record when it is strictly below every earlier weigh-in.
+function recordDays() {
+  const all = [];
+  for (const w of S.weeks.values()) for (let i = 0; i < 7; i++) { const v = dayWeight(w, i); if (typeof v === 'number') all.push({ iso: dayIso(w, i), v }); }
+  all.sort((a, b) => a.iso.localeCompare(b.iso));
+  const rec = new Set(); let min = Infinity;
+  all.forEach((x, k) => { if (k > 0 && x.v < min) rec.add(x.iso); if (x.v < min) min = x.v; });
+  return rec;
+}
+function markRecords() {
+  const rec = recordDays();
+  const n = S.loggWeekNo; const mon = (n === null || n === undefined) ? null : parseDate(weekMonday(n));
+  if (mon) document.querySelectorAll('#loggWeek .day').forEach((el, i) => el.classList.toggle('record', rec.has(isoOf(addDays(mon, i)))));
+  const amt = document.querySelector('#loggToday .amount'); const isRec = rec.has(todayIso());
+  if (amt) amt.classList.toggle('record', isRec);
+  const s = document.querySelector('#loggToday .s'); if (s) s.innerHTML = isRec ? '<span class="rec">★ Ny laveste vekt</span>' : 'Vekt i dag';
+  return isRec;
+}
+const dayIndexOf = (iso) => (parseDate(iso).getUTCDay() + 6) % 7;
+const currentWeekNo = () => weekNoOf(todayIso());
+const epley = (w, r) => (w > 0 && r > 0) ? w * (1 + r / 30) : null;
+function getWeek(n) { return S.weeks.get(weekId(n)) || null; }
+function ensureWeek(n) {
+  let w = S.weeks.get(weekId(n));
+  if (!w) { w = { uke: n, dato: weekSaturday(n), vekt: {}, midje: null, okter: null, kosthold: null, kommentar: '', dagbok: null, styrke: {} }; S.weeks.set(weekId(n), w); }
+  if (!w.vekt) w.vekt = {}; if (!w.styrke) w.styrke = {};
+  return w;
+}
+// Scale changes (settings/trening.vektskala): each entry {dato, kg} shifts every weigh-in dated before `dato` by `kg`,
+// so older readings are shown and calculated on the scale in use now. The database keeps what was actually measured.
+function scaleOffset(iso) { let o = 0; for (const s of (S.trening?.vektskala || [])) if (s && s.dato && iso < s.dato) o += num(s.kg); return o; }
+const dayIso = (w, i) => isoOf(addDays(parseDate(weekMonday(w.uke)), i));
+function dayWeight(w, i) { const v = w?.vekt?.[DAYS[i]]; return (w && typeof v === 'number') ? Math.round((v + scaleOffset(dayIso(w, i))) * 100) / 100 : null; }
+function toRawWeight(w, day, val) { if (val === null) return null; return Math.round((val - scaleOffset(dayIso(w, DAYS.indexOf(day)))) * 100) / 100; }
+function weekAvg(w) { const v = DAYS.map((d, i) => dayWeight(w, i)).filter((x) => typeof x === 'number'); return v.length ? v.reduce((a, b) => a + b, 0) / v.length : null; }
+function prevWeekWith(n, key) { for (let k = n - 1; k >= 0; k--) { const w = getWeek(k); if (!w) continue; const v = key === 'avg' ? weekAvg(w) : w[key]; if (typeof v === 'number') return { uke: k, v }; } return null; }
+function weekLabel(n) { return n === 0 ? 'Basislinje' : 'Uke ' + n; }
+const deltaHtml = (d, dec, invert) => { if (d === null || d === undefined) return ''; const cls = d === 0 ? '' : ((d < 0) !== !!invert ? 'pos' : 'neg'); return `<span class="dlt ${cls}">${fmtSigned(d, dec)}</span>`; };
+
+/* ---- persistence for weeks / months ---- */
+const weekTimers = new Map();
+function saveWeekSoon(n) { clearTimeout(weekTimers.get(n)); weekTimers.set(n, setTimeout(() => saveWeekNow(n), 450)); }
+function saveWeekNow(n) {
+  clearTimeout(weekTimers.get(n)); weekTimers.delete(n);
+  const w = getWeek(n); if (!w || !S.db) return;
+  S.weeksDirty.add(n);
+  return queueWrite(() => S.db.doc('weeks/' + weekId(n)).set(clone(w))).finally(() => S.weeksDirty.delete(n));
+}
+function saveMonth(id, m) { S.months.set(id, m); if (S.db) queueWrite(() => S.db.doc('months/' + id).set(clone(m))); }
+function deleteMonth(id) { S.months.delete(id); if (S.db) queueWrite(() => S.db.doc('months/' + id).delete()); }
+
+/* ---- headline numbers ---- */
+// Deadlift as estimated 1RM (Epley) from the week's best set. Week 1 was a cautious run-in week and is left out of
+// the trend (the logged sets stay untouched in Styrke).
+const DL = 'Barbell Deadlift', DL_FRA_UKE = 2;
+function deadliftRm(w) { const e = w?.styrke?.[DL]; return (w && w.uke >= DL_FRA_UKE && e) ? epley(num(e.vekt), num(e.reps)) : null; }
+function sinceStart() {
+  const weeks = [...S.weeks.values()].sort((a, b) => a.uke - b.uke);
+  const base = getWeek(0);
+  const lastOf = (f) => { for (let i = weeks.length - 1; i >= 0; i--) { const v = f(weeks[i]); if (typeof v === 'number') return v; } return null; };
+  const firstOf = (f) => { for (const w of weeks) { const v = f(w); if (typeof v === 'number') return v; } return null; };
+  const bw = base ? weekAvg(base) : null, lw = lastOf((w) => w.uke > 0 ? weekAvg(w) : null);
+  const bm = typeof base?.midje === 'number' ? base.midje : null, lm = lastOf((w) => w.uke > 0 ? w.midje : null);
+  const fd = firstOf(deadliftRm), ld = lastOf(deadliftRm);
+  return { vekt: (bw !== null && lw !== null) ? lw - bw : null, midje: (bm !== null && lm !== null) ? lm - bm : null, dl: (fd !== null && ld !== null && ld !== fd) ? ld - fd : (fd !== null ? 0 : null) };
+}
+function renderHeroSince() {
+  const el = $('heroSince'); if (!el) return;
+  const d = sinceStart();
+  const cell = (label, v, unit, dec, upIsGood) => {
+    const cls = (v === null || Math.abs(v) < 0.05) ? '' : ((v > 0) === upIsGood ? 'pos' : 'neg');
+    return `<div><span class="l">${label}</span><span class="v ${cls}">${v === null ? '–' : fmtSigned(Math.round(v * 10) / 10, 1) + ' ' + unit}</span></div>`;
+  };
+  el.innerHTML = cell('Vekt', d.vekt, 'kg', 1, false) + cell('Midje', d.midje, 'cm', 1, false) + cell('Markløft 1RM', d.dl, 'kg', 1, true)
+    + `<span class="since-cap">Siden start ${shortDate(S.trening.baseline)}</span>`;
+}
+// A burst of anvil sparks from an element. Skipped when the phone asks for reduced motion.
+function sparkBurst(el, opts = {}) {
+  if (!el || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const r = el.getBoundingClientRect(); if (!r.width && !r.height) return;
+  const host = document.createElement('div'); host.className = 'spark-burst';
+  host.style.left = (r.left + r.width / 2) + 'px'; host.style.top = (r.top + r.height * (opts.y ?? 0.3)) + 'px';
+  let html = '<b></b>'; const n = opts.n || 9;
+  for (let k = 0; k < n; k++) {
+    const a = -78 + (156 * k / (n - 1)) + (Math.random() * 10 - 5);   // an upward fan, like the icon
+    html += `<i style="--a:${a.toFixed(1)}deg;--r:${Math.round((opts.reach || 44) * (0.75 + Math.random() * 0.5))}px;--d:${Math.round(560 + Math.random() * 200)}ms;--delay:${Math.round(Math.random() * 70)}ms"></i>`;
+  }
+  host.innerHTML = html; document.body.appendChild(host);
+  setTimeout(() => host.remove(), 1100);
+}
+
+// Size the big weight field to its text, so "kg" sits right after the number.
+let measureCtx = null;
+function fitHero() {
+  const inp = $('todayWeight'); if (!inp || !inp.closest('.hero')) return;
+  measureCtx = measureCtx || document.createElement('canvas').getContext('2d');
+  const cs = getComputedStyle(inp);
+  measureCtx.font = `${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`;
+  const txt = inp.value || inp.placeholder || '0';
+  inp.style.width = Math.ceil(measureCtx.measureText(txt).width + 4) + 'px';
+}
+document.fonts?.ready?.then(() => fitHero());
+function renderStatus() {
+  const el = $('hdrStatus'); if (!el || !S.trening) return;
+  const cur = currentWeekNo();
+  if (cur <= 0) { el.innerHTML = `Starter ${shortDate(S.trening.start)}`; return; }
+  // Matthews: 8 training weeks, then a deload week; the cycle repeats.
+  const pos = ((cur - 1) % 9) + 1;
+  const left = 9 - pos;
+  const txt = pos === 9 ? '<span class="soon">deloaduke</span>' : left === 1 ? '<span class="soon">deload neste uke</span>' : `deload om ${left} uker`;
+  el.innerHTML = `<b>Uke ${cur}</b>${txt}`;
+}
+
+/* ---- logg view ---- */
+function renderLogg() {
+  const cur = currentWeekNo();
+  if (S.loggWeekNo === null || S.loggWeekNo === undefined) S.loggWeekNo = cur;
+  // today
+  const today = todayIso();
+  const tw = weekNoOf(today), td = dayIndexOf(today);
+  const tweek = getWeek(tw);
+  const tv = dayWeight(tweek, td);
+  if (document.activeElement && document.activeElement.id === 'todayWeight') { /* typing: leave it alone */ } else
+  $('loggToday').innerHTML = `<div class="hero"><div class="hero-top"><span class="d">${nbDate(today)}</span><span class="s"></span></div>
+    <label class="amount"><input type="text" inputmode="decimal" id="todayWeight" aria-label="Vekt i dag" value="${typeof tv === 'number' ? fmt(tv, 2).replace(/,?0+$/, '') : ''}" placeholder="–"><span class="unit">kg</span></label>
+    <div class="since" id="heroSince"></div></div>`;
+  // photo-week banner
+  const foto = S.trening.fotoHverUke || 4;
+  const hasMonth = [...S.months.values()].some((m) => m.uke === cur);
+  $('loggBanner').innerHTML = (cur % foto === 0 && !hasMonth)
+    ? `<div class="banner"><span>${weekLabel(cur)} er fotouke: ta bilder og gjør månedsmålene.</span><button id="bannerMaal">Til Mål</button></div>` : '';
+  $('bannerMaal')?.addEventListener('click', () => setTab('maal'));
+  renderChart();
+  if (!(document.activeElement && $('loggWeek').contains(document.activeElement))) renderWeekCard(S.loggWeekNo);
+  markRecords(); renderHeroSince(); fitHero();
+  // history
+  const weeks = [...S.weeks.values()].sort((a, b) => b.uke - a.uke);
+  $('loggHistory').innerHTML = weeks.map((w) => {
+    const avg = weekAvg(w); const p = prevWeekWith(w.uke, 'avg');
+    const d = (avg !== null && p) ? avg - p.v : null;
+    return `<button data-week="${w.uke}" ${w.uke === S.loggWeekNo ? 'style="background:var(--surface-2)"' : ''}><span class="u">${w.uke === 0 ? 'Basis' : w.uke}</span>
+      <span><span class="n">${w.dato ? shortDate(w.dato) : ''}</span>${w.kommentar ? `<br><span class="n">${esc(w.kommentar).slice(0, 80)}${w.kommentar.length > 80 ? '…' : ''}</span>` : ''}</span>
+      <span class="v">${avg !== null ? fmt(avg, 2) + ' kg' : '–'}${typeof w.midje === 'number' ? `<br><span class="n">${fmt(w.midje, 1)} cm</span>` : ''}</span>
+      ${deltaHtml(d, 2, false)}</button>`;
+  }).join('') || '<div class="empty">Ingen uker ennå.</div>';
+}
+function renderWeekCard(n) {
+  const w = getWeek(n) || { uke: n, dato: weekSaturday(n), vekt: {}, styrke: {} };
+  const avg = weekAvg(w); const p = prevWeekWith(n, 'avg'); const base = getWeek(0) ? weekAvg(getWeek(0)) : null;
+  const todayIdx = weekNoOf(todayIso()) === n ? dayIndexOf(todayIso()) : -1;
+  const pm = prevWeekWith(n, 'midje');
+  const v = (x, dec) => (typeof x === 'number') ? fmt(x, dec).replace(/,?0+$/, '') : '';
+  const mon = n === 0 ? null : weekMonday(n);
+  $('loggWeek').innerHTML = `<div class="week-card">
+    <div class="week-head"><h3>${weekLabel(n)}</h3><span class="help">${mon ? shortDate(mon) + ' – ' + shortDate(isoOf(addDays(parseDate(mon), 6))) : shortDate(w.dato || weekSaturday(n))}</span>
+      <span class="nav"><button data-wk="${n - 1}" ${n <= 0 ? 'disabled' : ''} aria-label="Forrige uke">‹</button> <button data-wk="${n + 1}" ${n >= Math.max(currentWeekNo(), ...S.weeks.keys() ? [...S.weeks.values()].map((x) => x.uke) : [0]) ? 'disabled' : ''} aria-label="Neste uke">›</button></span></div>
+    <div class="days">${DAYS.map((d, i) => `<label class="day ${i === todayIdx ? 'is-today' : ''}"><span>${DAY_NAMES[i]}</span><input type="text" inputmode="decimal" data-day="${d}" value="${v(dayWeight(w, i), 2)}" ${n === 0 && i < 5 ? 'disabled' : ''}></label>`).join('')}</div>
+    ${(() => { const offs = DAYS.map((d, i) => typeof w.vekt?.[d] === 'number' ? scaleOffset(dayIso(w, i)) : 0).filter((o) => o !== 0); return offs.length ? `<p class="help" style="margin:-4px 0 8px">Omregnet til dagens badevekt (${fmtSigned(offs[0], 2)} kg). Lagret som opprinnelig målt.</p>` : ''; })()}
+    <div class="stats" id="wkStats"></div>
+    <div class="wk-fields">
+      <label class="f">Midje (cm)<input type="text" inputmode="decimal" data-wf="midje" value="${v(w.midje, 1)}"></label>
+      <label class="f">Økter (av 5)<input type="text" inputmode="numeric" data-wf="okter" value="${v(w.okter, 0)}"></label>
+      <label class="f">Kosthold 1–5<input type="text" inputmode="numeric" data-wf="kosthold" value="${v(w.kosthold, 0)}"></label>
+    </div>
+    <p class="help" id="wkMidje" style="margin:6px 0 0"></p>
+    <label class="f" style="margin-top:8px">Kommentar<textarea data-wf="kommentar" rows="2">${esc(w.kommentar || '')}</textarea></label>
+    <div style="height:8px"></div>
+  </div>`;
+  renderWeekStats(n);
+}
+// The numbers derived from the fields, refreshed on every keystroke without rebuilding the inputs.
+function renderWeekStats(n) {
+  const w = getWeek(n) || { uke: n, vekt: {} };
+  const avg = weekAvg(w); const p = prevWeekWith(n, 'avg'); const base = getWeek(0) ? weekAvg(getWeek(0)) : null; const pm = prevWeekWith(n, 'midje');
+  const st = $('wkStats'); if (!st) return;
+  st.innerHTML = `
+      <div class="stat"><div class="l">Snittvekt</div><div class="v key">${avg !== null ? fmt(avg, 2) : '–'}</div></div>
+      <div class="stat"><div class="l">Endring fra ${p ? weekLabel(p.uke).toLowerCase() : 'forrige'}</div><div class="v">${(avg !== null && p) ? fmtSigned(avg - p.v, 2) : '–'}</div></div>
+      <div class="stat"><div class="l">Siden basislinje</div><div class="v">${(avg !== null && base !== null && n > 0) ? fmtSigned(avg - base, 2) : '–'}</div></div>`;
+  const md = $('wkMidje'); if (md) md.textContent = (pm && typeof w.midje === 'number') ? `Midje ${fmtSigned(w.midje - pm.v, 1)} cm siden ${weekLabel(pm.uke).toLowerCase()}` : '';
+  // keep the quick "today" field in step with the day cell it mirrors (and vice versa) without rebuilding either
+  const today = todayIso(); const tw = weekNoOf(today), td = DAYS[dayIndexOf(today)];
+  const tf = $('todayWeight'); const tv = dayWeight(getWeek(tw), DAYS.indexOf(td));
+  if (tf && document.activeElement !== tf) { tf.value = typeof tv === 'number' ? fmt(tv, 2).replace(/,?0+$/, '') : ''; fitHero(); }
+  if (tw === n) { const cell = document.querySelector(`#loggWeek input[data-day="${td}"]`); if (cell && document.activeElement !== cell) cell.value = typeof tv === 'number' ? fmt(tv, 2).replace(/,?0+$/, '') : ''; }
+  markRecords(); renderHeroSince();
+}
+function bindLogg() {
+  $('loggToday').addEventListener('input', (e) => {
+    if (e.target.id !== 'todayWeight') return;
+    fitHero();
+    const val = parseNum(e.target.value); const today = todayIso();
+    const w = ensureWeek(weekNoOf(today)); w.vekt[DAYS[dayIndexOf(today)]] = val; if (!w.dato) w.dato = weekSaturday(w.uke);
+    saveWeekSoon(w.uke); renderWeekStats(S.loggWeekNo); renderChart();
+  });
+  $('loggWeek').addEventListener('input', (e) => {
+    const t = e.target; const w = ensureWeek(S.loggWeekNo);
+    if (t.dataset.day) w.vekt[t.dataset.day] = toRawWeight(w, t.dataset.day, parseNum(t.value));
+    else if (t.dataset.wf === 'kommentar') w.kommentar = t.value.trim();
+    else if (t.dataset.wf) { const val = parseNum(t.value); w[t.dataset.wf] = val === null ? null : (t.dataset.wf === 'midje' ? val : Math.round(val)); }
+    else return;
+    saveWeekSoon(w.uke); renderWeekStats(w.uke); renderChart();
+  });
+  $('loggToday').addEventListener('change', (e) => {
+    if (e.target.id !== 'todayWeight') return;
+    const val = parseNum(e.target.value); const today = todayIso();
+    const w = ensureWeek(weekNoOf(today)); w.vekt[DAYS[dayIndexOf(today)]] = val; if (!w.dato) w.dato = weekSaturday(w.uke);
+    saveWeekSoon(w.uke); renderLogg();
+    const isRec = val !== null && recordDays().has(today);
+    if (val !== null) toast(isRec ? `★ Ny laveste vekt: ${fmt(val, 2).replace(/,?0+$/, '')} kg` : 'Lagret ' + fmt(val, 2).replace(/,?0+$/, '') + ' kg');
+    if (isRec) setTimeout(() => sparkBurst($('todayWeight'), { reach: 70, n: 11 }), 30);
+  });
+  $('loggWeek').addEventListener('click', (e) => { const b = e.target.closest('button[data-wk]'); if (!b || b.disabled) return; S.loggWeekNo = Number(b.dataset.wk); renderWeekCard(S.loggWeekNo); renderLogg(); });
+  $('loggWeek').addEventListener('change', (e) => {
+    const t = e.target; const w = ensureWeek(S.loggWeekNo);
+    if (t.dataset.day) {
+      w.vekt[t.dataset.day] = toRawWeight(w, t.dataset.day, parseNum(t.value));
+      const iso = isoOf(addDays(parseDate(weekMonday(w.uke)), DAYS.indexOf(t.dataset.day)));
+      if (w.uke > 0 && typeof w.vekt[t.dataset.day] === 'number' && recordDays().has(iso)) {
+        const day = t.dataset.day; setTimeout(() => sparkBurst(document.querySelector(`#loggWeek input[data-day="${day}"]`)), 40);
+      }
+    }
+    else if (t.dataset.wf === 'kommentar') { w.kommentar = t.value.trim(); }
+    else if (t.dataset.wf) { const val = parseNum(t.value); w[t.dataset.wf] = val === null ? null : (t.dataset.wf === 'midje' ? val : Math.round(val)); }
+    else return;
+    saveWeekSoon(w.uke);
+    setTimeout(() => { if (!(document.activeElement && $('loggWeek').contains(document.activeElement))) renderWeekCard(S.loggWeekNo); renderChart(); renderHistoryOnly(); }, 0);
+  });
+  // when focus leaves the log entirely, bring the view up to date
+  $('loggWeek').addEventListener('focusout', () => setTimeout(() => { if (!$('loggWeek').contains(document.activeElement)) renderWeekCard(S.loggWeekNo); }, 50));
+  $('loggHistory').addEventListener('click', (e) => { const b = e.target.closest('button[data-week]'); if (!b) return; S.loggWeekNo = Number(b.dataset.week); renderLogg(); window.scrollTo({ top: $('loggWeek').offsetTop - 70, behavior: 'smooth' }); });
+}
+function renderHistoryOnly() { const keep = S.loggWeekNo; renderLogg(); S.loggWeekNo = keep; }
+
+/* ---- chart ---- */
+function renderChart() {
+  const el = $('loggChart');
+  const weeks = [...S.weeks.values()].sort((a, b) => a.uke - b.uke);
+  const dl = deadliftRm;
+  const pts = weeks.map((w) => ({ uke: w.uke, avg: weekAvg(w), midje: typeof w.midje === 'number' ? w.midje : null, dl: dl(w) })).filter((p) => p.avg !== null || p.midje !== null || p.dl !== null);
+  if (pts.length < 2) { el.innerHTML = '<div class="empty" style="padding:8px">Grafen tegnes når minst to uker har tall.</div>'; return; }
+  // Venstre akse: vekt og midje. Høyre akse: markløft, med egen skala på de samme rutenettlinjene,
+  // så linjene kan gå hver sin vei uten at venstre akse strekkes og flater ut vekten.
+  const dlVals = pts.map((p) => p.dl).filter((v) => v !== null);
+  const hasDl = dlVals.length > 0;
+  const W = 640, H = 230, L = 40, R = hasDl ? 42 : 14, T = 12, B = 28;
+  const vals = pts.flatMap((p) => [p.avg, p.midje]).filter((x) => x !== null);
+  let lo = Math.floor(Math.min(...vals)) - 1, hi = Math.ceil(Math.max(...vals)) + 1;
+  if (hi - lo < 4) { hi = lo + 4; }
+  const step = (hi - lo) <= 8 ? 1 : (hi - lo) <= 20 ? 2 : 5;
+  lo = Math.floor(lo / step) * step; hi = Math.ceil(hi / step) * step;
+  const nInt = Math.round((hi - lo) / step);
+  let lo2 = 0, step2 = 1;
+  if (hasDl) {
+    const dMin = Math.min(...dlVals) - 2, dMax = Math.max(...dlVals) + 2;
+    for (const s of [1, 2, 2.5, 5, 10, 20, 25, 50, 100]) {
+      const l2 = Math.floor(dMin / s) * s;
+      if (l2 + nInt * s >= dMax) { step2 = s; lo2 = l2; break; }
+    }
+    // sentrer markløftet vertikalt når skalaen har rom til overs
+    const slack = Math.floor(((lo2 + nInt * step2) - dMax - (dMin - lo2)) / 2 / step2);
+    if (slack > 0) lo2 -= slack * step2;
+  }
+  const hi2 = lo2 + nInt * step2;
+  const u0 = pts[0].uke, u1 = pts[pts.length - 1].uke;
+  const x = (u) => L + (u - u0) / Math.max(1, u1 - u0) * (W - L - R);
+  const y = (v) => T + (hi - v) / (hi - lo) * (H - T - B);
+  const y2 = (v) => T + (hi2 - v) / (hi2 - lo2) * (H - T - B);
+  let grid = '';
+  for (let i = 0; i <= nInt; i++) {
+    const v = lo + i * step, yy = y(v);
+    grid += `<line x1="${L}" x2="${W - R}" y1="${yy}" y2="${yy}" stroke="var(--line)" stroke-width="1"/><text x="${L - 6}" y="${yy + 4}" font-size="11" text-anchor="end" fill="var(--muted)">${v}</text>`;
+    if (hasDl) grid += `<text x="${W - R + 6}" y="${yy + 4}" font-size="11" text-anchor="start" fill="var(--gold)">${fmt(lo2 + i * step2, step2 % 1 ? 1 : 0)}</text>`;
+  }
+  const every = pts.length > 14 ? Math.ceil(pts.length / 14) : 1;
+  const xl = pts.filter((p, i) => i % every === 0 || i === pts.length - 1).map((p) => `<text x="${x(p.uke)}" y="${H - 8}" font-size="11" text-anchor="middle" fill="var(--muted)">${p.uke}</text>`).join('');
+  const placed = [];
+  const line = (key, stroke, dash) => {
+    const ps = pts.filter((p) => p[key] !== null);
+    if (ps.length < 1) return '';
+    const yf = key === 'dl' ? y2 : y;
+    const d = ps.map((p, i) => `${i ? 'L' : 'M'}${x(p.uke).toFixed(1)},${yf(p[key]).toFixed(1)}`).join(' ');
+    const dots = ps.map((p) => `<circle cx="${x(p.uke).toFixed(1)}" cy="${yf(p[key]).toFixed(1)}" r="3.2" fill="${stroke}"/>`).join('');
+    // the latest value, written above the last point (pulled inward at the right edge)
+    const lp = ps[ps.length - 1], lx = x(lp.uke), ly = yf(lp[key]);
+    const atEdge = lx > W - R - 30;
+    // two labels on the same spot: put this one under its point instead
+    let ty = ly - 9;
+    if (placed.some((q) => Math.abs(q.x - lx) < 34 && Math.abs(q.y - ty) < 15)) ty = ly + 20;
+    placed.push({ x: lx, y: ty });
+    const label = `<text x="${(atEdge ? lx - 2 : lx).toFixed(1)}" y="${ty.toFixed(1)}" font-size="15" font-weight="700" text-anchor="${atEdge ? 'end' : 'middle'}" fill="${stroke}" stroke="var(--surface)" stroke-width="4" paint-order="stroke" style="font-family:var(--display)">${fmt(lp[key], key === 'avg' ? 1 : 0)}</text>`;
+    // a soft fill under the weight line
+    const area = key === 'avg' && ps.length > 1 ? `<path d="${d} L${x(lp.uke).toFixed(1)},${(H - B).toFixed(1)} L${x(ps[0].uke).toFixed(1)},${(H - B).toFixed(1)} Z" fill="url(#wFill)"/>` : '';
+    return `${area}<path d="${d}" fill="none" stroke="${stroke}" stroke-width="2.4" stroke-linejoin="round" ${dash ? 'stroke-dasharray="6 4"' : ''}/>${dots}${label}`;
+  };
+  el.innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Snittvekt, midje og markløft per uke"><defs><linearGradient id="wFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--blue);stop-opacity:0.22"/><stop offset="1" style="stop-color:var(--blue);stop-opacity:0"/></linearGradient></defs>${grid}${xl}${line('dl', 'var(--gold)', false)}${line('avg', 'var(--blue)', false)}${line('midje', 'var(--ink)', true)}</svg>
+    <div class="legend" style="flex-wrap:wrap"><span><i style="background:var(--blue)"></i>Vekt (kg)</span><span><i style="background:var(--ink)"></i>Midje (cm)</span><span><i style="background:var(--gold)"></i>Markløft (kg, høyre)</span></div>`;
+}
+
+/* ---- styrke view ---- */
+// Every week's 1RM for a lift, oldest first.
+function liftSeries(name) {
+  return [...S.weeks.values()].filter((w) => w.uke > 0 && w.styrke?.[name]).sort((a, b) => a.uke - b.uke)
+    .map((w) => ({ uke: w.uke, rm: epley(num(w.styrke[name].vekt), num(w.styrke[name].reps)) })).filter((p) => p.rm);
+}
+// A personal record: this week's 1RM beats every earlier week's.
+function isPr(series, uke) {
+  const cur = series.find((p) => p.uke === uke); if (!cur) return false;
+  const earlier = series.filter((p) => p.uke < uke); return earlier.length > 0 && cur.rm > Math.max(...earlier.map((p) => p.rm)) + 1e-9;
+}
+function sparkline(series, uke) {
+  const pts = series.filter((p) => p.uke <= uke); if (pts.length < 2) return '';
+  const W = 64, H = 18, lo = Math.min(...pts.map((p) => p.rm)), hi = Math.max(...pts.map((p) => p.rm));
+  const X = (i) => 2 + i * (W - 4) / (pts.length - 1), Y = (v) => hi === lo ? H / 2 : H - 2 - (v - lo) / (hi - lo) * (H - 4);
+  const d = pts.map((p, i) => `${i ? 'L' : 'M'}${X(i).toFixed(1)},${Y(p.rm).toFixed(1)}`).join(' ');
+  const dots = pts.map((p, i) => isPr(series, p.uke) ? `<circle cx="${X(i).toFixed(1)}" cy="${Y(p.rm).toFixed(1)}" r="2.4" fill="var(--gold)"/>` : '').join('');
+  return `<svg viewBox="0 0 ${W} ${H}" aria-hidden="true"><path d="${d}" fill="none" stroke="var(--line-strong)" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/>${dots}</svg>`;
+}
+function programDays() { return S.trening.program || DEFAULT_TRENING.program; }
+function renderStyrke() {
+  if (S.styrkeWeekNo === null || S.styrkeWeekNo === undefined) S.styrkeWeekNo = Math.max(1, currentWeekNo());
+  const n = S.styrkeWeekNo; const w = getWeek(n);
+  $('styrkeTitle').textContent = weekLabel(n);
+  $('styrkeSub').textContent = n > 0 ? `${shortDate(weekMonday(n))} – ${shortDate(isoOf(addDays(parseDate(weekMonday(n)), 6)))}` : '';
+  $('styrkePrev').disabled = n <= 1;
+  const maxWk = Math.max(currentWeekNo(), ...[...S.weeks.values()].map((x) => x.uke));
+  $('styrkeNext').disabled = n >= maxWk;
+  const st = w?.styrke || {};
+  const inProgram = new Set();
+  const dayHtml = (dagLabel, ovelser) => {
+    const rows = ovelser.map((name) => {
+      inProgram.add(name);
+      const e = st[name];
+      const rm = e ? epley(num(e.vekt), num(e.reps)) : null;
+      if (!e || (!e.vekt && !e.reps)) return `<button class="lift none" data-lift="${esc(name)}"><span><span class="n">${esc(name)}</span><span class="m">${e?.kommentar ? esc(e.kommentar) : 'ikke logget'}</span></span><span class="best">–</span><span class="rm"></span></button>`;
+      const series = liftSeries(name); const pr = isPr(series, n);
+      return `<button class="lift${pr ? ' pr' : ''}" data-lift="${esc(name)}"><span><span class="n">${esc(name)}</span><span class="m">${e.sett?.length ? e.sett.map((s) => `${fmt(s[0], 1).replace(/,?0+$/, '')}×${s[1]}`).join(', ') : ''}${e.kommentar ? ' · ' + esc(e.kommentar) : ''}</span></span>
+        <span class="best">${fmt(e.vekt, 1).replace(/,?0+$/, '')} × ${e.reps}</span><span class="rm"><span class="num">${rm ? fmt(rm, 1) : '–'}<small> 1RM</small></span>${sparkline(series, n)}</span></button>`;
+    }).join('');
+    return `<section class="meal"><div class="meal-head"><h3>${esc(dagLabel)}</h3></div>${rows}</section>`;
+  };
+  let out = programDays().map((d) => dayHtml(`${d.dag} · ${d.navn}`, d.ovelser)).join('');
+  const extra = Object.keys(st).filter((k) => !inProgram.has(k)).sort();
+  if (extra.length) out += dayHtml('Andre øvelser', extra);
+  out += `<div class="add-row"><button class="link-btn" id="addLiftBtn">+ Legg til øvelse manuelt</button></div>`;
+  $('styrkeList').innerHTML = out;
+}
+function bindStyrke() {
+  $('styrkePrev').addEventListener('click', () => { S.styrkeWeekNo = Math.max(1, S.styrkeWeekNo - 1); renderStyrke(); });
+  $('styrkeNext').addEventListener('click', () => { S.styrkeWeekNo = S.styrkeWeekNo + 1; renderStyrke(); });
+  $('importJefitBtn').addEventListener('click', () => $('jefitFile').click());
+  $('jefitFile').addEventListener('change', importJefit);
+  $('styrkeList').addEventListener('click', (e) => {
+    const add = e.target.closest('#addLiftBtn'); if (add) { askText('Ny øvelse', 'Navn på øvelsen', '', 'Videre').then((name) => { if (name) openLiftEditor(name); }); return; }
+    const b = e.target.closest('button[data-lift]'); if (b) openLiftEditor(b.dataset.lift);
+  });
+}
+function liftHistory(name) {
+  return [...S.weeks.values()].filter((w) => w.styrke?.[name]?.vekt).sort((a, b) => a.uke - b.uke)
+    .map((w) => ({ uke: w.uke, dato: w.styrke[name].dato, vekt: num(w.styrke[name].vekt), reps: num(w.styrke[name].reps), rm: epley(num(w.styrke[name].vekt), num(w.styrke[name].reps)) }));
+}
+function openLiftEditor(name) {
+  const n = S.styrkeWeekNo; const w = ensureWeek(n);
+  const e = clone(w.styrke[name] || { dato: '', vekt: null, reps: null, sett: [], kommentar: '' });
+  const hist = liftHistory(name);
+  const v = (x) => (x === null || x === undefined) ? '' : String(x).replace('.', ',');
+  const spark = (() => {
+    if (hist.length < 2) return '';
+    const W = 320, H = 60, pad = 6; const rms = hist.map((h) => h.rm);
+    const lo = Math.min(...rms), hi = Math.max(...rms); const span = Math.max(1, hi - lo);
+    const pts = hist.map((h, i) => `${(pad + i / (hist.length - 1) * (W - 2 * pad)).toFixed(1)},${(H - pad - (h.rm - lo) / span * (H - 2 * pad)).toFixed(1)}`);
+    return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:60px;display:block;margin:6px 0"><polyline points="${pts.join(' ')}" fill="none" stroke="var(--blue)" stroke-width="2.4" stroke-linejoin="round"/>${pts.map((p) => `<circle cx="${p.split(',')[0]}" cy="${p.split(',')[1]}" r="3" fill="var(--blue)"/>`).join('')}</svg>`;
+  })();
+  const body = `<div class="stack">
+    <div class="grid3">
+      <label class="f">Vekt (kg)<input id="leVekt" inputmode="decimal" value="${v(e.vekt)}"></label>
+      <label class="f">Reps<input id="leReps" inputmode="numeric" value="${v(e.reps)}"></label>
+      <label class="f">Dato<input id="leDato" type="date" value="${esc(e.dato || '')}" style="color:var(--ink)"></label>
+    </div>
+    <label class="f">Alle serier <span class="help">(f.eks. 40x8, 47.5x4, 45x4)</span><input id="leSett" value="${esc((e.sett || []).map((s) => `${s[0]}x${s[1]}`).join(', '))}" style="color:var(--ink)"></label>
+    <label class="f">Kommentar<input id="leKomm" value="${esc(e.kommentar || '')}" style="color:var(--ink)"></label>
+    <p class="help">Estimert 1RM (Epley): <strong id="leRm">${e.vekt && e.reps ? fmt(epley(num(e.vekt), num(e.reps)), 1) + ' kg' : '–'}</strong></p>
+    ${hist.length ? `<h3 style="font-size:0.95rem;margin:8px 0 0">Historikk</h3>${spark}<div class="wide"><table class="t"><tr><th>Uke</th><th>Beste sett</th><th>Est. 1RM</th></tr>${hist.map((h) => `<tr><td>${weekLabel(h.uke)}</td><td>${fmt(h.vekt, 1).replace(/,?0+$/, '')} × ${h.reps}</td><td>${fmt(h.rm, 1)}</td></tr>`).join('')}</table></div>` : ''}
+  </div>`;
+  const sh = openSheet(name, body, `${w.styrke[name] ? '<button class="btn danger" id="leDelete">Fjern</button>' : ''}<button class="btn" data-close>Avbryt</button><button class="btn primary" id="leSave">Lagre</button>`);
+  const upd = () => { const a = parseNum(sh.querySelector('#leVekt').value), b = parseNum(sh.querySelector('#leReps').value); sh.querySelector('#leRm').textContent = (a && b) ? fmt(epley(a, b), 1) + ' kg' : '–'; };
+  sh.querySelector('#leVekt').addEventListener('input', upd); sh.querySelector('#leReps').addEventListener('input', upd);
+  sh.querySelector('#leSett').addEventListener('change', (ev) => {
+    const sets = parseSets(ev.target.value); if (!sets.length) return;
+    const best = bestSet(sets); sh.querySelector('#leVekt').value = String(best[0]).replace('.', ','); sh.querySelector('#leReps').value = String(best[1]); upd();
+  });
+  sh.querySelector('#leSave').addEventListener('click', () => {
+    const entry = { dato: sh.querySelector('#leDato').value || null, vekt: parseNum(sh.querySelector('#leVekt').value), reps: parseNum(sh.querySelector('#leReps').value),
+      sett: parseSets(sh.querySelector('#leSett').value), kommentar: sh.querySelector('#leKomm').value.trim() };
+    w.styrke[name] = entry; saveWeekNow(n); closeSheet(); renderStyrke(); toast('Lagret');
+  });
+  sh.querySelector('#leDelete')?.addEventListener('click', () => { delete w.styrke[name]; saveWeekNow(n); closeSheet(); renderStyrke(); });
+}
+function parseSets(str) {
+  return String(str || '').split(',').map((s) => s.trim()).filter(Boolean).map((s) => { const m = s.match(/^([\d.,]+)\s*[x×]\s*(\d+)/i); return m ? [Number(m[1].replace(',', '.')), Number(m[2])] : null; }).filter((x) => x && Number.isFinite(x[0]));
+}
+function bestSet(sets) { let best = null, bestRm = -1; for (const s of sets) { const rm = epley(s[0], s[1]) ?? -1; if (rm > bestRm) { bestRm = rm; best = s; } } return best; }
+
+/* ---- Jefit import ---- */
+function parseCsvLine(line) {
+  const out = []; let cur = '', q = false;
+  for (let i = 0; i < line.length; i++) {
+    const c = line[i];
+    if (q) { if (c === '"') { if (line[i + 1] === '"') { cur += '"'; i++; } else q = false; } else cur += c; }
+    else if (c === '"') q = true; else if (c === ',') { out.push(cur); cur = ''; } else cur += c;
+  }
+  out.push(cur); return out;
+}
+function parseJefit(text) {
+  const lines = text.replace(/^\ufeff/, '').split(/\r?\n/);
+  const start = lines.findIndex((l) => l.startsWith('### EXERCISE LOGS'));
+  if (start < 0) throw new Error('Fant ikke seksjonen EXERCISE LOGS i filen');
+  let i = start + 1; while (i < lines.length && !lines[i].trim()) i++;
+  const header = parseCsvLine(lines[i]); i++;
+  const col = (k) => header.indexOf(k);
+  const ci = { date: col('mydate'), name: col('ename'), logs: col('logs') };
+  if (ci.date < 0 || ci.name < 0 || ci.logs < 0) throw new Error('Uventet kolonneoppsett i EXERCISE LOGS');
+  const rows = [];
+  for (; i < lines.length; i++) {
+    const l = lines[i]; if (!l.trim()) continue; if (l.startsWith('#')) break;
+    const f = parseCsvLine(l); if (f.length <= Math.max(ci.date, ci.name, ci.logs)) continue;
+    const sets = parseSets(f[ci.logs]); if (!sets.length) continue;
+    rows.push({ dato: f[ci.date], navn: f[ci.name].trim(), sett: sets });
+  }
+  return rows;
+}
+async function importJefit(e) {
+  const file = e.target.files?.[0]; e.target.value = ''; if (!file) return;
+  let rows; try { rows = parseJefit(await file.text()); } catch (err) { toast(err.message); return; }
+  const startIso = S.trening.start;
+  const relevant = rows.filter((r) => r.dato >= startIso);
+  if (!relevant.length) { toast('Ingen økter på eller etter ' + startIso + ' i filen'); return; }
+  const byWeek = new Map();
+  for (const r of relevant) { const n = weekNoOf(r.dato); if (!byWeek.has(n)) byWeek.set(n, []); byWeek.get(n).push(r); }
+  const bestBefore = new Map();
+  for (const w of S.weeks.values()) for (const [name, e] of Object.entries(w.styrke || {})) { const rm = epley(num(e.vekt), num(e.reps)); if (rm && rm > (bestBefore.get(name) || 0)) bestBefore.set(name, rm); }
+  let sessions = 0, exercises = 0;
+  for (const [n, list] of byWeek) {
+    const w = ensureWeek(n);
+    const dates = new Set();
+    for (const r of list) {
+      dates.add(r.dato);
+      const best = bestSet(r.sett);
+      const prev = w.styrke[r.navn];
+      // keep the better of an existing entry for the same week (a lift done twice in one week)
+      if (prev && prev.vekt && prev.dato !== r.dato && (epley(num(prev.vekt), num(prev.reps)) ?? 0) > (epley(best[0], best[1]) ?? 0)) continue;
+      w.styrke[r.navn] = { dato: r.dato, vekt: best[0], reps: best[1], sett: r.sett, kommentar: prev?.dato === r.dato ? (prev.kommentar || '') : '' };
+      exercises++;
+    }
+    sessions += dates.size;
+    if (w.okter === null || w.okter === undefined) w.okter = dates.size;
+    await saveWeekNow(n);
+  }
+  S.styrkeWeekNo = Math.max(...byWeek.keys());
+  const prs = new Set();
+  for (const n of byWeek.keys()) for (const [name, e] of Object.entries(getWeek(n)?.styrke || {})) { const rm = epley(num(e.vekt), num(e.reps)); if (bestBefore.has(name) && rm > bestBefore.get(name) + 1e-9) prs.add(name); }
+  renderStyrke(); renderLogg();
+  toast(`Importerte ${exercises} øvelser fra ${sessions} økter over ${byWeek.size} uke${byWeek.size === 1 ? '' : 'r'}${prs.size ? ` · ★ ${prs.size} ny${prs.size === 1 ? '' : 'e'} rekord${prs.size === 1 ? '' : 'er'}` : ''}`);
+  [...document.querySelectorAll('#styrkeList .lift.pr')].filter((b) => prs.has(b.dataset.lift)).slice(0, 6)
+    .forEach((b, i) => setTimeout(() => sparkBurst(b.querySelector('.num'), { n: 7, reach: 34, y: 0.2 }), 120 + i * 140));
+}
+
+/* ---- dagbok view ---- */
+function renderDagbok() {
+  const cur = currentWeekNo();
+  const weeks = [...S.weeks.values()].filter((w) => w.uke > 0).sort((a, b) => b.uke - a.uke);
+  if (!weeks.some((w) => w.uke === cur) && cur > 0) weeks.unshift({ uke: cur, dato: weekSaturday(cur), dagbok: null });
+  $('dagbokList').innerHTML = weeks.map((w) => {
+    const d = w.dagbok;
+    return `<div class="entry"><div class="entry-head"><h3>${weekLabel(w.uke)} <span class="help" style="font-weight:400">${shortDate(w.dato)}</span></h3><button class="link-btn" data-edit-dagbok="${w.uke}">${d ? 'Rediger' : 'Skriv'}</button></div>
+      ${d ? `<div class="chips-r">${RATINGS.map(([k, l]) => typeof d[k] === 'number' ? `<span>${l} ${d[k]}</span>` : '').join('')}</div><p class="txt">${esc(d.tekst || '')}</p>` : '<p class="help">Ingen notat ennå.</p>'}</div>`;
+  }).join('') || '<div class="empty">Ingen uker ennå.</div>';
+}
+function bindDagbok() { $('dagbokList').addEventListener('click', (e) => { const b = e.target.closest('button[data-edit-dagbok]'); if (b) openDagbokEditor(Number(b.dataset.editDagbok)); }); }
+function openDagbokEditor(n) {
+  const w = ensureWeek(n); const d = clone(w.dagbok || { stolhet: null, energi: null, sovn: null, motivasjon: null, tekst: '' });
+  const body = `<div class="stack">
+    ${RATINGS.map(([k, l]) => `<div><div class="help" style="margin-bottom:4px">${l} <span style="opacity:.7">(1 = lite / dårlig, 5 = mye / veldig bra)</span></div><div class="rating" data-r="${k}">${[1, 2, 3, 4, 5].map((i) => `<button type="button" data-v="${i}" class="${d[k] === i ? 'on' : ''}">${i}</button>`).join('')}</div></div>`).join('')}
+    <label class="f">Notat<textarea id="dbTekst" rows="10" style="font-size:0.95rem">${esc(d.tekst || '')}</textarea></label>
+  </div>`;
+  const sh = openSheet(weekLabel(n) + ' · dagbok', body, `${w.dagbok ? '<button class="btn danger" id="dbDelete">Slett</button>' : ''}<button class="btn" data-close>Avbryt</button><button class="btn primary" id="dbSave">Lagre</button>`);
+  sh.addEventListener('click', (e) => { const b = e.target.closest('.rating button'); if (!b) return; const k = b.parentElement.dataset.r; const val = Number(b.dataset.v); d[k] = d[k] === val ? null : val; for (const x of b.parentElement.children) x.classList.toggle('on', Number(x.dataset.v) === d[k]); });
+  sh.querySelector('#dbSave').addEventListener('click', () => { d.tekst = sh.querySelector('#dbTekst').value.trim(); w.dagbok = d; saveWeekNow(n); closeSheet(); renderDagbok(); toast('Lagret'); });
+  sh.querySelector('#dbDelete')?.addEventListener('click', async () => { if (!(await askConfirm('Slett notat', 'Slette dagboknotatet for denne uken?'))) return; w.dagbok = null; saveWeekNow(n); renderDagbok(); });
+}
+
+/* ---- månedsmål view ---- */
+const MFIELDS = [['bryst', 'Bryst'], ['armH', 'Overarm H'], ['armV', 'Overarm V'], ['larH', 'Lår H'], ['larV', 'Lår V'], ['midje', 'Midje'], ['hofte', 'Hofte'], ['kaliperMm', 'Kaliper (mm)']];
+function renderMaal() {
+  const list = [...S.months.entries()].sort((a, b) => (b[1].dato || '').localeCompare(a[1].dato || ''));
+  $('maalList').innerHTML = list.map(([id, m], idx) => {
+    const prev = list[idx + 1]?.[1];
+    return `<div class="entry"><div class="entry-head"><h3>${weekLabel(m.uke)} <span class="help" style="font-weight:400">${m.dato ? shortDate(m.dato) : ''}</span></h3><button class="link-btn" data-edit-maal="${id}">Rediger</button></div>
+      <div class="mgrid" style="margin-top:8px">${MFIELDS.map(([k, l]) => `<div class="mcell"><div class="l">${l}</div><div class="v">${typeof m[k] === 'number' ? fmt(m[k], 1).replace(/,?0+$/, '') : '–'} ${prev && typeof m[k] === 'number' && typeof prev[k] === 'number' ? deltaHtml(m[k] - prev[k], 1, false) : ''}</div></div>`).join('')}</div>
+      <p class="help" style="margin:8px 0 0">${m.bilder ? 'Bilder tatt' : 'Bilder ikke tatt'}${m.kommentar ? ' · ' + esc(m.kommentar) : ''}</p></div>`;
+  }).join('') || '<div class="empty">Ingen målinger ennå.</div>';
+}
+function bindMaal() {
+  $('newMaalBtn').addEventListener('click', () => openMaalEditor(null));
+  $('maalList').addEventListener('click', (e) => { const b = e.target.closest('button[data-edit-maal]'); if (b) openMaalEditor(b.dataset.editMaal); });
+}
+function openMaalEditor(id) {
+  const m = id ? clone(S.months.get(id)) : { dato: todayIso(), uke: currentWeekNo(), bilder: false, kommentar: '' };
+  const v = (x) => (typeof x === 'number') ? fmt(x, 1).replace(/,?0+$/, '') : '';
+  const body = `<div class="stack">
+    <div class="grid2"><label class="f">Dato<input id="mDato" type="date" value="${esc(m.dato)}" style="color:var(--ink)"></label><label class="f">Uke<input id="mUke" inputmode="numeric" value="${m.uke ?? ''}"></label></div>
+    <div class="grid2">${MFIELDS.map(([k, l]) => `<label class="f">${l}${k === 'kaliperMm' ? '' : ' (cm)'}<input data-mf="${k}" inputmode="decimal" value="${v(m[k])}"></label>`).join('')}</div>
+    <label class="radio" style="grid-template-columns:auto 1fr"><input type="checkbox" id="mBilder" ${m.bilder ? 'checked' : ''}><span>Bilder tatt (forfra, fra siden, ansikt)</span></label>
+    <label class="f">Kommentar<input id="mKomm" value="${esc(m.kommentar || '')}" style="color:var(--ink)"></label>
+  </div>`;
+  const sh = openSheet(id ? 'Rediger måling' : 'Ny måling', body, `${id ? '<button class="btn danger" id="mDelete">Slett</button>' : ''}<button class="btn" data-close>Avbryt</button><button class="btn primary" id="mSave">Lagre</button>`);
+  sh.querySelector('#mDato').addEventListener('change', (e) => { if (e.target.value) sh.querySelector('#mUke').value = weekNoOf(e.target.value); });
+  sh.querySelector('#mSave').addEventListener('click', () => {
+    const out = { dato: sh.querySelector('#mDato').value || todayIso(), uke: parseNum(sh.querySelector('#mUke').value) ?? weekNoOf(sh.querySelector('#mDato').value || todayIso()), bilder: sh.querySelector('#mBilder').checked, kommentar: sh.querySelector('#mKomm').value.trim() };
+    for (const inp of sh.querySelectorAll('input[data-mf]')) out[inp.dataset.mf] = parseNum(inp.value);
+    saveMonth(id || ('m' + out.dato), out); closeSheet(); renderMaal(); renderLogg(); toast('Lagret');
+  });
+  sh.querySelector('#mDelete')?.addEventListener('click', async () => { if (!(await askConfirm('Slett måling', 'Slette denne målingen?'))) return; deleteMonth(id); renderMaal(); });
+}
+
+/* ---- excel export (SheetJS from cdnjs, loaded on demand) ---- */
+function loadSheetJs() {
+  if (window.XLSX) return Promise.resolve();
+  return new Promise((res, rej) => { const sc = document.createElement('script'); sc.src = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js'; sc.onload = res; sc.onerror = () => rej(new Error('Kunne ikke laste Excel-biblioteket')); document.head.appendChild(sc); });
+}
+async function exportXlsx() {
+  if (!S.dl) { toast('Nedlasting er ikke tilgjengelig i denne visningen'); return; }
+  try { await loadSheetJs(); } catch (e) { toast(e.message); return; }
+  const wb = XLSX.utils.book_new();
+  const r1 = (x) => (typeof x === 'number') ? Math.round(x * 100) / 100 : (x ?? '');
+  const weeks = [...S.weeks.values()].sort((a, b) => a.uke - b.uke);
+  const base = getWeek(0) ? weekAvg(getWeek(0)) : null;
+  const uke = [['Uke', 'Dato', ...DAY_NAMES, 'Snittvekt', 'Endring', 'Totalt', 'Midje', 'Endring midje', 'Økter', 'Kosthold', 'Kommentar']];
+  for (const w of weeks) { const avg = weekAvg(w); const p = prevWeekWith(w.uke, 'avg'); const pm = prevWeekWith(w.uke, 'midje');
+    uke.push([w.uke, w.dato, ...DAYS.map((d, i) => r1(dayWeight(w, i))), r1(avg), r1(avg !== null && p ? avg - p.v : null), r1(avg !== null && base !== null && w.uke > 0 ? avg - base : null), r1(w.midje), r1(typeof w.midje === 'number' && pm ? w.midje - pm.v : null), r1(w.okter), r1(w.kosthold), w.kommentar || '']); }
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(uke), 'Ukelogg');
+  const mm = [['Uke', 'Dato', ...MFIELDS.map((f) => f[1]), 'Bilder', 'Kommentar']];
+  for (const m of [...S.months.values()].sort((a, b) => (a.dato || '').localeCompare(b.dato || ''))) mm.push([m.uke, m.dato, ...MFIELDS.map(([k]) => r1(m[k])), m.bilder ? 'J' : 'N', m.kommentar || '']);
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(mm), 'Månedsmål');
+  const db = [['Uke', 'Dato', ...RATINGS.map((r) => r[1]), 'Notat']];
+  for (const w of weeks) if (w.dagbok) db.push([w.uke, w.dato, ...RATINGS.map(([k]) => r1(w.dagbok[k])), w.dagbok.tekst || '']);
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(db), 'Dagbok');
+  const st = [['Uke', 'Dato', 'Dag', 'Øvelse', 'Vekt (kg)', 'Reps', 'Est. 1RM', 'Serier', 'Kommentar']];
+  for (const w of weeks) { const done = new Set();
+    for (const d of programDays()) for (const name of d.ovelser) { const e = w.styrke?.[name]; done.add(name); if (!e && w.uke === 0) continue;
+      st.push([w.uke, e?.dato || '', `${d.dag} - ${d.navn}`, name, r1(e?.vekt), r1(e?.reps), r1(e?.vekt && e?.reps ? epley(num(e.vekt), num(e.reps)) : null), (e?.sett || []).map((s) => `${s[0]}x${s[1]}`).join(', '), e?.kommentar || (e ? '' : (w.uke > 0 ? 'ikke logget' : ''))]); }
+    for (const name of Object.keys(w.styrke || {})) if (!done.has(name)) { const e = w.styrke[name]; st.push([w.uke, e.dato || '', 'Andre', name, r1(e.vekt), r1(e.reps), r1(e.vekt && e.reps ? epley(num(e.vekt), num(e.reps)) : null), (e.sett || []).map((s) => `${s[0]}x${s[1]}`).join(', '), e.kommentar || '']); } }
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(st), 'Styrke');
+  const plan = currentPlan();
+  const dp = [['Dagsplan', plan?.navn || ''], ['Måltid', 'Matvare', 'Antall', 'Gram', 'kcal', 'Karbohydrater', 'Protein', 'Fett', 'Fiber']];
+  if (plan) { for (const m of MEALS) for (const it of (plan.meals?.[m.id] || [])) { const n = itemNutrition(it); dp.push([m.navn, n.food?.navn || it.foodId, r1(it.antall), r1(n.gram), r1(n.kcal), r1(n.karb), r1(n.protein), r1(n.fett), r1(n.fiber)]); }
+    const t = planTotals(plan); dp.push(['TOTAL', '', '', '', r1(t.kcal), r1(t.karb), r1(t.protein), r1(t.fett), r1(t.fiber)]); }
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(dp), 'Dagsplan');
+  const mv = [['Kategori', 'Matvare', 'Type', 'kJ/100g', 'kcal/100g', 'Karbohydrater/100g', 'Protein/100g', 'Fett/100g', 'Fiber/100g', 'Gram/Enhet', 'Enhet', 'Kommentar']];
+  for (const [, raw] of foodsSorted()) { const f = effectiveFood(raw); mv.push([f.kategori, f.navn, isRett(raw) ? 'rett' : 'mat', ...NKEYS.map((k) => r1(f[k])), r1(f.gramPerEnhet), f.enhet || '', f.kommentar || '']); }
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(mv), 'Matvarer');
+  const buf = XLSX.write(wb, { type: 'array', bookType: 'xlsx' });
+  await saveFile('TheForge_' + todayIso() + '.xlsx', buf);
+}
+
+/* ---- section / tab plumbing ---- */
+const SEC_TABS = { kosthold: ['plan', 'lager', 'foods'], trening: ['logg', 'styrke', 'dagbok', 'maal'] };
+function setSection(sec, tab) {
+  S.section = sec;
+  for (const b of document.querySelectorAll('.seg button')) b.classList.toggle('on', b.dataset.sec === sec);
+  for (const b of document.querySelectorAll('nav.tabs button')) b.hidden = b.dataset.sec !== sec;
+  setTab(tab || S.lastTab?.[sec] || SEC_TABS[sec][0]);
+}
+function renderTrening() {
+  if (!S.ready.weeks || !S.ready.months || !S.ready.trening) return;
+  renderLogg(); renderStyrke(); renderDagbok(); renderMaal();
+}
+function bindTrening() {
+  bindLogg(); bindStyrke(); bindDagbok(); bindMaal();
+  $('exportXlsxBtn').addEventListener('click', exportXlsx);
+  $('useAvgBtn').addEventListener('click', () => {
+    const cur = currentWeekNo(); let src = null;
+    for (let k = cur; k >= 0; k--) { const w = getWeek(k); const a = w ? weekAvg(w) : null; if (a !== null) { src = { uke: k, avg: a }; break; } }
+    if (!src) return;
+    S.profile.vekt = Math.round(src.avg * 100) / 100; saveProfile(); renderAll(); toast('Vekt satt til ' + fmt(src.avg, 2) + ' kg');
+  });
+  for (const b of document.querySelectorAll('.seg button')) b.addEventListener('click', () => setSection(b.dataset.sec));
+  $('profileBtn').addEventListener('click', () => setTab('profile'));
+}
+
+for (const b of document.querySelectorAll('nav.tabs button')) b.addEventListener('click', () => setTab(b.dataset.tab));
+bindTrening();
+// Theme: auto follows the system; light/dark force it. Saved with the app settings so every device agrees,
+// and cached locally so the page opens in the right colours before the database answers.
+function applyTheme(t) {
+  if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t; else delete document.documentElement.dataset.theme;
+  try { localStorage.setItem('forge.theme', t); } catch (e) { /* ignore */ }
+  for (const b of document.querySelectorAll('#themePick button')) { const on = b.dataset.themeOpt === t; b.classList.toggle('on', on); b.setAttribute('aria-checked', on ? 'true' : 'false'); }
+}
+{ let t = 'auto'; try { t = localStorage.getItem('forge.theme') || 'auto'; } catch (e) { /* ignore */ } applyTheme(t); }
+// Fullscreen: works only if the frame the app runs in allows it; otherwise say so.
+const FS_IN = 'M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5', FS_OUT = 'M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5';
+const fsEl = () => document.fullscreenElement || document.webkitFullscreenElement;
+function markFs() { const on = !!fsEl(); $('fsIcon').setAttribute('d', on ? FS_OUT : FS_IN); $('fsBtn').setAttribute('aria-label', on ? 'Avslutt fullskjerm' : 'Fullskjerm'); }
+document.addEventListener('fullscreenchange', markFs); document.addEventListener('webkitfullscreenchange', markFs);
+// Browsers only allow fullscreen in response to a tap, so "automatic" means: the first tap after the app opens
+// (or comes back to the foreground). Leaving fullscreen with the button disarms it until next time.
+let fsArmed = true;
+// Fullscreen is a phone feature. On a computer the app runs inside claude.ai's split view, where a fullscreen
+// request can leave the frame unable to receive clicks, so the button and the option are hidden there.
+const isPhone = (() => { try { return matchMedia('(pointer: coarse)').matches && !matchMedia('(pointer: fine)').matches; } catch (e) { return false; } })();
+if (!isPhone) { $('fsBtn').hidden = true; $('fsAutoRow').hidden = true; }
+const fsAutoOn = () => { try { return localStorage.getItem('forge.fsAuto') === '1'; } catch (e) { return false; } };
+$('fsAuto').checked = fsAutoOn();
+$('fsAuto').addEventListener('change', (e) => { try { localStorage.setItem('forge.fsAuto', e.target.checked ? '1' : '0'); } catch (err) { /* ignore */ } fsArmed = !e.target.checked; });
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') fsArmed = true; });
+document.addEventListener('click', (e) => {
+  if (!isPhone || !fsArmed || !fsAutoOn() || fsEl() || e.target.closest('#fsBtn, #fsAuto')) return;
+  fsArmed = false;
+  const el = document.documentElement; const req = el.requestFullscreen || el.webkitRequestFullscreen;
+  if (req && document.fullscreenEnabled !== false) req.call(el, { navigationUI: 'hide' }).catch?.(() => {});
+}, true);
+$('fsBtn').addEventListener('click', async () => {
+  fsArmed = false;
+  try {
+    if (fsEl()) { await (document.exitFullscreen || document.webkitExitFullscreen).call(document); return; }
+    const el = document.documentElement; const req = el.requestFullscreen || el.webkitRequestFullscreen;
+    if (!req || document.fullscreenEnabled === false) throw new Error('blocked');
+    await req.call(el, { navigationUI: 'hide' });
+  } catch (e) { toast('Fullskjerm er ikke tillatt i denne visningen'); }
+});
+$('themePick').addEventListener('click', (e) => {
+  const b = e.target.closest('button[data-theme-opt]'); if (!b) return;
+  S.app.tema = b.dataset.themeOpt; applyTheme(S.app.tema); saveApp();
+});
+$('budget').innerHTML = '<h2>Dagens budsjett</h2><div class="empty">Laster …</div>';
+{ let nav = null; try { nav = JSON.parse(localStorage.getItem('forge.nav') || 'null'); } catch (e) { nav = null; }
+  const sec = nav && SEC_TABS[nav.section] ? nav.section : 'kosthold';
+  setSection(sec, nav && (SEC_TABS[sec].includes(nav.tab) || nav.tab === 'profile') ? nav.tab : undefined); }
+connectDb();
+})();
+</script>
+</body>
+</html>

@@ -1352,35 +1352,38 @@ function openPlanSheet() {
       <label class="f">Navn på denne dagsplanen<input id="planRename" value="${esc(plan.navn)}"></label>
       <div class="row">
         <button class="btn small" id="planDup">Dupliser</button>
-        ${S.app.currentPlanId === S.planId ? '' : '<button class="btn small" id="planSetCur">Sett som gjeldende</button>'}
         <button class="btn small danger" id="planDel">Slett</button>
       </div>
     </div>` : ''}
     <div class="row between"><span class="help">Alle dagsplaner</span><button class="btn small" id="planNew">Ny tom dagsplan</button></div>
-    <div class="plan-list">${list.map(([id, p]) => `<button data-open="${id}"><span>${esc(p.navn)}<br><span class="help">${p.opprettet || ''}</span></span>${id === S.app.currentPlanId ? '<span class="cur">gjeldende</span>' : ''}</button>`).join('')}</div>`;
+    <div class="plan-list">${list.map(([id, p]) => `<button data-open="${id}"><span>${esc(p.navn)}<br><span class="help">${p.opprettet || ''}</span></span>${id === S.planId ? '<span class="cur">åpen</span>' : ''}</button>`).join('')}</div>`;
   const sh = openSheet('Dagsplaner', body, `<button class="btn" data-close>Lukk</button>`);
   sh.querySelector('#planNew')?.addEventListener('click', () => { closeSheet(); newPlan(); });
   sh.querySelector('#planDup')?.addEventListener('click', () => { closeSheet(); duplicatePlan(); });
-  sh.querySelector('#planSetCur')?.addEventListener('click', () => { S.app.currentPlanId = S.planId; saveApp(); closeSheet(); toast('Satt som gjeldende'); renderPlan(); });
   sh.querySelector('#planDel')?.addEventListener('click', async () => {
     if (!(await askConfirm('Slett dagsplan', `Slette «${plan.navn}»?`))) return;
     const id = S.planId;
     S.plans.delete(id);
     if (S.db) queueWrite(() => S.db.doc('plans/' + id).delete());
-    if (S.app.currentPlanId === id) { S.app.currentPlanId = S.plans.keys().next().value || null; saveApp(); }
-    S.planId = S.app.currentPlanId || S.plans.keys().next().value || null;
+    rememberPlan(S.plans.keys().next().value || null);
     closeSheet(); renderPlan();
   });
   sh.querySelector('#planRename')?.addEventListener('change', (e) => { plan.navn = e.target.value.trim() || plan.navn; savePlanNow(); renderPlan(); });
-  for (const b of sh.querySelectorAll('button[data-open]')) b.addEventListener('click', () => { S.planId = b.dataset.open; closeSheet(); renderPlan(); });
+  for (const b of sh.querySelectorAll('button[data-open]')) b.addEventListener('click', () => { rememberPlan(b.dataset.open); closeSheet(); renderPlan(); });
+}
+// The app opens on the day plan that was open last time (on any device). There is no separate
+// "current plan" any more: opening, creating or duplicating a plan is what makes it the remembered one.
+function rememberPlan(id) {
+  S.planId = id;
+  if (S.app.currentPlanId !== id) { S.app.currentPlanId = id; saveApp(); }
 }
 function emptyMeals() { const m = {}; for (const x of MEALS) m[x.id] = []; return m; }
 function createPlan(navn, meals) {
   const id = newId('p');
   const plan = { navn, opprettet: todayIso(), oppdatert: todayIso(), meals };
-  S.plans.set(id, plan); S.planId = id;
+  S.plans.set(id, plan);
   if (S.db) queueWrite(() => S.db.doc('plans/' + id).set(clone(plan)));
-  if (!S.app.currentPlanId) { S.app.currentPlanId = id; saveApp(); }
+  rememberPlan(id);
   renderPlan();
   return id;
 }

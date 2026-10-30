@@ -56,6 +56,8 @@ without sharing a database with him. It must never contain his personal data —
 - **Trening:** Logg (daily weights, weekly average, waist, chart with deadlift on a right-hand axis,
   scale correction `settings/trening.vektskala`), Styrke (best set per exercise per week, Epley 1RM,
   Jefit CSV importer), Dagbok (ratings + diary), Mål (monthly measurements).
+- The app opens on the day plan that was open last (`settings/app.currentPlanId`, set by `rememberPlan()` whenever a
+  plan is opened, created or duplicated). There is no "gjeldende" (current) plan any more (removed 30 Oct 2026).
 - Week numbers count from `settings/trening.start` (a Monday); `baseline` is the Saturday before.
 - **Data model** (collections): `foods`, `plans`, `meals`, `inventory` (doc id = food id), `weeks`
   (`w000`…), `months`, and `settings/{app, profile, trening}`.

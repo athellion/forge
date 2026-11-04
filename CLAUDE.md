@@ -58,9 +58,21 @@ without sharing a database with him. It must never contain his personal data —
   Jefit CSV importer), Dagbok (ratings + diary), Mål (monthly measurements).
 - The app opens on the day plan that was open last (`settings/app.currentPlanId`, set by `rememberPlan()` whenever a
   plan is opened, created or duplicated). There is no "gjeldende" (current) plan any more (removed 30 Oct 2026).
+- **Økt** (first Trening tab, added 4 Nov 2026): the workout logger. Opens today's session from the program
+  (Mon–Fri = the five BLS days; weekend = pick a day or "Fri økt"). Per exercise: last time's sets and Matthews'
+  double progression (`suggestion()`: up one weight step once the top weight reached `repsMax` in `toppSett` sets;
+  defaults reps 4–6, 3 sets, rest 3:00, editable under ⚙ and stored as `settings/trening.okt`). Weight step =
+  smallest jump in the exercise's history (`stepFor()`), else 2.5 kg (bars/dumbbells) / 5 kg. Sessions are saved in
+  collection `okter`, one doc per date (`o2026-11-04`: {dato, dag, navn, ovelser: [{navn, sett: [{kg, reps, ok}],
+  kommentar?}], kilde?}); a session from the program is only saved once something is changed. Every change rebuilds
+  the week's `styrke[name]` from that week's sessions (`syncStyrke()`, best Epley set wins) and raises `okter`.
+  Rest timer (fixed bar above the tabs) starts on each ticked set, end time kept in localStorage `forge.rest`,
+  chimes via Web Audio; screen wake lock while Økt is open, where allowed. New best Epley → toast + sparks.
+  The Jefit importer also stores every set of every imported date as an `okter` doc (`kilde: 'jefit'`), unless that
+  date was logged in the app. The web app (sister's) does not have Økt yet.
 - Week numbers count from `settings/trening.start` (a Monday); `baseline` is the Saturday before.
 - **Data model** (collections): `foods`, `plans`, `meals`, `inventory` (doc id = food id), `weeks`
-  (`w000`…), `months`, and `settings/{app, profile, trening}`.
+  (`w000`…), `months`, `okter` (workout sessions), and `settings/{app, profile, trening}`.
 - claude.ai blocks `prompt()`/`confirm()` in artifacts — the app uses its own `askText`/`askConfirm` sheets.
   Keep it that way in both versions.
 

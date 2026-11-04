@@ -451,6 +451,39 @@ header.top h1 { font-family: var(--display); font-weight: 800; font-size: 1.85re
 .banner { background: var(--key-bg); color: var(--key-ink); border-radius: 12px; padding: 10px 14px; margin: 0 0 14px; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
 .banner button { border: 1px solid currentColor; background: none; color: inherit; border-radius: 8px; padding: 5px 10px; font-weight: 500; }
 
+/* ---------- økt (workout logger) ---------- */
+.ex { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 10px 12px 2px; margin-bottom: 12px; }
+.ex-head { display: flex; align-items: center; gap: 8px; }
+.ex-head h3 { margin: 0; flex: 1; min-width: 0; font-family: var(--display); font-weight: 700; font-size: 1.3rem; letter-spacing: 0.01em; line-height: 1.1; }
+.ex-count { color: var(--muted); font-size: 0.85rem; white-space: nowrap; }
+.ex-count.all { color: var(--ok); font-weight: 600; }
+.ex-last { color: var(--muted); font-size: 0.85rem; margin: 2px 0 6px; }
+.ex-last .up { color: var(--gold); font-weight: 600; }
+.ex-note { font-size: 0.85rem; color: var(--ink); background: var(--surface-2); border-radius: 8px; padding: 5px 9px; margin: 0 0 6px; }
+.set { display: grid; grid-template-columns: 16px auto auto 1fr; gap: 6px; align-items: center; padding: 5px 0; border-top: 1px solid var(--line); }
+.set .sn { color: var(--muted); font-size: 0.85rem; text-align: center; }
+.set .stepper button { width: 32px; height: 38px; }
+.set .stepper input { width: 46px; font-size: 1rem; }
+.set .stepper input[data-oact="reps"] { width: 34px; }
+.set .okbtn { justify-self: end; width: 42px; height: 38px; border-radius: 10px; border: 1.5px solid var(--line-strong); background: var(--surface); color: var(--line-strong); font-size: 1.15rem; font-weight: 700; }
+.set.ok .okbtn { background: var(--ok); border-color: var(--ok); color: var(--on-primary); }
+.set.ok .stepper { border-color: var(--ok); }
+.set.ok .stepper input { color: var(--ink); }
+.ex .add-row { border-top: 1px solid var(--line); }
+.chip[data-oday] { font-size: 0.82rem; }
+.restbar { position: fixed; left: 0; right: 0; bottom: calc(49px + env(safe-area-inset-bottom, 0px)); z-index: 21; display: flex; justify-content: center; pointer-events: none; }
+.restbar .inner { pointer-events: auto; width: calc(100% - 24px); max-width: 736px; margin-bottom: 8px; display: flex; align-items: center; gap: 10px; padding: 8px 10px 8px 16px;
+  background: linear-gradient(180deg, var(--band-1), var(--band-2)); color: var(--band-ink); border-radius: 14px; box-shadow: var(--shadow); }
+.restbar .rl { font-size: 0.88rem; color: var(--band-muted); }
+.restbar .rt { font-family: var(--display); font-weight: 800; font-size: 1.9rem; line-height: 1; flex: 1; }
+.restbar .rb { display: flex; gap: 6px; }
+.restbar button { border: 1px solid rgba(242, 230, 196, 0.25); background: rgba(0, 0, 0, 0.2); color: var(--band-ink); border-radius: 9px; padding: 7px 10px; font-weight: 600; }
+.restbar.done .inner { background: linear-gradient(180deg, #8a6410, #5c420a); }
+.restbar.done .rl { color: var(--band-ink); font-weight: 600; }
+/* while the rest timer shows: room for it under the last set, and messages appear above it */
+body:has(#restBar:not([hidden])) .app { padding-bottom: calc(160px + var(--kbpad, 0px)); }
+body:has(#restBar:not([hidden])) .toast { bottom: calc(136px + env(safe-area-inset-bottom, 0px)); }
+
 /* ---------- styrke ---------- */
 .lift { display: grid; grid-template-columns: 1fr auto auto; gap: 10px; align-items: center; width: 100%; text-align: left; background: none; border: 0; border-bottom: 1px solid var(--line); padding: 9px 0; }
 .lift .n { display: block; }
@@ -585,6 +618,19 @@ header.top h1 { font-family: var(--display); font-weight: 800; font-size: 1.85re
     </div>
   </section>
 
+  <!-- ================= TRENING: ØKT (workout logger) ================= -->
+  <section id="view-okt" hidden>
+    <div class="week-head" style="margin:6px 0 2px">
+      <h3 id="oktTitle">Økt</h3>
+      <span class="nav"><button id="oktCfgBtn" aria-label="Innstillinger for økter" title="Innstillinger">⚙</button></span>
+    </div>
+    <div class="help" id="oktSub" style="margin-bottom:6px"></div>
+    <div class="chips" id="oktDays"></div>
+    <div id="oktList"></div>
+    <h2 class="sec">Tidligere økter</h2>
+    <div class="hist" id="oktHist"></div>
+  </section>
+
   <!-- ================= TRENING: LOGG ================= -->
   <section id="view-logg" hidden>
     <div id="loggToday"></div>
@@ -630,12 +676,17 @@ header.top h1 { font-family: var(--display); font-weight: 800; font-size: 1.85re
   <button data-tab="plan" data-sec="kosthold" class="on">Dagsplan</button>
   <button data-tab="lager" data-sec="kosthold">Lager</button>
   <button data-tab="foods" data-sec="kosthold">Matvarer</button>
+  <button data-tab="okt" data-sec="trening" hidden>Økt</button>
   <button data-tab="logg" data-sec="trening" hidden>Logg</button>
   <button data-tab="styrke" data-sec="trening" hidden>Styrke</button>
   <button data-tab="dagbok" data-sec="trening" hidden>Dagbok</button>
   <button data-tab="maal" data-sec="trening" hidden>Mål</button>
 </div></nav>
 
+<div class="restbar" id="restBar" hidden><div class="inner">
+  <span class="rl" id="restLabel">Hvile</span><span class="rt" id="restTime">3:00</span>
+  <span class="rb"><button data-rest="-30" aria-label="30 sekunder kortere">−30</button><button data-rest="30" aria-label="30 sekunder lengre">+30</button><button data-rest="stop" aria-label="Stopp tidtakeren">✕</button></span>
+</div></div>
 <div id="sheetRoot"></div>
 <div id="toastRoot"></div>
 
@@ -680,10 +731,11 @@ const S = {
   tab: 'plan',
   foodQuery: '', foodCat: '',
   lastWrittenPlan: null,
-  ready: { foods: false, plans: false, profile: false, app: false, weeks: false, months: false, trening: false },
+  ready: { foods: false, plans: false, profile: false, app: false, weeks: false, months: false, trening: false, okter: false },
   section: 'kosthold', lastTab: {},
   weeks: new Map(), months: new Map(), trening: null, weeksDirty: new Set(),
   loggWeekNo: null, styrkeWeekNo: null,
+  okter: new Map(), oktDato: null, oktDayChoice: {},
 };
 
 /* =============================== helpers =============================== */
@@ -860,6 +912,13 @@ async function connectDb() {
     S.weeks = incoming; S.ready.weeks = true; renderAll();
   }, onErr('uker'));
 
+  db.collection('okter').onSnapshot((snap) => {
+    const incoming = new Map(snap.docs.map((d) => [d.id, clone(d.data())]));
+    // a session being edited right now stays as it is on screen until its own write has landed
+    for (const iso of [...oktTimers.keys(), ...oktInFlight]) { const id = oktId(iso); if (S.okter.has(id)) incoming.set(id, S.okter.get(id)); }
+    S.okter = incoming; S.ready.okter = true; renderAll();
+  }, onErr('økter'));
+
   db.collection('months').onSnapshot((snap) => {
     S.months = new Map(snap.docs.map((d) => [d.id, clone(d.data())]));
     S.ready.months = true; renderAll();
@@ -894,7 +953,8 @@ function setTab(tab) {
   if (tab !== 'profile') S.lastTab[S.section] = tab;
   for (const b of document.querySelectorAll('nav.tabs button')) b.classList.toggle('on', b.dataset.tab === tab);
   $('profileBtn').classList.toggle('on', tab === 'profile');
-  for (const v of ['plan', 'lager', 'foods', 'profile', 'logg', 'styrke', 'dagbok', 'maal']) $('view-' + v).hidden = tab !== v;
+  for (const v of ['plan', 'lager', 'foods', 'profile', 'okt', 'logg', 'styrke', 'dagbok', 'maal']) $('view-' + v).hidden = tab !== v;
+  if (tab === 'okt') keepAwake(); else releaseAwake();
   try { localStorage.setItem('forge.nav', JSON.stringify({ section: S.section, tab })); } catch (e) { /* ignore */ }
   window.scrollTo({ top: 0 });
   renderAll();
@@ -1633,6 +1693,7 @@ function exportJson() {
     trening: S.trening,
     uker: [...S.weeks.entries()].map(([id, w]) => ({ id, ...w })),
     maanedsmaal: [...S.months.entries()].map(([id, m]) => ({ id, ...m })),
+    okter: [...S.okter.entries()].map(([id, o]) => ({ id, ...o })),
   };
   saveFile('kostholdskalkulator_' + todayIso() + '.json', JSON.stringify(out, null, 1));
 }
@@ -1657,6 +1718,7 @@ async function importJson(e) {
   if (data.trening) { S.trening = Object.assign(clone(DEFAULT_TRENING), data.trening); if (S.db) await queueWrite(() => S.db.doc('settings/trening').set(clone(S.trening))); }
   for (const w of data.uker || []) { const { id, ...body } = w; if (id) { S.weeks.set(id, body); if (S.db) await queueWrite(() => S.db.doc('weeks/' + id).set(clone(body))); } }
   for (const m of data.maanedsmaal || []) { const { id, ...body } = m; if (id) { S.months.set(id, body); if (S.db) await queueWrite(() => S.db.doc('months/' + id).set(clone(body))); } }
+  for (const o of data.okter || []) { const { id, ...body } = o; if (id) { S.okter.set(id, body); if (S.db) await queueWrite(() => S.db.doc('okter/' + id).set(clone(body))); } }
   if (data.profil) { S.profile = Object.assign(clone(DEFAULT_PROFILE), data.profil); saveProfile(); }
   for (const f of data.matvarer || []) { const { id, ...body } = f; if (id) { S.foods.set(id, body); await saveFood(id, body); } }
   for (const r of data.lager || []) { const { id, ...body } = r; if (id) { S.inv.set(id, body); if (S.db) await queueWrite(() => S.db.doc('inventory/' + id).set(clone(body))); } }
@@ -2247,6 +2309,19 @@ async function importJefit(e) {
     if (w.okter === null || w.okter === undefined) w.okter = dates.size;
     await saveWeekNow(n);
   }
+  // Every session, set by set, for the Økt history. A date already logged in the app keeps the app's own record.
+  const byDate = new Map();
+  for (const r of relevant) { if (!byDate.has(r.dato)) byDate.set(r.dato, []); byDate.get(r.dato).push(r); }
+  for (const [iso, list] of byDate) {
+    const id = oktId(iso); const had = S.okter.get(id);
+    if (had && had.kilde !== 'jefit') continue;
+    const di = programDays().findIndex((d) => list.some((r) => d.ovelser.includes(r.navn)));
+    const o = { dato: iso, dag: di >= 0 ? di : null, navn: di >= 0 ? programDays()[di].navn : 'Økt', kilde: 'jefit',
+      ovelser: list.map((r) => ({ navn: r.navn, sett: r.sett.map(([kg, reps]) => ({ kg, reps, ok: true })) })) };
+    if (di >= 0) { const order = programDays()[di].ovelser; const pos = (n) => { const k = order.indexOf(n); return k < 0 ? 99 : k; }; o.ovelser.sort((a, b) => pos(a.navn) - pos(b.navn)); }
+    S.okter.set(id, o);
+    if (S.db) await queueWrite(() => S.db.doc('okter/' + id).set(clone(o)));
+  }
   S.styrkeWeekNo = Math.max(...byWeek.keys());
   const prs = new Set();
   for (const n of byWeek.keys()) for (const [name, e] of Object.entries(getWeek(n)?.styrke || {})) { const rm = epley(num(e.vekt), num(e.reps)); if (bestBefore.has(name) && rm > bestBefore.get(name) + 1e-9) prs.add(name); }
@@ -2354,8 +2429,323 @@ async function exportXlsx() {
   await saveFile('TheForge_' + todayIso() + '.xlsx', buf);
 }
 
+/* =============================== ØKT: logging a workout set by set ===============================
+   Today's session comes from the program (Mon = Push … Fri = Upper Body B). Each exercise shows what was done
+   last time and applies Matthews' double progression: once the working weight reached the top of the rep range
+   in enough sets, the next weight up is suggested. Every set is saved as soon as it is ticked off (collection
+   `okter`, one document per date), and the week's Styrke entry is rebuilt from the sessions, so there is
+   nothing to import afterwards. Warm-up sets are not logged. */
+const OKT_DEFAULT = { repsMin: 4, repsMax: 6, toppSett: 3, hvile: 180 };
+const oktCfg = () => Object.assign({}, OKT_DEFAULT, S.trening?.okt || {});
+const oktId = (iso) => 'o' + iso;
+const round2 = (v) => Math.round(v * 100) / 100;
+const kgTxt = (v) => (v === null || v === undefined || v === '') ? '' : fmt(v, 2).replace(/,?0+$/, '');
+const setsTxt = (sets) => sets.map((x) => `${kgTxt(x[0])}×${x[1]}`).join(', ');
+const loggedSets = (ex) => (ex?.sett || []).filter((x) => x.ok && x.kg > 0 && x.reps > 0).map((x) => [x.kg, x.reps]);
+const oktTimers = new Map(); const oktInFlight = new Set();
+const oktDate = () => S.oktDato || todayIso();
+
+function knownExercises() {
+  const names = new Set();
+  for (const d of programDays()) d.ovelser.forEach((n) => names.add(n));
+  for (const w of S.weeks.values()) Object.keys(w.styrke || {}).forEach((n) => names.add(n));
+  for (const o of S.okter.values()) (o.ovelser || []).forEach((e) => names.add(e.navn));
+  return [...names].sort((a, b) => a.localeCompare(b, 'nb'));
+}
+// Everything ever done on an exercise, newest first: the logged sessions, plus the weekly Styrke entries
+// (they hold the history from before there were sessions).
+function performances(name) {
+  const byDate = new Map();
+  for (const w of S.weeks.values()) { const e = w.styrke?.[name]; if (e?.dato && e.sett?.length) byDate.set(e.dato, e.sett.map((x) => [num(x[0]), num(x[1])])); }
+  for (const o of S.okter.values()) { const sets = loggedSets((o.ovelser || []).find((x) => x.navn === name)); if (sets.length) byDate.set(o.dato, sets); }
+  return [...byDate.entries()].map(([dato, sett]) => ({ dato, sett })).sort((a, b) => b.dato.localeCompare(a.dato));
+}
+const lastPerf = (name, iso) => performances(name).find((p) => p.dato < iso) || null;
+function bestRmBefore(name, iso) { let best = 0; for (const p of performances(name)) if (p.dato < iso) for (const x of p.sett) best = Math.max(best, epley(x[0], x[1]) || 0); return best; }
+// The weight step for an exercise: the smallest jump seen in its history (machines and dumbbells come in odd
+// steps), otherwise 2.5 kg for bars and dumbbells and 5 kg for machines and cables.
+function stepFor(name) {
+  const ws = new Set(); for (const p of performances(name)) p.sett.forEach((x) => ws.add(x[0]));
+  const v = [...ws].sort((a, b) => a - b); let step = null;
+  for (let i = 1; i < v.length; i++) { const d = round2(v[i] - v[i - 1]); if (d >= 0.5 && (step === null || d < step)) step = d; }
+  return (step && step <= 10) ? step : (/^(Barbell|Dumbbell)/.test(name) ? 2.5 : 5);
+}
+// Matthews' double progression: up a step once the top weight hit the top of the rep range in enough sets.
+function suggestion(name, iso) {
+  const cfg = oktCfg(); const last = lastPerf(name, iso);
+  if (!last) return { last: null, kg: null, reps: [], up: false };
+  const top = Math.max(...last.sett.map((x) => x[0]));
+  const topSets = last.sett.filter((x) => x[0] === top);
+  const up = topSets.filter((x) => x[1] >= cfg.repsMax).length >= cfg.toppSett;
+  const step = stepFor(name);
+  return { last, top, up, step, kg: up ? round2(top + step) : top, reps: up ? [] : topSets.map((x) => x[1]) };
+}
+function blankExercise(name, iso) {
+  const sg = suggestion(name, iso); const cfg = oktCfg();
+  return { navn: name, sett: [0, 1, 2].map((i) => ({ kg: sg.kg, reps: sg.up ? cfg.repsMin : (sg.reps[i] ?? sg.reps[sg.reps.length - 1] ?? cfg.repsMax), ok: false })) };
+}
+const templateFor = (iso) => { const i = dayIndexOf(iso); return i < programDays().length ? i : null; };
+function buildSession(iso, dag) {
+  const d = (dag === null || dag === undefined) ? null : programDays()[dag];
+  return { dato: iso, dag: d ? dag : null, navn: d ? d.navn : 'Fri økt', ovelser: d ? d.ovelser.map((n) => blankExercise(n, iso)) : [] };
+}
+// The session on screen: the saved one, or a fresh one from the program that is only saved once something is changed.
+function viewSession() {
+  const iso = oktDate(); const saved = S.okter.get(oktId(iso)); if (saved) return saved;
+  return buildSession(iso, iso in S.oktDayChoice ? S.oktDayChoice[iso] : templateFor(iso));
+}
+function realSession() {
+  const iso = oktDate(); let o = S.okter.get(oktId(iso));
+  if (!o) { o = viewSession(); o.opprettet = new Date().toISOString(); S.okter.set(oktId(iso), o); }
+  return o;
+}
+function saveOktSoon(iso) { clearTimeout(oktTimers.get(iso)); oktTimers.set(iso, setTimeout(() => saveOktNow(iso), 400)); }
+function saveOktNow(iso) {
+  clearTimeout(oktTimers.get(iso)); oktTimers.delete(iso);
+  if (!S.db) return;
+  const o = S.okter.get(oktId(iso)); oktInFlight.add(iso);
+  return queueWrite(() => o ? S.db.doc('okter/' + oktId(iso)).set(clone(o)) : S.db.doc('okter/' + oktId(iso)).delete()).finally(() => oktInFlight.delete(iso));
+}
+// Rebuild the week's Styrke entry for an exercise from the week's sessions: the session with the best set
+// (Epley) wins, exactly as the Jefit import chooses. An entry that came from `iso` is removed when nothing is left.
+function syncStyrke(name, iso) {
+  const n = weekNoOf(iso); if (n <= 0) return;
+  const mon = weekMonday(n), sun = isoOf(addDays(parseDate(mon), 6));
+  const inWeek = [...S.okter.values()].filter((o) => o.dato >= mon && o.dato <= sun);
+  const w = ensureWeek(n); const prev = w.styrke[name];
+  let best = null;
+  for (const o of inWeek) { const ex = (o.ovelser || []).find((x) => x.navn === name); const sets = loggedSets(ex); if (!sets.length) continue;
+    const b = bestSet(sets); const rm = epley(b[0], b[1]); if (!best || rm > best.rm) best = { o, ex, sets, b, rm }; }
+  if (best) {
+    const kommentar = best.ex.kommentar ?? (prev?.dato === best.o.dato ? (prev.kommentar || '') : '');
+    w.styrke[name] = { dato: best.o.dato, vekt: best.b[0], reps: best.b[1], sett: best.sets, kommentar };
+  } else if (prev && (prev.dato === iso || inWeek.some((o) => o.dato === prev.dato))) delete w.styrke[name];
+  const count = inWeek.filter((o) => (o.ovelser || []).some((x) => loggedSets(x).length)).length;
+  if (count > num(w.okter)) w.okter = count;
+  saveWeekSoon(n);
+}
+function oktChanged(names) {
+  const iso = oktDate(); saveOktSoon(iso);
+  for (const n of new Set(names)) syncStyrke(n, iso);
+  renderOkt();
+}
+
+function renderOkt() {
+  if (!S.ready.okter || !S.ready.weeks || !S.ready.trening) { $('oktList').innerHTML = '<div class="empty">Laster …</div>'; return; }
+  const iso = oktDate(); const o = viewSession(); const isToday = iso === todayIso();
+  const dayTxt = nbDate(iso); const wk = weekNoOf(iso);
+  $('oktTitle').textContent = (isToday ? 'I dag' : dayTxt.charAt(0).toUpperCase() + dayTxt.slice(1)) + ' · ' + o.navn;
+  $('oktSub').innerHTML = (wk > 0 ? weekLabel(wk) + (isToday ? ' · ' + dayTxt : '') : dayTxt) + (isToday ? '' : ` · <button class="link-btn" id="oktToday">tilbake til i dag</button>`);
+  $('oktDays').innerHTML = programDays().map((d, i) => `<button class="chip${o.dag === i ? ' on' : ''}" data-oday="${i}">${esc(d.dag)} · ${esc(d.navn)}</button>`).join('')
+    + `<button class="chip${o.dag === null ? ' on' : ''}" data-oday="free">Fri økt</button>`;
+  renderOktHistory(iso);
+  const host = $('oktList'); const json = JSON.stringify(o);
+  const act = document.activeElement; if (act && host.contains(act) && act.tagName === 'INPUT' && host.dataset.json === json) return;
+  host.dataset.json = json;
+  const saved = S.okter.has(oktId(iso));
+  host.innerHTML = o.ovelser.map((ex, i) => exHtml(ex, i, iso)).join('')
+    + (o.ovelser.length ? '' : '<div class="empty">Ingen øvelser ennå.</div>')
+    + `<div class="add-row"><button class="link-btn" data-oact="addex">+ Legg til øvelse</button>${saved ? '<span class="tools"><button class="link-btn" data-oact="delsession">Slett økten</button></span>' : ''}</div>`;
+}
+function exHtml(ex, i, iso) {
+  const sg = suggestion(ex.navn, iso); const cfg = oktCfg();
+  const last = sg.last ? `Sist ${shortDate(sg.last.dato)}: ${setsTxt(sg.last.sett)}` : 'Første gang';
+  const hint = !sg.last ? '' : sg.up ? ` · <span class="up">↑ opp til ${kgTxt(sg.kg)} kg</span>` : ` · samme vekt, mot ${cfg.repsMax} reps`;
+  const done = ex.sett.filter((x) => x.ok).length;
+  return `<section class="ex" data-ex="${i}">
+    <div class="ex-head"><h3>${esc(ex.navn)}</h3><span class="ex-count${done && done === ex.sett.length ? ' all' : ''}">${done}/${ex.sett.length}</span><button class="icon-btn" data-oact="exmenu" aria-label="Valg for ${esc(ex.navn)}">⋯</button></div>
+    <div class="ex-last">${last}${hint}</div>
+    ${ex.kommentar ? `<div class="ex-note">${esc(ex.kommentar)}</div>` : ''}
+    ${ex.sett.map((x, j) => `<div class="set${x.ok ? ' ok' : ''}" data-set="${j}"><span class="sn">${j + 1}</span>
+      <div class="stepper"><button data-oact="kg-" aria-label="Mindre vekt">−</button><input data-oact="kg" inputmode="decimal" value="${kgTxt(x.kg)}" aria-label="Vekt i kg"><span class="u">kg</span><button data-oact="kg+" aria-label="Mer vekt">+</button></div>
+      <div class="stepper"><button data-oact="r-" aria-label="Færre reps">−</button><input data-oact="reps" inputmode="numeric" value="${x.reps ?? ''}" aria-label="Reps"><button data-oact="r+" aria-label="Flere reps">+</button></div>
+      <button class="okbtn" data-oact="ok" aria-label="${x.ok ? 'Angre settet' : 'Logg settet'}">✓</button></div>`).join('')}
+    <div class="add-row"><button class="link-btn" data-oact="addset">+ Sett</button><span class="tools"><button class="link-btn" data-oact="note">${ex.kommentar ? 'Endre kommentar' : 'Kommentar'}</button></span></div>
+  </section>`;
+}
+function renderOktHistory(curIso) {
+  const all = [...S.okter.values()].filter((o) => o.dato !== curIso && (o.ovelser || []).some((x) => loggedSets(x).length)).sort((a, b) => b.dato.localeCompare(a.dato));
+  const list = all.slice(0, S.oktHistAll ? all.length : 10);
+  $('oktHist').innerHTML = list.map((o) => {
+    const sets = o.ovelser.reduce((a, x) => a + loggedSets(x).length, 0);
+    return `<button data-odate="${o.dato}"><span class="u">${shortDate(o.dato)}</span><span class="n">${esc(o.navn)} · ${o.ovelser.filter((x) => loggedSets(x).length).length} øvelser</span><span class="v">${sets} sett</span><span></span></button>`;
+  }).join('') + (all.length > list.length ? `<div class="add-row"><button class="link-btn" id="oktHistMore">Vis alle ${all.length}</button></div>` : '')
+    || '<div class="empty">Ingen økter logget ennå. Importer hele Jefit-historikken under Styrke for å få dem med.</div>';
+}
+
+function bindOkt() {
+  $('oktList').addEventListener('click', async (e) => {
+    const b = e.target.closest('[data-oact]'); if (!b || b.tagName === 'INPUT') return;
+    const act = b.dataset.oact; const iso = oktDate();
+    if (act === 'addex') { pickExercise(null); return; }
+    if (act === 'delsession') {
+      if (!(await askConfirm('Slett økten', `Slette økten ${nbDate(iso)}? Settene fjernes også fra Styrke.`))) return;
+      const o = S.okter.get(oktId(iso)); if (!o) return;
+      S.okter.delete(oktId(iso)); saveOktNow(iso);
+      for (const ex of o.ovelser || []) syncStyrke(ex.navn, iso);
+      renderOkt(); return;
+    }
+    const i = Number(b.closest('[data-ex]').dataset.ex);
+    if (act === 'exmenu') { exMenu(i); return; }
+    const o = realSession(); const ex = o.ovelser[i]; if (!ex) return;
+    if (act === 'note') { const v = await askText('Kommentar', ex.navn + (ex.kommentar ? ' (skriv - for å fjerne)' : ''), ex.kommentar || '', 'Lagre'); if (v === null) return; ex.kommentar = v === '-' ? '' : v; oktChanged([ex.navn]); return; }
+    if (act === 'addset') { const l = ex.sett[ex.sett.length - 1]; ex.sett.push({ kg: l?.kg ?? null, reps: l?.reps ?? oktCfg().repsMax, ok: false }); oktChanged([ex.navn]); return; }
+    const j = Number(b.closest('[data-set]').dataset.set); const x = ex.sett[j]; if (!x) return;
+    const step = stepFor(ex.navn);
+    if (act === 'kg-') x.kg = Math.max(0, round2(num(x.kg) - step));
+    else if (act === 'kg+') x.kg = round2(num(x.kg) + step);
+    else if (act === 'r-') x.reps = Math.max(0, num(x.reps) - 1);
+    else if (act === 'r+') x.reps = num(x.reps) + 1;
+    else if (act === 'ok') {
+      if (x.ok) { x.ok = false; oktChanged([ex.navn]); return; }
+      if (!(x.kg > 0) || !(x.reps > 0)) { toast('Fyll inn vekt og reps først'); return; }
+      // a record: better than anything before this session and earlier in it
+      let before = bestRmBefore(ex.navn, iso); for (const y of ex.sett) if (y.ok && y !== x) before = Math.max(before, epley(y.kg, y.reps) || 0);
+      const rm = epley(x.kg, x.reps);
+      x.ok = true;
+      for (const y of ex.sett.slice(j + 1)) if (!y.ok) y.kg = x.kg;   // a changed weight carries on to the next sets
+      startRest();
+      oktChanged([ex.navn]);
+      if (before > 0 && rm > before + 1e-9) {
+        toast(`★ Ny rekord: ${ex.navn} – estimert 1RM ${fmt(rm, 1)} kg`);
+        sparkBurst(document.querySelector(`#oktList [data-ex="${i}"] [data-set="${j}"] .okbtn`), { n: 9, reach: 40, y: 0.4 });
+      }
+      return;
+    }
+    if (x.ok) oktChanged([ex.navn]); else { saveOktSoon(iso); renderOkt(); }
+  });
+  $('oktList').addEventListener('change', (e) => {
+    const inp = e.target.closest('input[data-oact]'); if (!inp) return;
+    const i = Number(inp.closest('[data-ex]').dataset.ex), j = Number(inp.closest('[data-set]').dataset.set);
+    const v = parseNum(inp.value); const o = realSession(); const ex = o.ovelser[i]; const x = ex?.sett[j]; if (!x) return;
+    if (v === null || v < 0) { renderOkt(); return; }
+    if (inp.dataset.oact === 'kg') x.kg = round2(v); else x.reps = Math.round(v);
+    oktChanged([ex.navn]);
+  });
+  $('oktDays').addEventListener('click', async (e) => {
+    const b = e.target.closest('[data-oday]'); if (!b) return;
+    const dag = b.dataset.oday === 'free' ? null : Number(b.dataset.oday);
+    const iso = oktDate(); const saved = S.okter.get(oktId(iso));
+    if (saved && saved.dag === dag) return;
+    if (saved) {
+      const logged = saved.ovelser.some((x) => x.sett.some((y) => y.ok));
+      if (logged && !(await askConfirm('Bytte økt?', 'Settene du har logget i denne økten fjernes.', 'Bytt'))) return;
+      const old = saved.ovelser.map((x) => x.navn);
+      S.okter.set(oktId(iso), Object.assign(buildSession(iso, dag), { opprettet: saved.opprettet }));
+      oktChanged(old); return;
+    }
+    S.oktDayChoice[iso] = dag; renderOkt();
+  });
+  $('oktHist').addEventListener('click', (e) => {
+    if (e.target.closest('#oktHistMore')) { S.oktHistAll = true; renderOkt(); return; }
+    const b = e.target.closest('button[data-odate]'); if (!b) return;
+    S.oktDato = b.dataset.odate; window.scrollTo({ top: 0 }); renderOkt();
+  });
+  $('oktSub').addEventListener('click', (e) => { if (e.target.closest('#oktToday')) { S.oktDato = null; renderOkt(); } });
+  $('oktCfgBtn').addEventListener('click', openOktSettings);
+  $('restBar').addEventListener('click', (e) => {
+    const b = e.target.closest('[data-rest]'); if (!b) return;
+    if (b.dataset.rest === 'stop') { stopRest(); return; }
+    REST.end += Number(b.dataset.rest) * 1000; if (REST.end > Date.now()) REST.rang = false; saveRest(); tickRest();
+  });
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') { tickRest(); if (S.tab === 'okt') keepAwake(); } });
+  // a timer still running from before the app was closed
+  try { const end = Number(localStorage.getItem('forge.rest')); if (end && Date.now() - end < 600000) { REST.end = end; REST.rang = Date.now() > end; REST.iv = setInterval(tickRest, 250); tickRest(); } } catch (err) { /* ignore */ }
+}
+function exMenu(i) {
+  const o = viewSession(); const ex = o.ovelser[i]; if (!ex) return;
+  const hist = performances(ex.navn).slice(0, 12);
+  const body = `<div class="stack">
+    <div class="row"><button class="btn small" id="exSwap">Bytt øvelse</button>${i > 0 ? '<button class="btn small" id="exUp">Flytt opp</button>' : ''}<button class="btn small danger" id="exDel">Fjern fra økten</button></div>
+    <p class="help" style="margin:0">Vektsteg: ${kgTxt(stepFor(ex.navn))} kg (minste hopp i historikken). Trykk på et tall for å skrive inn en annen vekt.</p>
+    ${hist.length ? `<div class="wide"><table class="t"><tr><th>Dato</th><th>Sett</th><th>Est. 1RM</th></tr>${hist.map((p) => { const b = bestSet(p.sett); return `<tr><td>${shortDate(p.dato)}</td><td>${setsTxt(p.sett)}</td><td>${fmt(epley(b[0], b[1]), 1)}</td></tr>`; }).join('')}</table></div>` : '<p class="help">Ingen historikk ennå.</p>'}
+  </div>`;
+  const sh = openSheet(ex.navn, body, '<button class="btn" data-close>Lukk</button>');
+  sh.querySelector('#exSwap').addEventListener('click', () => { closeSheet(); pickExercise(i); });
+  sh.querySelector('#exUp')?.addEventListener('click', () => { const r = realSession(); const [m] = r.ovelser.splice(i, 1); r.ovelser.splice(i - 1, 0, m); closeSheet(); oktChanged([]); });
+  sh.querySelector('#exDel').addEventListener('click', async () => {
+    closeSheet();
+    if (ex.sett.some((x) => x.ok) && !(await askConfirm('Fjerne øvelsen?', `Settene du har logget på ${ex.navn} i denne økten fjernes.`, 'Fjern'))) return;
+    const r = realSession(); r.ovelser.splice(i, 1); oktChanged([ex.navn]);
+  });
+}
+// Pick an exercise to add (replace = null) or to put in place of exercise number `replace`.
+function pickExercise(replace) {
+  const o = viewSession(); const inSession = new Set(o.ovelser.map((x) => x.navn));
+  const names = knownExercises().filter((n) => !inSession.has(n));
+  const body = `<input class="search" id="exSearch" type="search" placeholder="Søk" autocomplete="off" style="margin-bottom:6px">
+    <div class="plan-list" id="exPick">${names.map((n) => `<button data-pick="${esc(n)}"><span>${esc(n)}</span></button>`).join('')}</div>
+    <div class="add-row"><button class="link-btn" id="exNew">+ Ny øvelse</button></div>`;
+  const sh = openSheet(replace === null ? 'Legg til øvelse' : 'Bytt øvelse', body, '<button class="btn" data-close>Avbryt</button>');
+  const use = async (name) => {
+    closeSheet(); const r = realSession(); const fresh = blankExercise(name, oktDate());
+    if (replace === null) { r.ovelser.push(fresh); oktChanged([name]); return; }
+    const old = r.ovelser[replace];
+    if (old.sett.some((x) => x.ok) && !(await askConfirm('Bytte øvelse?', `Settene du har logget på ${old.navn} i denne økten fjernes.`, 'Bytt'))) return;
+    r.ovelser[replace] = fresh; oktChanged([old.navn, name]);
+  };
+  sh.querySelector('#exSearch').addEventListener('input', (e) => { const q = e.target.value.trim().toLowerCase(); for (const b of sh.querySelectorAll('[data-pick]')) b.hidden = q && !b.dataset.pick.toLowerCase().includes(q); });
+  sh.querySelector('#exPick').addEventListener('click', (e) => { const b = e.target.closest('[data-pick]'); if (b) use(b.dataset.pick); });
+  sh.querySelector('#exNew').addEventListener('click', async () => { const n = await askText('Ny øvelse', 'Navn på øvelsen', '', 'Legg til'); if (n) use(n); });
+}
+function openOktSettings() {
+  const c = oktCfg();
+  const pick = (key, opts, fmtOpt) => `<div class="pick" data-key="${key}">${opts.map((v) => `<button type="button" data-v="${v}" class="${c[key] === v ? 'on' : ''}">${fmtOpt(v)}</button>`).join('')}</div>`;
+  const body = `<div class="stack">
+    <div class="grid2"><label class="f">Reps, nederst<input id="ocMin" inputmode="numeric" value="${c.repsMin}"></label><label class="f">Reps, øverst<input id="ocMax" inputmode="numeric" value="${c.repsMax}"></label></div>
+    <div><div class="help" style="margin-bottom:4px">Øk vekten når toppen av intervallet er nådd i</div>${pick('toppSett', [1, 2, 3], (v) => v + (v === 1 ? ' sett' : ' sett'))}</div>
+    <p class="help" style="margin:0">Matthews: øk når du når toppen i ett, to eller tre sett – nybegynnere klarer seg ofte med ett. Vekten går opp med øvelsens minste vektsteg.</p>
+    <div><div class="help" style="margin-bottom:4px">Hviletid mellom sett</div>${pick('hvile', [120, 150, 180, 210, 240], (v) => Math.floor(v / 60) + ':' + String(v % 60).padStart(2, '0'))}</div>
+  </div>`;
+  const sh = openSheet('Innstillinger for økter', body, '<button class="btn" data-close>Avbryt</button><button class="btn primary" id="ocSave">Lagre</button>');
+  sh.addEventListener('click', (e) => { const b = e.target.closest('.pick button'); if (!b) return; const k = b.parentElement.dataset.key; c[k] = Number(b.dataset.v); for (const x of b.parentElement.children) x.classList.toggle('on', x === b); });
+  sh.querySelector('#ocSave').addEventListener('click', () => {
+    const lo = parseNum(sh.querySelector('#ocMin').value), hi = parseNum(sh.querySelector('#ocMax').value);
+    if (lo > 0 && hi >= lo) { c.repsMin = Math.round(lo); c.repsMax = Math.round(hi); }
+    S.trening.okt = c; if (S.db) queueWrite(() => S.db.doc('settings/trening').set(clone(S.trening)));
+    closeSheet(); renderOkt(); toast('Lagret');
+  });
+}
+
+/* ---- rest timer: starts when a set is ticked off; chimes (and vibrates, where allowed) when the rest is over ---- */
+const REST = { end: 0, iv: null, rang: false };
+const saveRest = () => { try { if (REST.end) localStorage.setItem('forge.rest', String(REST.end)); else localStorage.removeItem('forge.rest'); } catch (e) { /* ignore */ } };
+function startRest() {
+  REST.end = Date.now() + oktCfg().hvile * 1000; REST.rang = false; saveRest(); unlockAudio();
+  if (!REST.iv) REST.iv = setInterval(tickRest, 250);
+  tickRest(); keepAwake();
+}
+function stopRest() { REST.end = 0; clearInterval(REST.iv); REST.iv = null; saveRest(); $('restBar').hidden = true; }
+function tickRest() {
+  if (!REST.end) return;
+  const left = Math.round((REST.end - Date.now()) / 1000);
+  if (left < -600) { stopRest(); return; }   // a timer left running long after the session
+  const bar = $('restBar'); bar.hidden = false; bar.classList.toggle('done', left <= 0);
+  if (left <= 0 && !REST.rang) { REST.rang = true; chime(); try { navigator.vibrate?.([220, 120, 220]); } catch (e) { /* ignore */ } }
+  $('restLabel').textContent = left <= 0 ? 'Klar for neste sett' : 'Hvile';
+  const a = Math.abs(left); $('restTime').textContent = (left < 0 ? '+' : '') + Math.floor(a / 60) + ':' + String(a % 60).padStart(2, '0');
+}
+let audioCtx = null;
+function unlockAudio() { try { audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)(); if (audioCtx.state === 'suspended') audioCtx.resume(); } catch (e) { audioCtx = null; } }
+function chime() {
+  if (!audioCtx) return;
+  try {
+    const t0 = audioCtx.currentTime;
+    [0, 0.28, 0.56].forEach((d, k) => {
+      const osc = audioCtx.createOscillator(), g = audioCtx.createGain();
+      osc.type = 'sine'; osc.frequency.value = k === 2 ? 1175 : 880;
+      g.gain.setValueAtTime(0.0001, t0 + d); g.gain.exponentialRampToValueAtTime(0.4, t0 + d + 0.02); g.gain.exponentialRampToValueAtTime(0.0001, t0 + d + 0.24);
+      osc.connect(g); g.connect(audioCtx.destination); osc.start(t0 + d); osc.stop(t0 + d + 0.26);
+    });
+  } catch (e) { /* ignore */ }
+}
+// Keep the screen on while the Økt tab is open, where the browser allows it.
+let wakeLock = null;
+async function keepAwake() { try { if (!wakeLock && document.visibilityState === 'visible' && navigator.wakeLock) { wakeLock = await navigator.wakeLock.request('screen'); wakeLock.addEventListener?.('release', () => { wakeLock = null; }); } } catch (e) { wakeLock = null; } }
+function releaseAwake() { try { wakeLock?.release(); } catch (e) { /* ignore */ } wakeLock = null; }
+
 /* ---- section / tab plumbing ---- */
-const SEC_TABS = { kosthold: ['plan', 'lager', 'foods'], trening: ['logg', 'styrke', 'dagbok', 'maal'] };
+const SEC_TABS = { kosthold: ['plan', 'lager', 'foods'], trening: ['okt', 'logg', 'styrke', 'dagbok', 'maal'] };
 function setSection(sec, tab) {
   S.section = sec;
   for (const b of document.querySelectorAll('.seg button')) b.classList.toggle('on', b.dataset.sec === sec);
@@ -2365,9 +2755,10 @@ function setSection(sec, tab) {
 function renderTrening() {
   if (!S.ready.weeks || !S.ready.months || !S.ready.trening) return;
   renderLogg(); renderStyrke(); renderDagbok(); renderMaal();
+  if (S.tab === 'okt') renderOkt();
 }
 function bindTrening() {
-  bindLogg(); bindStyrke(); bindDagbok(); bindMaal();
+  bindLogg(); bindStyrke(); bindDagbok(); bindMaal(); bindOkt();
   $('exportXlsxBtn').addEventListener('click', exportXlsx);
   $('useAvgBtn').addEventListener('click', () => {
     const cur = currentWeekNo(); let src = null;

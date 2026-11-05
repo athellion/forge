@@ -2725,7 +2725,7 @@ function tickRest() {
   const over = ms <= 0;
   const secs = over ? Math.floor(-ms / 1000) : Math.ceil(ms / 1000);   // seconds to go, or seconds past
   const bar = $('restBar'); bar.hidden = false; bar.classList.toggle('done', over);
-  if (!over && secs <= 3 && REST.beeped !== secs) { REST.beeped = secs; beep(660, 0.12, 0.3); }
+  if (!over && secs <= 3 && REST.beeped !== secs) { REST.beeped = secs; beep(1760, 0.13, 0.22, 0, 'square'); }
   if (!over && secs > 3) REST.beeped = null;   // after +30 the countdown can play again
   if (over && !REST.rang) { REST.rang = true; chime(); try { navigator.vibrate?.([220, 120, 220]); } catch (e) { /* ignore */ } }
   $('restLabel').textContent = over ? 'Klar for neste sett' : 'Hvile';
@@ -2735,19 +2735,20 @@ let audioCtx = null;
 // Browsers only allow sound after a tap, so any tap in the app switches it on (also for a timer restored after reopening).
 document.addEventListener('pointerdown', () => { if (REST.end) unlockAudio(); }, { passive: true });
 function unlockAudio() { try { audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)(); if (audioCtx.state === 'suspended') audioCtx.resume(); } catch (e) { audioCtx = null; } }
-// One short tone: frequency (Hz), length (s), loudness (0-1), start delay (s).
-function beep(freq, dur, vol, delay = 0) {
+// One short tone: frequency (Hz), length (s), loudness (0-1), start delay (s), wave shape.
+// A square wave at around 1.5-2 kHz cuts through music (which sits mostly lower) without being much louder.
+function beep(freq, dur, vol, delay = 0, type = 'sine') {
   if (!audioCtx) return;
   try {
     const t = audioCtx.currentTime + delay;
     const osc = audioCtx.createOscillator(), g = audioCtx.createGain();
-    osc.type = 'sine'; osc.frequency.value = freq;
+    osc.type = type; osc.frequency.value = freq;
     g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(vol, t + 0.02); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
     osc.connect(g); g.connect(audioCtx.destination); osc.start(t); osc.stop(t + dur + 0.02);
   } catch (e) { /* ignore */ }
 }
-// Time's up: a longer, brighter rising triple, clearly different from the countdown beeps.
-function chime() { beep(880, 0.24, 0.45, 0); beep(880, 0.24, 0.45, 0.28); beep(1175, 0.45, 0.5, 0.56); }
+// Time's up: a rising triple with a long last note, clearly different from the countdown pips.
+function chime() { beep(1568, 0.2, 0.22, 0, 'square'); beep(1568, 0.2, 0.22, 0.26, 'square'); beep(2093, 0.5, 0.25, 0.52, 'square'); }
 // Keep the screen on while the Økt tab is open, where the browser allows it.
 let wakeLock = null;
 async function keepAwake() { try { if (!wakeLock && document.visibilityState === 'visible' && navigator.wakeLock) { wakeLock = await navigator.wakeLock.request('screen'); wakeLock.addEventListener?.('release', () => { wakeLock = null; }); } } catch (e) { wakeLock = null; } }

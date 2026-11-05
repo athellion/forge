@@ -2468,7 +2468,9 @@ function stepFor(name) {
   const ws = new Set(); for (const p of performances(name)) p.sett.forEach((x) => ws.add(x[0]));
   const v = [...ws].sort((a, b) => a - b); let step = null;
   for (let i = 1; i < v.length; i++) { const d = round2(v[i] - v[i - 1]); if (d >= 0.5 && (step === null || d < step)) step = d; }
-  return (step && step <= 10) ? step : (/^(Barbell|Dumbbell)/.test(name) ? 2.5 : 5);
+  // A bar can always go up by 2.5 kg (1.25 a side), even when the history only shows bigger jumps.
+  if (/^Barbell/.test(name)) return step ? Math.min(step, 2.5) : 2.5;
+  return (step && step <= 10) ? step : (/^Dumbbell/.test(name) ? 2.5 : 5);
 }
 // Matthews' double progression: up a step once the top weight hit the top of the rep range in enough sets.
 function suggestion(name, iso) {
@@ -2657,7 +2659,7 @@ function exMenu(i) {
   const hist = performances(ex.navn).slice(0, 12);
   const body = `<div class="stack">
     <div class="row"><button class="btn small" id="exSwap">Bytt øvelse</button>${i > 0 ? '<button class="btn small" id="exUp">Flytt opp</button>' : ''}<button class="btn small danger" id="exDel">Fjern fra økten</button></div>
-    <p class="help" style="margin:0">Vektsteg: ${kgTxt(stepFor(ex.navn))} kg (minste hopp i historikken). Trykk på et tall for å skrive inn en annen vekt.</p>
+    <p class="help" style="margin:0">Vektsteg: ${kgTxt(stepFor(ex.navn))} kg (minste hopp i historikken, høyst 2,5 kg på stang). Trykk på et tall for å skrive inn en annen vekt.</p>
     ${hist.length ? `<div class="wide"><table class="t"><tr><th>Dato</th><th>Sett</th><th>Est. 1RM</th></tr>${hist.map((p) => { const b = bestSet(p.sett); return `<tr><td>${shortDate(p.dato)}</td><td>${setsTxt(p.sett)}</td><td>${fmt(epley(b[0], b[1]), 1)}</td></tr>`; }).join('')}</table></div>` : '<p class="help">Ingen historikk ennå.</p>'}
   </div>`;
   const sh = openSheet(ex.navn, body, '<button class="btn" data-close>Lukk</button>');
@@ -2707,38 +2709,46 @@ function openOktSettings() {
   });
 }
 
-/* ---- rest timer: starts when a set is ticked off; chimes (and vibrates, where allowed) when the rest is over ---- */
-const REST = { end: 0, iv: null, rang: false };
+/* ---- rest timer: starts when a set is ticked off. Short beeps at 3, 2 and 1 seconds left, then a chime
+   (and a vibration, where allowed) when the rest is over - so the phone can stay in the pocket. ---- */
+const REST = { end: 0, iv: null, rang: false, beeped: null };
 const saveRest = () => { try { if (REST.end) localStorage.setItem('forge.rest', String(REST.end)); else localStorage.removeItem('forge.rest'); } catch (e) { /* ignore */ } };
 function startRest() {
-  REST.end = Date.now() + oktCfg().hvile * 1000; REST.rang = false; saveRest(); unlockAudio();
+  REST.end = Date.now() + oktCfg().hvile * 1000; REST.rang = false; REST.beeped = null; saveRest(); unlockAudio();
   if (!REST.iv) REST.iv = setInterval(tickRest, 250);
   tickRest(); keepAwake();
 }
 function stopRest() { REST.end = 0; clearInterval(REST.iv); REST.iv = null; saveRest(); $('restBar').hidden = true; }
 function tickRest() {
   if (!REST.end) return;
-  const left = Math.round((REST.end - Date.now()) / 1000);
-  if (left < -600) { stopRest(); return; }   // a timer left running long after the session
-  const bar = $('restBar'); bar.hidden = false; bar.classList.toggle('done', left <= 0);
-  if (left <= 0 && !REST.rang) { REST.rang = true; chime(); try { navigator.vibrate?.([220, 120, 220]); } catch (e) { /* ignore */ } }
-  $('restLabel').textContent = left <= 0 ? 'Klar for neste sett' : 'Hvile';
-  const a = Math.abs(left); $('restTime').textContent = (left < 0 ? '+' : '') + Math.floor(a / 60) + ':' + String(a % 60).padStart(2, '0');
+  const ms = REST.end - Date.now();
+  if (ms < -600000) { stopRest(); return; }   // a timer left running long after the session
+  const over = ms <= 0;
+  const secs = over ? Math.floor(-ms / 1000) : Math.ceil(ms / 1000);   // seconds to go, or seconds past
+  const bar = $('restBar'); bar.hidden = false; bar.classList.toggle('done', over);
+  if (!over && secs <= 3 && REST.beeped !== secs) { REST.beeped = secs; beep(660, 0.12, 0.3); }
+  if (!over && secs > 3) REST.beeped = null;   // after +30 the countdown can play again
+  if (over && !REST.rang) { REST.rang = true; chime(); try { navigator.vibrate?.([220, 120, 220]); } catch (e) { /* ignore */ } }
+  $('restLabel').textContent = over ? 'Klar for neste sett' : 'Hvile';
+  $('restTime').textContent = (over && secs > 0 ? '+' : '') + Math.floor(secs / 60) + ':' + String(secs % 60).padStart(2, '0');
 }
 let audioCtx = null;
+// Browsers only allow sound after a tap, so any tap in the app switches it on (also for a timer restored after reopening).
+document.addEventListener('pointerdown', () => { if (REST.end) unlockAudio(); }, { passive: true });
 function unlockAudio() { try { audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)(); if (audioCtx.state === 'suspended') audioCtx.resume(); } catch (e) { audioCtx = null; } }
-function chime() {
+// One short tone: frequency (Hz), length (s), loudness (0-1), start delay (s).
+function beep(freq, dur, vol, delay = 0) {
   if (!audioCtx) return;
   try {
-    const t0 = audioCtx.currentTime;
-    [0, 0.28, 0.56].forEach((d, k) => {
-      const osc = audioCtx.createOscillator(), g = audioCtx.createGain();
-      osc.type = 'sine'; osc.frequency.value = k === 2 ? 1175 : 880;
-      g.gain.setValueAtTime(0.0001, t0 + d); g.gain.exponentialRampToValueAtTime(0.4, t0 + d + 0.02); g.gain.exponentialRampToValueAtTime(0.0001, t0 + d + 0.24);
-      osc.connect(g); g.connect(audioCtx.destination); osc.start(t0 + d); osc.stop(t0 + d + 0.26);
-    });
+    const t = audioCtx.currentTime + delay;
+    const osc = audioCtx.createOscillator(), g = audioCtx.createGain();
+    osc.type = 'sine'; osc.frequency.value = freq;
+    g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(vol, t + 0.02); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    osc.connect(g); g.connect(audioCtx.destination); osc.start(t); osc.stop(t + dur + 0.02);
   } catch (e) { /* ignore */ }
 }
+// Time's up: a longer, brighter rising triple, clearly different from the countdown beeps.
+function chime() { beep(880, 0.24, 0.45, 0); beep(880, 0.24, 0.45, 0.28); beep(1175, 0.45, 0.5, 0.56); }
 // Keep the screen on while the Økt tab is open, where the browser allows it.
 let wakeLock = null;
 async function keepAwake() { try { if (!wakeLock && document.visibilityState === 'visible' && navigator.wakeLock) { wakeLock = await navigator.wakeLock.request('screen'); wakeLock.addEventListener?.('release', () => { wakeLock = null; }); } } catch (e) { wakeLock = null; } }

@@ -587,7 +587,6 @@ header.top h1 { font-family: var(--display); font-weight: 800; font-size: 1.85re
       <button type="button" role="radio" data-theme-opt="dark">Mørk</button>
     </div>
     <p class="help">Automatisk følger innstillingen på telefonen eller PC-en.</p>
-    <label class="radio" id="fsAutoRow" style="margin-top:10px"><input type="checkbox" id="fsAuto"><span>Fullskjerm ved første trykk<br><span class="d">Bare på denne enheten. Nettleseren tillater ikke fullskjerm før du har trykket et sted.</span></span><span></span></label>
     <h2 class="sec">Trening</h2>
     <label class="f" style="max-width:260px">Første treningsuke starter<input id="pStart" type="date" style="color:var(--ink)"></label>
     <p class="help">Ukenumrene i Trening regnes fra mandagen i denne uken. Lørdagen før er startdagen for målingene.</p>
@@ -2642,25 +2641,11 @@ const FS_IN = 'M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5', FS_OUT = 'M9 4v5H4M15 4v
 const fsEl = () => document.fullscreenElement || document.webkitFullscreenElement;
 function markFs() { const on = !!fsEl(); $('fsIcon').setAttribute('d', on ? FS_OUT : FS_IN); $('fsBtn').setAttribute('aria-label', on ? 'Avslutt fullskjerm' : 'Fullskjerm'); }
 document.addEventListener('fullscreenchange', markFs); document.addEventListener('webkitfullscreenchange', markFs);
-// Browsers only allow fullscreen in response to a tap, so "automatic" means: the first tap after the app opens
-// (or comes back to the foreground). Leaving fullscreen with the button disarms it until next time.
-let fsArmed = true;
 // Fullscreen is a phone feature, for when the app is used in a browser tab. Installed, it already opens
 // without browser bars, so the button and the option are hidden then (and always on a computer).
 const isPhone = (() => { try { return matchMedia('(pointer: coarse)').matches && !matchMedia('(pointer: fine)').matches; } catch (e) { return false; } })();
-if (!isPhone || isStandalone()) { $('fsBtn').hidden = true; $('fsAutoRow').hidden = true; }
-const fsAutoOn = () => { try { return localStorage.getItem('forge.fsAuto') === '1'; } catch (e) { return false; } };
-$('fsAuto').checked = fsAutoOn();
-$('fsAuto').addEventListener('change', (e) => { try { localStorage.setItem('forge.fsAuto', e.target.checked ? '1' : '0'); } catch (err) { /* ignore */ } fsArmed = !e.target.checked; });
-document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') fsArmed = true; });
-document.addEventListener('click', (e) => {
-  if (!isPhone || !fsArmed || !fsAutoOn() || fsEl() || e.target.closest('#fsBtn, #fsAuto')) return;
-  fsArmed = false;
-  const el = document.documentElement; const req = el.requestFullscreen || el.webkitRequestFullscreen;
-  if (req && document.fullscreenEnabled !== false) req.call(el, { navigationUI: 'hide' }).catch?.(() => {});
-}, true);
+if (!isPhone || isStandalone()) { $('fsBtn').hidden = true; }
 $('fsBtn').addEventListener('click', async () => {
-  fsArmed = false;
   try {
     if (fsEl()) { await (document.exitFullscreen || document.webkitExitFullscreen).call(document); return; }
     const el = document.documentElement; const req = el.requestFullscreen || el.webkitRequestFullscreen;

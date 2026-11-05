@@ -606,7 +606,6 @@ body:has(#restBar:not([hidden])) .toast { bottom: calc(136px + env(safe-area-ins
       <button type="button" role="radio" data-theme-opt="dark">Mørk</button>
     </div>
     <p class="help">Automatisk følger innstillingen på telefonen eller PC-en. Valget gjelder alle enhetene dine.</p>
-    <label class="radio" id="fsAutoRow" style="margin-top:10px"><input type="checkbox" id="fsAuto"><span>Fullskjerm ved første trykk<br><span class="d">Bare på denne enheten. Nettleseren tillater ikke fullskjerm før du har trykket et sted.</span></span><span></span></label>
     <h2 class="sec">Sikkerhetskopi</h2>
     <p class="help">Alt lagres i appen. Last ned en kopi nå og da, så dataene aldri er innelåst. Excel-filen har de samme arkene som treningsloggen, pluss dagsplan og matvarer.</p>
     <div class="row">
@@ -2552,7 +2551,7 @@ function renderOkt() {
 function exHtml(ex, i, iso) {
   const sg = suggestion(ex.navn, iso); const cfg = oktCfg();
   const last = sg.last ? `Sist ${shortDate(sg.last.dato)}: ${setsTxt(sg.last.sett)}` : 'Første gang';
-  const hint = !sg.last ? '' : sg.up ? ` · <span class="up">↑ opp til ${kgTxt(sg.kg)} kg</span>` : ` · samme vekt, mot ${cfg.repsMax} reps`;
+  const hint = !sg.last ? '' : sg.up ? ` · <span class="up">↑ øk til ${kgTxt(sg.kg)} kg</span>` : ` · samme vekt, mot ${cfg.repsMax} reps`;
   const done = ex.sett.filter((x) => x.ok).length;
   return `<section class="ex" data-ex="${i}">
     <div class="ex-head"><h3>${esc(ex.navn)}</h3><span class="ex-count${done && done === ex.sett.length ? ' all' : ''}">${done}/${ex.sett.length}</span><button class="icon-btn" data-oact="exmenu" aria-label="Valg for ${esc(ex.navn)}">⋯</button></div>
@@ -2795,25 +2794,11 @@ const FS_IN = 'M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5', FS_OUT = 'M9 4v5H4M15 4v
 const fsEl = () => document.fullscreenElement || document.webkitFullscreenElement;
 function markFs() { const on = !!fsEl(); $('fsIcon').setAttribute('d', on ? FS_OUT : FS_IN); $('fsBtn').setAttribute('aria-label', on ? 'Avslutt fullskjerm' : 'Fullskjerm'); }
 document.addEventListener('fullscreenchange', markFs); document.addEventListener('webkitfullscreenchange', markFs);
-// Browsers only allow fullscreen in response to a tap, so "automatic" means: the first tap after the app opens
-// (or comes back to the foreground). Leaving fullscreen with the button disarms it until next time.
-let fsArmed = true;
 // Fullscreen is a phone feature. On a computer the app runs inside claude.ai's split view, where a fullscreen
 // request can leave the frame unable to receive clicks, so the button and the option are hidden there.
 const isPhone = (() => { try { return matchMedia('(pointer: coarse)').matches && !matchMedia('(pointer: fine)').matches; } catch (e) { return false; } })();
-if (!isPhone) { $('fsBtn').hidden = true; $('fsAutoRow').hidden = true; }
-const fsAutoOn = () => { try { return localStorage.getItem('forge.fsAuto') === '1'; } catch (e) { return false; } };
-$('fsAuto').checked = fsAutoOn();
-$('fsAuto').addEventListener('change', (e) => { try { localStorage.setItem('forge.fsAuto', e.target.checked ? '1' : '0'); } catch (err) { /* ignore */ } fsArmed = !e.target.checked; });
-document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') fsArmed = true; });
-document.addEventListener('click', (e) => {
-  if (!isPhone || !fsArmed || !fsAutoOn() || fsEl() || e.target.closest('#fsBtn, #fsAuto')) return;
-  fsArmed = false;
-  const el = document.documentElement; const req = el.requestFullscreen || el.webkitRequestFullscreen;
-  if (req && document.fullscreenEnabled !== false) req.call(el, { navigationUI: 'hide' }).catch?.(() => {});
-}, true);
+if (!isPhone) { $('fsBtn').hidden = true; }
 $('fsBtn').addEventListener('click', async () => {
-  fsArmed = false;
   try {
     if (fsEl()) { await (document.exitFullscreen || document.webkitExitFullscreen).call(document); return; }
     const el = document.documentElement; const req = el.requestFullscreen || el.webkitRequestFullscreen;

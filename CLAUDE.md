@@ -67,7 +67,7 @@ without sharing a database with him. It must never contain his personal data —
   kommentar?}], kilde?}); a session from the program is only saved once something is changed. Every change rebuilds
   the week's `styrke[name]` from that week's sessions (`syncStyrke()`, best Epley set wins) and raises `okter`.
   Rest timer (fixed bar above the tabs) starts on each ticked set, end time kept in localStorage `forge.rest`,
-  chimes via Web Audio; screen wake lock while Økt is open, where allowed. New best Epley → toast + sparks.
+  plays the chosen sound (`okt.lyd`: alarm (default), bjelle, klokke, myk) at 3-2-1 s and at zero via Web Audio through a compressor; screen wake lock while Økt is open, where allowed. New best Epley → toast + sparks.
   The Jefit importer also stores every set of every imported date as an `okter` doc (`kilde: 'jefit'`), unless that
   date was logged in the app. The web app (sister's) does not have Økt yet.
 - Week numbers count from `settings/trening.start` (a Monday); `baseline` is the Saturday before.

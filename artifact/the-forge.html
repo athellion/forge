@@ -2434,7 +2434,7 @@ async function exportXlsx() {
    in enough sets, the next weight up is suggested. Every set is saved as soon as it is ticked off (collection
    `okter`, one document per date), and the week's Styrke entry is rebuilt from the sessions, so there is
    nothing to import afterwards. Warm-up sets are not logged. */
-const OKT_DEFAULT = { repsMin: 4, repsMax: 6, toppSett: 3, hvile: 180 };
+const OKT_DEFAULT = { repsMin: 4, repsMax: 6, toppSett: 3, hvile: 180, lyd: 'alarm' };
 const oktCfg = () => Object.assign({}, OKT_DEFAULT, S.trening?.okt || {});
 const oktId = (iso) => 'o' + iso;
 const round2 = (v) => Math.round(v * 100) / 100;
@@ -2697,9 +2697,16 @@ function openOktSettings() {
     <div><div class="help" style="margin-bottom:4px">Øk vekten når toppen av intervallet er nådd i</div>${pick('toppSett', [1, 2, 3], (v) => v + (v === 1 ? ' sett' : ' sett'))}</div>
     <p class="help" style="margin:0">Matthews: øk når du når toppen i ett, to eller tre sett – nybegynnere klarer seg ofte med ett. Vekten går opp med øvelsens minste vektsteg.</p>
     <div><div class="help" style="margin-bottom:4px">Hviletid mellom sett</div>${pick('hvile', [120, 150, 180, 210, 240], (v) => Math.floor(v / 60) + ':' + String(v % 60).padStart(2, '0'))}</div>
+    <div><div class="help" style="margin-bottom:4px">Lyd de siste 3 sekundene (trykk for å høre)</div><div class="pick" data-key="lyd">${Object.entries(SOUNDS).map(([k, v]) => `<button type="button" data-v="${k}" class="${c.lyd === k ? 'on' : ''}">${v.navn}</button>`).join('')}</div></div>
+    <p class="help" style="margin:0">Lyden følger telefonens medievolum, samme som musikken.</p>
   </div>`;
   const sh = openSheet('Innstillinger for økter', body, '<button class="btn" data-close>Avbryt</button><button class="btn primary" id="ocSave">Lagre</button>');
-  sh.addEventListener('click', (e) => { const b = e.target.closest('.pick button'); if (!b) return; const k = b.parentElement.dataset.key; c[k] = Number(b.dataset.v); for (const x of b.parentElement.children) x.classList.toggle('on', x === b); });
+  sh.addEventListener('click', (e) => {
+    const b = e.target.closest('.pick button'); if (!b) return; const k = b.parentElement.dataset.key;
+    c[k] = k === 'lyd' ? b.dataset.v : Number(b.dataset.v);
+    for (const x of b.parentElement.children) x.classList.toggle('on', x === b);
+    if (k === 'lyd') { unlockAudio(); playSound('pip', c.lyd); setTimeout(() => playSound('pip', c.lyd), 1000); setTimeout(() => playSound('done', c.lyd), 2000); }
+  });
   sh.querySelector('#ocSave').addEventListener('click', () => {
     const lo = parseNum(sh.querySelector('#ocMin').value), hi = parseNum(sh.querySelector('#ocMax').value);
     if (lo > 0 && hi >= lo) { c.repsMin = Math.round(lo); c.repsMax = Math.round(hi); }
@@ -2708,7 +2715,7 @@ function openOktSettings() {
   });
 }
 
-/* ---- rest timer: starts when a set is ticked off. Short beeps at 3, 2 and 1 seconds left, then a chime
+/* ---- rest timer: starts when a set is ticked off. A sound at 3, 2 and 1 seconds left (choice under ⚙), then a "done" sound
    (and a vibration, where allowed) when the rest is over - so the phone can stay in the pocket. ---- */
 const REST = { end: 0, iv: null, rang: false, beeped: null };
 const saveRest = () => { try { if (REST.end) localStorage.setItem('forge.rest', String(REST.end)); else localStorage.removeItem('forge.rest'); } catch (e) { /* ignore */ } };
@@ -2725,9 +2732,9 @@ function tickRest() {
   const over = ms <= 0;
   const secs = over ? Math.floor(-ms / 1000) : Math.ceil(ms / 1000);   // seconds to go, or seconds past
   const bar = $('restBar'); bar.hidden = false; bar.classList.toggle('done', over);
-  if (!over && secs <= 3 && REST.beeped !== secs) { REST.beeped = secs; beep(1760, 0.13, 0.22, 0, 'square'); }
+  if (!over && secs <= 3 && REST.beeped !== secs) { REST.beeped = secs; playSound('pip'); }
   if (!over && secs > 3) REST.beeped = null;   // after +30 the countdown can play again
-  if (over && !REST.rang) { REST.rang = true; chime(); try { navigator.vibrate?.([220, 120, 220]); } catch (e) { /* ignore */ } }
+  if (over && !REST.rang) { REST.rang = true; playSound('done'); try { navigator.vibrate?.([220, 120, 220]); } catch (e) { /* ignore */ } }
   $('restLabel').textContent = over ? 'Klar for neste sett' : 'Hvile';
   $('restTime').textContent = (over && secs > 0 ? '+' : '') + Math.floor(secs / 60) + ':' + String(secs % 60).padStart(2, '0');
 }
@@ -2735,20 +2742,49 @@ let audioCtx = null;
 // Browsers only allow sound after a tap, so any tap in the app switches it on (also for a timer restored after reopening).
 document.addEventListener('pointerdown', () => { if (REST.end) unlockAudio(); }, { passive: true });
 function unlockAudio() { try { audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)(); if (audioCtx.state === 'suspended') audioCtx.resume(); } catch (e) { audioCtx = null; } }
-// One short tone: frequency (Hz), length (s), loudness (0-1), start delay (s), wave shape.
-// A square wave at around 1.5-2 kHz cuts through music (which sits mostly lower) without being much louder.
-function beep(freq, dur, vol, delay = 0, type = 'sine') {
+// Everything plays through a compressor, so the sounds can be loud without distorting.
+let audioOut = null;
+function out() {
+  if (!audioOut) { const c = audioCtx.createDynamicsCompressor(); c.threshold.value = -10; c.knee.value = 6; c.ratio.value = 8; c.attack.value = 0.002; c.release.value = 0.1; c.connect(audioCtx.destination); audioOut = c; }
+  return audioOut;
+}
+// One tone: frequency (Hz), length (s), loudness (0-1), start delay (s), wave shape.
+// Square waves at 2-4 kHz cut through music, which sits mostly lower; that range is also where hearing is sharpest.
+function beep(freq, dur, vol, delay = 0, type = 'square') {
   if (!audioCtx) return;
   try {
     const t = audioCtx.currentTime + delay;
     const osc = audioCtx.createOscillator(), g = audioCtx.createGain();
     osc.type = type; osc.frequency.value = freq;
-    g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(vol, t + 0.02); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
-    osc.connect(g); g.connect(audioCtx.destination); osc.start(t); osc.stop(t + dur + 0.02);
+    g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(vol, t + 0.004);
+    g.gain.setValueAtTime(vol, t + Math.max(0.005, dur - 0.012)); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    osc.connect(g); g.connect(out()); osc.start(t); osc.stop(t + dur + 0.02);
   } catch (e) { /* ignore */ }
 }
-// Time's up: a rising triple with a long last note, clearly different from the countdown pips.
-function chime() { beep(1568, 0.2, 0.22, 0, 'square'); beep(1568, 0.2, 0.22, 0.26, 'square'); beep(2093, 0.5, 0.25, 0.52, 'square'); }
+// A struck bell: inharmonic partials with a sharp attack and a long ring.
+function bell(freq, dur, vol, delay = 0) {
+  if (!audioCtx) return;
+  try {
+    const t = audioCtx.currentTime + delay;
+    for (const [r, a] of [[1, 1], [2.76, 0.6], [5.4, 0.4], [8.93, 0.25]]) {
+      const osc = audioCtx.createOscillator(), g = audioCtx.createGain();
+      osc.type = 'sine'; osc.frequency.value = freq * r;
+      g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(vol * a / 2.25, t + 0.002); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+      osc.connect(g); g.connect(out()); osc.start(t); osc.stop(t + dur + 0.02);
+    }
+  } catch (e) { /* ignore */ }
+}
+// The rest sounds: 'pip' for each of the last three seconds, 'done' when the rest is over.
+const SOUNDS = {
+  alarm: { navn: 'Alarm', pip: () => { beep(1900, 0.09, 0.6); beep(2500, 0.09, 0.6, 0.1); },
+    done: () => { for (let r = 0; r < 2; r++) for (let k = 0; k < 4; k++) beep(k % 2 ? 2500 : 1900, 0.11, 0.65, r * 0.6 + k * 0.12); } },
+  bjelle: { navn: 'Bjelle', pip: () => bell(1400, 0.45, 0.8), done: () => { for (let k = 0; k < 3; k++) bell(1050, 1.4, 0.9, k * 0.32); } },
+  klokke: { navn: 'Klokke', pip: () => { beep(3800, 0.05, 0.5); beep(3800, 0.05, 0.5, 0.1); },
+    done: () => { for (let g = 0; g < 3; g++) for (let k = 0; k < 4; k++) beep(3800, 0.05, 0.55, g * 0.5 + k * 0.08); } },
+  myk: { navn: 'Myk', pip: () => beep(1760, 0.13, 0.22), done: () => { beep(1568, 0.2, 0.22); beep(1568, 0.2, 0.22, 0.26); beep(2093, 0.5, 0.25, 0.52); } },
+};
+function playSound(which, key = oktCfg().lyd) { (SOUNDS[key] || SOUNDS.alarm)[which](); }
+
 // Keep the screen on while the Økt tab is open, where the browser allows it.
 let wakeLock = null;
 async function keepAwake() { try { if (!wakeLock && document.visibilityState === 'visible' && navigator.wakeLock) { wakeLock = await navigator.wakeLock.request('screen'); wakeLock.addEventListener?.('release', () => { wakeLock = null; }); } } catch (e) { wakeLock = null; } }

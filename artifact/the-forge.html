@@ -2434,7 +2434,7 @@ async function exportXlsx() {
    in enough sets, the next weight up is suggested. Every set is saved as soon as it is ticked off (collection
    `okter`, one document per date), and the week's Styrke entry is rebuilt from the sessions, so there is
    nothing to import afterwards. Warm-up sets are not logged. */
-const OKT_DEFAULT = { repsMin: 4, repsMax: 6, toppSett: 3, hvile: 180, lyd: 'alarm' };
+const OKT_DEFAULT = { repsMin: 4, repsMax: 6, toppSett: 3, hvile: 180, lyd: 'nedtelling' };
 const oktCfg = () => Object.assign({}, OKT_DEFAULT, S.trening?.okt || {});
 const oktId = (iso) => 'o' + iso;
 const round2 = (v) => Math.round(v * 100) / 100;
@@ -2774,8 +2774,24 @@ function bell(freq, dur, vol, delay = 0) {
     }
   } catch (e) { /* ignore */ }
 }
+// A warm, rounded note (a few soft overtones, gentle start and end), long enough to be heard over music.
+function tone(freq, dur, vol, delay = 0) {
+  if (!audioCtx) return;
+  try {
+    const t = audioCtx.currentTime + delay;
+    for (const [h, a] of [[1, 1], [2, 0.45], [3, 0.22], [4, 0.1]]) {
+      const osc = audioCtx.createOscillator(), g = audioCtx.createGain();
+      osc.type = 'sine'; osc.frequency.value = freq * h;
+      const v = vol * a / 1.77;
+      g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(v, t + 0.015);
+      g.gain.setValueAtTime(v, t + dur - 0.08); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+      osc.connect(g); g.connect(out()); osc.start(t); osc.stop(t + dur + 0.02);
+    }
+  } catch (e) { /* ignore */ }
+}
 // The rest sounds: 'pip' for each of the last three seconds, 'done' when the rest is over.
 const SOUNDS = {
+  nedtelling: { navn: 'Nedtelling', pip: () => tone(659.25, 0.35, 0.7), done: () => tone(880, 0.9, 0.75) },   // E5 x3, then a long A5
   alarm: { navn: 'Alarm', pip: () => { beep(1900, 0.09, 0.6); beep(2500, 0.09, 0.6, 0.1); },
     done: () => { for (let r = 0; r < 2; r++) for (let k = 0; k < 4; k++) beep(k % 2 ? 2500 : 1900, 0.11, 0.65, r * 0.6 + k * 0.12); } },
   bjelle: { navn: 'Bjelle', pip: () => bell(1400, 0.45, 0.8), done: () => { for (let k = 0; k < 3; k++) bell(1050, 1.4, 0.9, k * 0.32); } },

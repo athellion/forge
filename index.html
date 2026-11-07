@@ -2515,7 +2515,7 @@ function bindDagbok() { $('dagbokList').addEventListener('click', (e) => { const
 function openDagbokEditor(n) {
   const w = ensureWeek(n); const d = clone(w.dagbok || { stolhet: null, energi: null, sovn: null, motivasjon: null, tekst: '' });
   const body = `<div class="stack">
-    ${RATINGS.map(([k, l]) => `<div><div class="help" style="margin-bottom:4px">${l} <span style="opacity:.7">(1 = lite / dårlig, 5 = mye / veldig bra)</span></div><div class="rating" data-r="${k}">${[1, 2, 3, 4, 5].map((i) => `<button type="button" data-v="${i}" class="${d[k] === i ? 'on' : ''}">${i}</button>`).join('')}</div></div>`).join('')}
+    ${RATINGS.map(([k, l]) => `<div><div class="help" style="margin-bottom:4px">${l} <span style="opacity:.7">(${k === 'stolhet' ? '1 = ingen, 5 = mye' : '1 = dårlig, 5 = veldig bra'})</span></div><div class="rating" data-r="${k}">${[1, 2, 3, 4, 5].map((i) => `<button type="button" data-v="${i}" class="${d[k] === i ? 'on' : ''}">${i}</button>`).join('')}</div></div>`).join('')}
     <label class="f">Notat<textarea id="dbTekst" rows="10" style="font-size:0.95rem">${esc(d.tekst || '')}</textarea></label>
   </div>`;
   const sh = openSheet(weekLabel(n) + ' · dagbok', body, `${w.dagbok ? '<button class="btn danger" id="dbDelete">Slett</button>' : ''}<button class="btn" data-close>Avbryt</button><button class="btn primary" id="dbSave">Lagre</button>`);

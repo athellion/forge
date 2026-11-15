@@ -1,7 +1,7 @@
 // End-to-end test of the standalone web app (repo root), in a phone-sized Chromium.
 // Serve the repo root first:  python3 -m http.server 8765   (from the repo root)
 // Then:  cd tests && npm install && node web.test.js      (cloud workspace: CHROMIUM_PATH is not needed)
-// Checks: welcome screen, starter foods, saving, Økt (TLS program, logging, rest timer, Styrke sync), reload, offline start, backup file, reminder banner, restore.
+// Checks: welcome screen, starter foods, removed tabs, Økt (TLS phases, logging, rest timer, notes, videos, warm-up, training days, deload), reload, offline start, backup file, reminder banner, restore.
 const { chromium } = require('playwright'); const fs = require('fs'); const pathMod = require('path');
 const URL = process.env.FORGE_URL || 'http://localhost:8765/';
 const OUT = pathMod.join(__dirname, 'out'); fs.mkdirSync(OUT, { recursive: true });
@@ -27,12 +27,10 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
   await p.click('nav.tabs button[data-tab=plan]'); await sleep(400);
   console.log('plan name:', await p.textContent('#planName'));
   await p.screenshot({ path: 'w3-plan.png' });
-  // styrke: add exercise
-  await p.click('.seg button[data-sec=trening]'); await p.click('nav.tabs button[data-tab=styrke]'); await sleep(300);
-  console.log('styrke empty text:', await p.textContent('#styrkeList .empty').catch(() => 'none'), '| title', await p.textContent('#styrkeTitle'));
-  await p.click('#addLiftBtn'); await sleep(200); await p.fill('#sheetRoot input', 'Knebøy'); await p.click('#sheetRoot .sheet-foot .btn.primary'); await sleep(200);
-  await p.fill('#leVekt', '40'); await p.fill('#leReps', '8'); await p.click('#leSave'); await sleep(300);
-  console.log('lifts:', await p.$$eval('#styrkeList .lift .n', (e) => e.map((x) => x.textContent)));
+  // removed features are gone
+  console.log('tabs:', await p.$$eval('nav.tabs button', (e) => e.map((x) => x.dataset.tab)));
+  await p.click('.seg button[data-sec=trening]'); await p.click('nav.tabs button[data-tab=logg]'); await sleep(300);
+  console.log('logg fields:', await p.$$eval('#loggWeek .wk-fields label', (e) => e.map((x) => x.textContent.trim())));
   // økt: today's workout from the TLS program, log a set, rest timer, Styrke follows
   await p.click('nav.tabs button[data-tab=okt]'); await sleep(400);
   console.log('okt title:', await p.textContent('#oktTitle'), '| days:', await p.$$eval('#oktDays .chip', (e) => e.map((x) => x.textContent)));
@@ -47,10 +45,27 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
   console.log('step +:', await p.inputValue('#oktList [data-ex="0"] [data-set="1"] input[data-oact=kg]'));
   await p.screenshot({ path: 'w6-okt-rest.png' });
   await p.click('#restBar [data-rest=stop]'); await sleep(200);
-  await p.click('nav.tabs button[data-tab=styrke]'); await sleep(300);
-  console.log('styrke after okt:', await p.$$eval('#styrkeList .lift', (e) => e.map((x) => x.textContent.replace(/\s+/g, ' ').trim()).slice(0, 3)));
-  console.log('styrke day heads:', await p.$$eval('#styrkeList h2, #styrkeList .day-h, #styrkeList h3', (e) => e.map((x) => x.textContent)).catch(() => []));
-  await p.click('nav.tabs button[data-tab=okt]'); await sleep(200);
+  // notes: add one, it shows on the card
+  await p.click('#oktList [data-ex="0"] .tools [data-oact=note]'); await sleep(200);
+  await p.fill('#neText', 'Stangholder på hull 24\nSikkerhetsstenger på 12'); await p.click('#neSave'); await sleep(400);
+  console.log('notes on card:', await p.$$eval('#oktList [data-ex="0"] .ex-note', (e) => e.map((x) => x.textContent)));
+  console.log('video links:', await p.$$eval('#oktList .ex-head a.vid', (e) => e.map((x) => x.href)));
+  console.log('warm-up:', await p.textContent('#oktList [data-ex="0"] .ex-warm'));
+  // ⚙: training days and this week's deload
+  await p.click('#oktCfgBtn'); await sleep(200);
+  console.log('settings modus on:', await p.$eval('.pick[data-key=modus] .on', (e) => e.textContent), '| days hidden:', await p.$eval('#ocDays', (e) => e.hidden));
+  await p.click('.pick[data-key=modus] [data-v=faste]'); await sleep(100);
+  await p.click('.pick[data-day="0"] [data-wd="0"]'); await p.click('.pick[data-day="1"] [data-wd="2"]'); await p.click('.pick[data-day="2"] [data-wd="6"]');
+  const hasDl = await p.$('.pick[data-key=dl]'); if (hasDl) await p.click('.pick[data-key=dl] [data-v="1"]');
+  await p.click('#ocSave'); await sleep(500);
+  console.log('after settings: title', await p.textContent('#oktTitle'), '| chips', await p.$$eval('#oktDays .chip', (e) => e.map((x) => x.textContent)), '| sub', await p.textContent('#oktSub'));
+  console.log('banner:', await p.textContent('#oktBanner'));
+  await p.screenshot({ path: 'w7-okt-deload.png', fullPage: true });
+  const nb = await p.$('#oktNoDeload'); if (nb) { await nb.click(); await sleep(300); console.log('banner after Tren vanlig:', JSON.stringify(await p.textContent('#oktBanner'))); }
+  // add-exercise list holds Matthews' exercises
+  await p.click('#oktList [data-oact=addex]'); await sleep(200);
+  console.log('picker has hip thrust:', await p.$$eval('#exPick [data-pick]', (e) => e.some((x) => x.dataset.pick === 'Barbell Hip Thrust')), 'count', await p.$$eval('#exPick [data-pick]', (e) => e.length));
+  await p.click('#sheetRoot .sheet-foot [data-close]'); await sleep(200);
   // reload: data kept, no welcome
   await p.reload(); await sleep(900);
   console.log('after reload welcome?', !!(await p.$('#frFresh')), 'weight', await (async () => { await p.click('#profileBtn'); await sleep(300); return p.inputValue('#pVekt'); })());
@@ -68,7 +83,7 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
   // backup -> download
   const [dl] = await Promise.all([p.waitForEvent('download', { timeout: 5000 }), p.click('#backupBtn')]);
   const path = 'backup.json'; await dl.saveAs(path); const bk = JSON.parse(fs.readFileSync(path, 'utf8'));
-  console.log('backup okter:', (bk.okter || []).map((o) => o.id + ':' + o.navn)); console.log('backup file:', dl.suggestedFilename(), 'foods', bk.matvarer.length, 'weeks', bk.uker.length, 'vekt', bk.profil.vekt, 'start', bk.trening.start);
+  console.log('backup week records:', bk.uker.map((w) => w.id + ':' + Object.keys(w.styrke || {}).join('/'))); console.log('backup okter:', (bk.okter || []).map((o) => o.id + ':' + o.navn), 'notater', (bk.notater || []).length); console.log('backup file:', dl.suggestedFilename(), 'foods', bk.matvarer.length, 'weeks', bk.uker.length, 'vekt', bk.profil.vekt, 'start', bk.trening.start);
   console.log('safety after backup:', (await p.textContent('#safetyStatus')).replace(/\s+/g, ' ').slice(0, 80));
   // reminder banner
   await p.evaluate(() => { localStorage.setItem('forge.lastBackup', Date.now() - 9 * 86400000); localStorage.setItem('forge.changed', Date.now()); });
@@ -84,10 +99,9 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
   await q.click('#askOk'); await sleep(900);
   await q.click('#profileBtn'); await sleep(300);
   console.log('restored weight:', await q.inputValue('#pVekt'), 'start', await q.inputValue('#pStart'));
-  await q.click('.seg button[data-sec=trening]'); await q.click('nav.tabs button[data-tab=styrke]'); await sleep(300);
-  console.log('restored lifts:', await q.$$eval('#styrkeList .lift .n', (e) => e.map((x) => x.textContent)));
+  await q.click('.seg button[data-sec=trening]'); await sleep(300);
   await q.click('nav.tabs button[data-tab=okt]'); await sleep(300);
-  console.log('restored okt ticked sets:', await q.$$eval('#oktList .set.ok', (e) => e.length));
+  console.log('restored okt ticked sets:', await q.$$eval('#oktList .set.ok', (e) => e.length), '| notes', await q.$$eval('#oktList .ex-note', (e) => e.length));
   await q.reload(); await sleep(800); console.log('restored survives reload, welcome?', !!(await q.$('#frFresh')));
   console.log('errors', errs);
   await b.close();

@@ -274,25 +274,13 @@ details.adv { border: 1px solid var(--line); border-radius: 10px; padding: 10px 
 details.adv summary { cursor: pointer; font-weight: 500; }
 .help { color: var(--muted); font-size: 0.88rem; }
 
-/* ---------- lager (inventory) ---------- */
-.inv-group h4 { margin: 16px 0 2px; font-size: 0.85rem; font-weight: 500; color: var(--muted); display: flex; justify-content: space-between; }
-.inv-row { display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--line); }
-.inv-row .name { background: none; border: 0; padding: 0; text-align: left; min-width: 0; }
-.inv-row .name .n { display: block; overflow-wrap: anywhere; line-height: 1.25; }
-.inv-row .name .m { display: block; color: var(--muted); font-size: 0.8rem; }
-.inv-row.empty .name .n { color: var(--muted); }
+/* ---------- steppers (Økt) ---------- */
 .stepper { display: flex; align-items: center; border: 1px solid var(--line-strong); border-radius: 9px; overflow: hidden; background: var(--surface); }
 .stepper button { border: 0; background: var(--surface-2); width: 34px; height: 34px; font-size: 1.1rem; color: var(--ink); line-height: 1; }
 .stepper input { width: 52px; border: 0; text-align: center; background: transparent; color: var(--blue); font-weight: 600; padding: 6px 2px; }
 .stepper .u { font-size: 0.78rem; color: var(--muted); padding: 0 6px 0 0; min-width: 0; white-space: nowrap; }
 .stepper button.u { width: auto; background: transparent; color: var(--blue); text-decoration: underline dotted; text-underline-offset: 3px; font-size: 0.78rem; padding: 0 6px 0 0; }
-.basis-tag { font-size: 0.78rem; color: var(--ok); border: 1px solid var(--line); border-radius: 999px; padding: 3px 9px; white-space: nowrap; }
-.inv { display: inline-block; width: 1.15em; text-align: center; font-weight: 700; margin-right: 3px; }
-.inv.ok { color: var(--ok); } .inv.low { color: var(--warn); } .inv.miss { color: var(--bad); }
-.home-tag { font-size: 0.72rem; color: var(--ok); font-weight: 600; margin-left: 6px; white-space: nowrap; }
-.can-make { font-size: 0.78rem; color: var(--ok); font-weight: 600; }
 .food.picked .n::after { content: ' ✓'; color: var(--ok); font-weight: 700; }
-.day-actions { display: flex; justify-content: center; padding: 6px 0 18px; }
 
 /* ---------- foods ---------- */
 .search { width: 100%; border: 1px solid var(--line-strong); border-radius: 10px; padding: 10px 12px; background: var(--surface); color: var(--ink); font-weight: 400; }
@@ -453,8 +441,7 @@ header.top h1 { font-family: var(--display); font-weight: 800; font-size: 1.85re
 .stat .l { color: var(--muted); font-size: 0.8rem; }
 .stat .v { font-size: 1.25rem; font-weight: 600; letter-spacing: -0.02em; }
 .stat .v.key { background: var(--key-bg); color: var(--key-ink); display: inline-block; padding: 0 6px; border-radius: 5px; }
-.wk-fields { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
-@media (max-width: 420px) { .wk-fields { grid-template-columns: 1fr 1fr; } }
+.wk-fields { display: grid; grid-template-columns: minmax(0, 200px); gap: 8px; }
 .hist button { display: grid; grid-template-columns: 3.2rem 1fr auto auto; gap: 10px; width: 100%; text-align: left; background: none; border: 0; border-bottom: 1px solid var(--line); padding: 9px 0; align-items: baseline; }
 .hist .u { font-weight: 600; }
 .hist .n { color: var(--muted); font-size: 0.85rem; }
@@ -472,7 +459,14 @@ header.top h1 { font-family: var(--display); font-weight: 800; font-size: 1.85re
 .ex-count.all { color: var(--ok); font-weight: 600; }
 .ex-last { color: var(--muted); font-size: 0.85rem; margin: 2px 0 6px; }
 .ex-last .up { color: var(--gold); font-weight: 600; }
-.ex-note { font-size: 0.85rem; color: var(--ink); background: var(--surface-2); border-radius: 8px; padding: 5px 9px; margin: 0 0 6px; }
+.ex-note { display: block; width: 100%; text-align: left; font: inherit; font-size: 0.85rem; color: var(--ink); background: var(--surface-2); border: 0; border-radius: 8px; padding: 5px 9px; margin: 0 0 6px; white-space: pre-line; overflow-wrap: anywhere; }
+.ex-head .vid { display: inline-flex; align-items: center; justify-content: center; text-decoration: none; color: var(--blue); font-size: 0.95rem; }
+.ex-warm { color: var(--muted); font-size: 0.82rem; margin: -2px 0 6px; }
+.ex-last .dl { color: var(--blue); font-weight: 600; }
+.okt-banner { border: 1px solid var(--line); border-left: 3px solid var(--blue); border-radius: 10px; padding: 8px 12px; margin: 0 0 10px; font-size: 0.88rem; display: flex; gap: 10px; align-items: center; justify-content: space-between; }
+.ocday { display: grid; grid-template-columns: minmax(0, 1fr); gap: 4px; margin: 6px 0; }
+.ocday .n { font-size: 0.88rem; }
+.pick.wd button { padding: 6px 0; flex: 1; min-width: 0; }
 .set { display: grid; grid-template-columns: 16px auto auto 1fr; gap: 6px; align-items: center; padding: 5px 0; border-top: 1px solid var(--line); }
 .set .sn { color: var(--muted); font-size: 0.85rem; text-align: center; }
 .set .stepper button { width: 32px; height: 38px; }
@@ -563,16 +557,6 @@ body:has(#restBar:not([hidden])) .toast { bottom: calc(136px + env(safe-area-ins
     <div id="meals"></div>
   </section>
 
-  <!-- ================= LAGER ================= -->
-  <section id="view-lager" hidden>
-    <div class="row between" style="margin:6px 0 4px">
-      <h2 class="sec" style="margin:0">Lager</h2>
-      <button class="btn small" id="invAddBtn">Legg til</button>
-    </div>
-    <p class="help" id="invSub" style="margin:0 0 6px"></p>
-    <div id="invList"></div>
-  </section>
-
   <!-- ================= MATVARER ================= -->
   <section id="view-foods" hidden>
     <div class="row between" style="margin:6px 0 10px">
@@ -651,6 +635,7 @@ body:has(#restBar:not([hidden])) .toast { bottom: calc(136px + env(safe-area-ins
     </div>
     <div class="help" id="oktSub" style="margin-bottom:6px"></div>
     <div class="chips" id="oktDays"></div>
+    <div id="oktBanner"></div>
     <div id="oktList"></div>
     <h2 class="sec">Tidligere økter</h2>
     <div class="hist" id="oktHist"></div>
@@ -666,26 +651,6 @@ body:has(#restBar:not([hidden])) .toast { bottom: calc(136px + env(safe-area-ins
     <div class="hist" id="loggHistory"></div>
   </section>
 
-  <!-- ================= TRENING: STYRKE ================= -->
-  <section id="view-styrke" hidden>
-    <div class="week-head" style="margin:6px 0 4px">
-      <h3 id="styrkeTitle">Styrke</h3>
-      <span class="nav"><button id="styrkePrev" aria-label="Forrige uke">‹</button> <button id="styrkeNext" aria-label="Neste uke">›</button></span>
-    </div>
-    <div class="row between" style="margin-bottom:8px">
-      <span class="help" id="styrkeSub"></span>
-      <button class="btn small" id="importJefitBtn">Importer fra Jefit</button>
-      <input type="file" id="jefitFile" accept=".csv,text/csv" hidden>
-    </div>
-    <div id="styrkeList"></div>
-  </section>
-
-  <!-- ================= TRENING: DAGBOK ================= -->
-  <section id="view-dagbok" hidden>
-    <h2 class="sec" style="margin-top:6px">Dagbok</h2>
-    <div id="dagbokList"></div>
-  </section>
-
   <!-- ================= TRENING: MÅL ================= -->
   <section id="view-maal" hidden>
     <div class="row between" style="margin:6px 0 10px">
@@ -699,12 +664,9 @@ body:has(#restBar:not([hidden])) .toast { bottom: calc(136px + env(safe-area-ins
 
 <nav class="tabs" aria-label="Sider"><div class="inner">
   <button data-tab="plan" data-sec="kosthold" class="on">Dagsplan</button>
-  <button data-tab="lager" data-sec="kosthold">Lager</button>
   <button data-tab="foods" data-sec="kosthold">Matvarer</button>
   <button data-tab="okt" data-sec="trening" hidden>Økt</button>
   <button data-tab="logg" data-sec="trening" hidden>Logg</button>
-  <button data-tab="styrke" data-sec="trening" hidden>Styrke</button>
-  <button data-tab="dagbok" data-sec="trening" hidden>Dagbok</button>
   <button data-tab="maal" data-sec="trening" hidden>Mål</button>
 </div></nav>
 <div class="restbar" id="restBar" hidden><div class="inner">
@@ -759,8 +721,8 @@ const S = {
   ready: { foods: false, plans: false, profile: false, app: false, weeks: false, months: false, trening: false, okter: false },
   section: 'kosthold', lastTab: {},
   weeks: new Map(), months: new Map(), trening: null, weeksDirty: new Set(),
-  okter: new Map(), oktDato: null, oktDayChoice: {},
-  loggWeekNo: null, styrkeWeekNo: null,
+  okter: new Map(), notater: new Map(), oktDato: null, oktDayChoice: {},
+  loggWeekNo: null,
 };
 
 /* =============================== helpers =============================== */
@@ -1011,11 +973,11 @@ function backupJson() {
     matvarer: [...S.foods.entries()].map(([id, f]) => ({ id, ...f })),
     dagsplaner: [...S.plans.entries()].map(([id, p]) => ({ id, ...p })),
     maaltider: [...S.meals.entries()].map(([id, m]) => ({ id, ...m })),
-    lager: [...S.inv.entries()].map(([id, r]) => ({ id, ...r })),
     trening: S.trening,
     uker: [...S.weeks.entries()].map(([id, w]) => ({ id, ...w })),
     maanedsmaal: [...S.months.entries()].map(([id, m]) => ({ id, ...m })),
     okter: [...S.okter.entries()].map(([id, o]) => ({ id, ...o })),
+    notater: [...S.notater.entries()].map(([id, n]) => ({ id, ...n })),
   }, null, 1);
 }
 function markBackedUp() { ls.set('forge.lastBackup', Date.now()); renderBackupBanner(); if (S.tab === 'profile') renderSafety(); }
@@ -1086,7 +1048,8 @@ async function seedFresh() {
   closeSheet();
   let foods = [];
   try { foods = await (await fetch('seed-foods.json')).json(); } catch (e) { toast('Fant ikke matvarelisten – du kan legge til matvarer selv'); }
-  const start = mondayOf(todayIso());
+  // Starting on a Saturday or Sunday, week 1 is the coming week (the weekend days count as week 0).
+  const wd = dayIndexOf(todayIso()); const start = wd >= 5 ? isoOf(addDays(parseDate(mondayOf(todayIso())), 7)) : mondayOf(todayIso());
   const trening = Object.assign(clone(DEFAULT_TRENING), { start, baseline: isoOf(addDays(parseDate(start), -2)) });
   const today = todayIso();
   const pairs = [
@@ -1159,15 +1122,16 @@ async function connectDb() {
     S.okter = incoming; S.ready.okter = true; renderAll();
   }, onErr('økter'));
 
+  db.collection('notater').onSnapshot((snap) => {
+    S.notater = new Map(snap.docs.map((d) => [d.id, clone(d.data())]));
+    if (S.tab === 'okt') renderOkt();
+  }, onErr('notater'));
+
   db.collection('months').onSnapshot((snap) => {
     S.months = new Map(snap.docs.map((d) => [d.id, clone(d.data())]));
     S.ready.months = true; renderAll();
   }, onErr('månedsmål'));
 
-  db.collection('inventory').onSnapshot((snap) => {
-    S.inv = new Map(snap.docs.map((d) => [d.id, clone(d.data())]));
-    renderAll();
-  }, onErr('lager'));
 
   db.collection('meals').onSnapshot((snap) => {
     S.meals = new Map(snap.docs.map((d) => [d.id, clone(d.data())]));
@@ -1193,7 +1157,7 @@ function setTab(tab) {
   if (tab !== 'profile') S.lastTab[S.section] = tab;
   for (const b of document.querySelectorAll('nav.tabs button')) b.classList.toggle('on', b.dataset.tab === tab);
   $('profileBtn').classList.toggle('on', tab === 'profile');
-  for (const v of ['plan', 'lager', 'foods', 'profile', 'okt', 'logg', 'styrke', 'dagbok', 'maal']) $('view-' + v).hidden = tab !== v;
+  for (const v of ['plan', 'foods', 'profile', 'okt', 'logg', 'maal']) $('view-' + v).hidden = tab !== v;
   if (tab === 'okt') keepAwake(); else releaseAwake();
   try { localStorage.setItem('forge.nav', JSON.stringify({ section: S.section, tab })); } catch (e) { /* ignore */ }
   window.scrollTo({ top: 0 });
@@ -1203,6 +1167,48 @@ function setTab(tab) {
 // rebuild the view that is actually on screen — rebuilding everything on every echo made
 // the page stall on phones.
 let renderQueued = false;
+/* ---- one-time data update (15 Nov 2026): Matthews' exercise names through all history, the stock list removed, and the
+   diary's "adherence" corrected to "enjoyment" (the weekly Kosthold rating was always how much the food was enjoyed). ---- */
+const RENAME_2026_11 = {
+  'Barbell Incline Bench Press': 'Incline Barbell Bench Press', 'Cable Tricep Pushdown (V-Bar)': 'Triceps Pushdown',
+  'Dumbbell One-Arm Row': 'One-Arm Dumbbell Row', 'Dumbbell Alternating Bicep Curl': 'Alternating Dumbbell Curl',
+  'Dumbbell Seated Shoulder Press': 'Seated Dumbbell Press', 'Dumbbell Lateral Raise': 'Dumbbell Side Lateral Raise',
+  'Dumbbell Seated Tricep Press': 'Seated Triceps Press', 'Machine Seated Leg Curl': 'Seated Leg Curl', 'Machine Leg Press': 'Leg Press',
+  'Barbell Bench Press (Close Grip)': 'Close-Grip Bench Press', 'Cable Seated Row': 'Seated Cable Row',
+  'Cable Lat Pulldown (Wide Grip)': 'Lat Pulldown (Wide-Grip)', 'Machine Assisted Chin-Up': 'Assisted Pull-Up',
+  'Lat Pulldown (Medium Grip)': 'Lat Pulldown (Medium-Grip)', 'Lat Pulldown (Close Grip)': 'Lat Pulldown (Close-Grip)',
+};
+let migrating = false;
+function maybeMigrate() {
+  // waits for everything to load, and never runs on an empty database (the web app's welcome screen)
+  if (migrating || !S.db || !S.ready.weeks || !S.ready.okter || !S.ready.trening || !S.ready.foods || !S.foods.size || !S.trening) return;
+  if ((S.trening.migrert || []).includes('2026-11-15')) return;
+  migrating = true;
+  const rn = (n) => RENAME_2026_11[n] || n;
+  for (const [id, o] of S.okter) {
+    let ch = false; for (const ex of o.ovelser || []) { const n = rn(ex.navn); if (n !== ex.navn) { ex.navn = n; ch = true; } }
+    if (ch) queueWrite(() => S.db.doc('okter/' + id).set(clone(o)));
+  }
+  for (const [id, w] of S.weeks) {
+    let ch = false; const st = {};
+    for (const [k, v] of Object.entries(w.styrke || {})) { const n = rn(k); if (n !== k) ch = true; st[n] = v; }
+    if (ch) w.styrke = st;
+    const t = w.dagbok?.tekst;
+    if (t) { const t2 = t.replace(/\bDiet rated (\d)/g, 'Diet enjoyment rated $1').replace(/\b([Aa])dherence (\d)/g, (m, a, d) => (a === 'A' ? 'Enjoyment ' : 'enjoyment ') + d); if (t2 !== t) { w.dagbok.tekst = t2; ch = true; } }
+    if (ch) queueWrite(() => S.db.doc('weeks/' + id).set(clone(w)));
+  }
+  const tr = S.trening;
+  if (tr.program?.length) tr.program = tr.program.map((d) => Object.assign({}, d, { ovelser: d.ovelser.map(rn) }));
+  tr.migrert = [...(tr.migrert || []), '2026-11-15'];
+  queueWrite(() => S.db.doc('settings/trening').set(clone(tr)));
+  let un = null, gone = false;
+  un = S.db.collection('inventory').onSnapshot((snap) => {
+    if (gone) return; gone = true;
+    for (const d of snap.docs) queueWrite(() => S.db.doc('inventory/' + d.id).delete());
+    setTimeout(() => { try { un && un(); } catch (e) { /* ignore */ } }, 0);
+  });
+  renderAll();
+}
 function renderAll() {
   if (renderQueued) return;
   renderQueued = true;
@@ -1210,11 +1216,11 @@ function renderAll() {
 }
 function renderNow() {
   if (!S.profile || !S.trening) return;
+  maybeMigrate();
   renderStatus();
   try {
     if (S.tab === 'plan') renderPlan();
     else if (S.tab === 'foods') renderFoods();
-    else if (S.tab === 'lager') renderInventory();
     else if (S.tab === 'profile') renderProfile();
     else renderTrening();
   } catch (e) { console.error(e); toast('Visningsfeil: ' + (e?.message || e)); }
@@ -1314,7 +1320,6 @@ function renderPlan() {
 
   const parts = [];
   const dayItems = []; for (const m of MEALS) dayItems.push(...(plan.meals?.[m.id] || []));
-  const dayNeed = invTracked() ? needsFor(dayItems) : null;
   for (const m of MEALS) {
     const items = plan.meals?.[m.id] || [];
     const sum = sumItems(items);
@@ -1328,7 +1333,7 @@ function renderPlan() {
         ? `<button class="unit toggle" data-act="toggle" data-meal="${m.id}" data-i="${i}" title="Bytt mellom ${esc(unitName(f, 1))} og gram">${byGram ? 'g' : esc(unitName(f, 1))}</button>`
         : `<span class="unit">g</span>`;
       return `<div class="item">
-        <div class="item-name"><span class="n">${(() => { const s2 = dayNeed && itemStock(it, dayNeed); return s2 ? `<span class="inv ${s2.st}" title="${esc(s2.title)}" aria-label="${esc(s2.title)}">${s2.st === 'ok' ? '✓' : s2.st === 'low' ? '!' : '✗'}</span>` : ''; })()}${esc(f?.navn || it.foodId)}</span><span class="m">${meta}</span></div>
+        <div class="item-name"><span class="n">${esc(f?.navn || it.foodId)}</span><span class="m">${meta}</span></div>
         <div class="amount"><input type="text" inputmode="decimal" aria-label="Mengde" data-act="amount" data-meal="${m.id}" data-i="${i}" value="${byGram ? fmt(it.gram, 0) : fmt(it.antall, 2).replace(/,?0+$/, '')}">${unitBtn}</div>
         <div class="item-kcal">${fmt(n.kcal)}</div>
         <button class="icon-btn" data-act="remove" data-meal="${m.id}" data-i="${i}" aria-label="Fjern">×</button>
@@ -1341,9 +1346,7 @@ function renderPlan() {
         <span class="tools"><button class="link-btn" data-act="swap" data-meal="${m.id}">Bytt måltid</button>${items.length ? `<button class="link-btn" data-act="savemeal" data-meal="${m.id}">Lagre</button>` : ''}</span></div>
     </section>`);
   }
-  if (invTracked()) parts.push(`<div class="day-actions"><button class="btn small" id="subtractDayBtn">Trekk dagens plan fra lageret</button></div>`);
   host.innerHTML = parts.join('');
-  $('subtractDayBtn')?.addEventListener('click', subtractDay);
   refreshSavedLabels();
 }
 // Under each meal heading: the name of the saved meal it matches, if any. Kept separate so it
@@ -1517,13 +1520,11 @@ function openMealSwap(slot) {
   const row = ([id, m]) => {
     const t = sumItems(m.items || []);
     const cur = itemKey(m.items) === itemKey(items);
-    const can = invTracked() && canMakeMeal(m.items);
-    return `<div class="row-wrap"><button class="pickmeal ${cur ? 'cur' : ''}" data-meal-id="${id}"><span><span class="n">${esc(m.navn)}</span>${can ? '<span class="can-make">✓ alt hjemme</span>' : ''}<span class="m">${esc(mealSummary(m.items))}</span></span>
+    return `<div class="row-wrap"><button class="pickmeal ${cur ? 'cur' : ''}" data-meal-id="${id}"><span><span class="n">${esc(m.navn)}</span><span class="m">${esc(mealSummary(m.items))}</span></span>
       <span class="k">${fmt(t.kcal)} <small>kcal · ${fmt(t.protein)} g prot</small></span></button>
       <button class="icon-btn" data-del-meal="${id}" aria-label="Slett ${esc(m.navn)}">×</button></div>`;
   };
-  const canOf = (m) => (invTracked() && canMakeMeal(m.items) ? 0 : 1);
-  const sorted = [...S.meals.entries()].sort((a, b) => canOf(a[1]) - canOf(b[1]) || a[1].navn.localeCompare(b[1].navn, 'nb'));
+  const sorted = [...S.meals.entries()].sort((a, b) => a[1].navn.localeCompare(b[1].navn, 'nb'));
   const own = sorted.filter(([, m]) => m.slot === slot), other = sorted.filter(([, m]) => m.slot !== slot);
   const draw = () => `
     ${base ? `<div class="unsaved"><span>Justert versjon av «${esc(base[1].navn)}» – endringene forsvinner hvis du bytter.</span>
@@ -1601,167 +1602,10 @@ function foodRow(id, raw, mode, picked) {
   const f = effectiveFood(raw);
   const unit = isRett(raw) ? `rett · ${fmt(f.gramPerEnhet)} g per ${esc(unitName(raw, 1))}` : (num(f.gramPerEnhet) > 0 ? `${fmt(f.gramPerEnhet)} g per ${esc(unitName(raw, 1))}` : 'veies i gram');
   const attr = mode === 'pick' ? `data-pick="${id}"` : `data-edit="${id}"`;
-  const r = S.inv.get(id); const home = r && (r.basis || num(r.mengde) > 0);
-  return `<button class="food ${picked ? 'picked' : ''}" ${attr}><span><span class="n">${esc(f.navn)}${home && mode !== 'pick' ? '<span class="home-tag">hjemme</span>' : ''}</span><span class="m">${esc(f.kategori)} · ${unit}${f.kommentar ? ' · ' + esc(f.kommentar) : ''}</span></span>
+  return `<button class="food ${picked ? 'picked' : ''}" ${attr}><span><span class="n">${esc(f.navn)}</span><span class="m">${esc(f.kategori)} · ${unit}${f.kommentar ? ' · ' + esc(f.kommentar) : ''}</span></span>
     <span class="k">${fmt(f.kcal100)} <small>kcal · ${fmt(f.protein100)} g prot /100 g</small></span></button>`;
 }
 
-/* =============================== lager (inventory) =============================== */
-// What's at home: one document per food in the `inventory` collection, id = the food's id.
-//   { mengde: grams, sted: 'kjoleskap' | 'fryser' | 'skap', basis: bool, oppdatert }
-// Amounts are kept in grams and shown in the food's own unit where it has one (pakker, bokser,
-// skiver ...). "Basisvarer" (salt, tran, smør ...) are always counted as in stock and never drawn down.
-const STEDER = [{ id: 'kjoleskap', navn: 'Kjøleskap' }, { id: 'fryser', navn: 'Fryser' }, { id: 'skap', navn: 'Skap' }];
-function defaultSted(f) {
-  const k = (f?.kategori || '').toLowerCase();
-  if (k.includes('ferdigmat')) return 'fryser';
-  if (k.includes('karbohydrat') || k.includes('kosttilskudd') || k.includes('tilbehør') || k.includes('ingrediens') || k.includes('godteri')) return 'skap';
-  return 'kjoleskap';
-}
-const invTracked = () => S.inv.size > 0;
-function saveInv(id, rec) {
-  rec.oppdatert = todayIso();
-  S.inv.set(id, rec);
-  if (S.db) queueWrite(() => S.db.doc('inventory/' + id).set(clone(rec)));
-}
-function deleteInv(id) { S.inv.delete(id); if (S.db) queueWrite(() => S.db.doc('inventory/' + id).delete()); }
-function fmtAmount(f, g) {
-  const gpe = num(f?.gramPerEnhet);
-  if (gpe > 0) { const u = Math.round(g / gpe * 10) / 10; return `${fmt(u, u % 1 ? 1 : 0)} ${unitName(f, u)}`; }
-  return g >= 1000 ? `${fmt(g / 1000, 2).replace(/,?0+$/, '')} kg` : `${fmt(g)} g`;
-}
-// Grams of each base food that a list of plan items needs. Dishes are expanded into their ingredients.
-function needsFor(items) {
-  const need = new Map();
-  const add = (id, g) => need.set(id, (need.get(id) || 0) + g);
-  for (const it of items || []) {
-    const raw = S.foods.get(it.foodId); if (!raw) continue;
-    if (isRett(raw)) {
-      const ef = effectiveFood(raw); const total = num(ef.gramPerEnhet); const g = itemGrams(it, ef);
-      const factor = total > 0 ? g / total : 0;
-      for (const ing of raw.ingredienser || []) add(ing.foodId, num(ing.gram) * factor);
-    } else add(it.foodId, itemGrams(it, raw));
-  }
-  return need;
-}
-// 'ok' | 'low' | 'miss' for one food against how much is needed.
-function stockStatus(id, needG) {
-  const rec = S.inv.get(id);
-  if (!rec) return 'miss';
-  if (rec.basis) return 'ok';
-  const have = num(rec.mengde);
-  if (have + 0.5 >= needG) return 'ok';
-  return have > 0 ? 'low' : 'miss';
-}
-const WORST = { ok: 0, low: 1, miss: 2 };
-function itemStock(it, dayNeed) {
-  const raw = S.foods.get(it.foodId); if (!raw) return null;
-  const ids = isRett(raw) ? (raw.ingredienser || []).map((x) => x.foodId) : [it.foodId];
-  let worst = 'ok', worstId = ids[0];
-  for (const id of ids) { const st = stockStatus(id, dayNeed.get(id) || 0); if (WORST[st] > WORST[worst]) { worst = st; worstId = id; } }
-  const f = S.foods.get(worstId); const rec = S.inv.get(worstId);
-  const title = worst === 'ok' ? 'Nok hjemme'
-    : worst === 'low' ? `${isRett(raw) ? f?.navn + ': ' : ''}har ${fmtAmount(f, num(rec?.mengde))}, dagen trenger ${fmtAmount(f, dayNeed.get(worstId) || 0)}`
-    : `${isRett(raw) ? f?.navn + ' ' : ''}ikke hjemme`;
-  return { st: worst, title };
-}
-function canMakeMeal(items) { const need = needsFor(items); for (const [id, g] of need) if (stockStatus(id, g) !== 'ok') return false; return need.size > 0; }
-
-$('invAddBtn').addEventListener('click', () => openInvAdd());
-const INV_GRAM = new Set(); // rows the user has switched to grams by tapping the unit
-function renderInventory() {
-  const host = $('invList');
-  const ae = document.activeElement;
-  if (ae && ae.tagName === 'INPUT' && host.contains(ae)) return; // don't rebuild under a typing finger
-  const entries = [...S.inv.entries()].filter(([id]) => S.foods.has(id));
-  $('invSub').textContent = entries.length ? `${entries.filter(([, r]) => r.basis || num(r.mengde) > 0).length} varer hjemme. Trykk på et navn for sted, basisvare eller fjerning. Trykk på enheten (f.eks. «stk» eller «poser») for å skrive inn gram i stedet.` : '';
-  if (!entries.length) { host.innerHTML = `<div class="empty">Lageret er tomt. Trykk «Legg til» og kryss av det du har hjemme.</div>`; return; }
-  host.innerHTML = STEDER.map((st) => {
-    const rows = entries.filter(([, r]) => (r.sted || 'kjoleskap') === st.id)
-      .sort((a, b) => (S.foods.get(a[0]).navn || '').localeCompare(S.foods.get(b[0]).navn || '', 'nb'));
-    if (!rows.length) return '';
-    return `<div class="inv-group"><h4><span>${st.navn}</span><span>${rows.length}</span></h4>${rows.map(([id, r]) => invRow(id, r)).join('')}</div>`;
-  }).join('');
-}
-function invRow(id, r) {
-  const f = S.foods.get(id); const gpe = num(f.gramPerEnhet);
-  const inG = !(gpe > 0) || INV_GRAM.has(id); // this row shown in grams (tap the unit to switch)
-  const g = num(r.mengde); const val = inG ? Math.round(g) : Math.round(g / gpe * 10) / 10;
-  const meta = r.basis ? 'basisvare' : gpe > 0 ? `${fmt(g)} g · ${fmt(gpe)} g per ${esc(unitName(f, 1))}` : (f.kategori || '');
-  const ctl = r.basis ? `<span class="basis-tag">alltid hjemme</span>`
-    : `<div class="stepper"><button data-inv-step="-1" data-id="${id}" aria-label="Mindre">−</button><input type="text" inputmode="decimal" data-inv-amt="${id}" value="${fmt(val, val % 1 ? 1 : 0)}" aria-label="Mengde">${gpe > 0 ? `<button class="u" data-inv-unit="${id}" title="Bytt mellom ${esc(unitName(f, 2))} og gram">${inG ? 'g' : esc(unitName(f, val))}</button>` : `<span class="u">g</span>`}<button data-inv-step="1" data-id="${id}" aria-label="Mer">+</button></div>`;
-  return `<div class="inv-row ${!r.basis && g <= 0 ? 'empty' : ''}"><button class="name" data-inv-edit="${id}"><span class="n">${esc(f.navn)}</span><span class="m">${!r.basis && g <= 0 ? 'tomt · ' : ''}${meta}</span></button>${ctl}</div>`;
-}
-$('invList').addEventListener('click', (e) => {
-  const step = e.target.closest('button[data-inv-step]');
-  if (step) {
-    const id = step.dataset.id; const r = S.inv.get(id); const f = S.foods.get(id); if (!r || !f) return;
-    const gpe = num(f.gramPerEnhet); const d = (gpe > 0 ? gpe : 50) * Number(step.dataset.invStep);
-    saveInv(id, Object.assign({}, r, { mengde: Math.max(0, Math.round((num(r.mengde) + d) * 10) / 10) }));
-    renderInventory(); return;
-  }
-  const un = e.target.closest('button[data-inv-unit]');
-  if (un) { const id = un.dataset.invUnit; INV_GRAM.has(id) ? INV_GRAM.delete(id) : INV_GRAM.add(id); renderInventory(); return; }
-  const ed = e.target.closest('button[data-inv-edit]'); if (ed) openInvEdit(ed.dataset.invEdit);
-});
-$('invList').addEventListener('change', (e) => {
-  const inp = e.target.closest('input[data-inv-amt]'); if (!inp) return;
-  const id = inp.dataset.invAmt; const r = S.inv.get(id); const f = S.foods.get(id); if (!r || !f) return;
-  // A plain number is in the row's own unit (portions, slices…). "1 kg" or "500 g" is always weight,
-  // so a whole pack can be entered without converting it to portions first.
-  const m = inp.value.trim().match(/^(.*?)\s*(kg|g)$/i);
-  const v = parseNum(m ? m[1] : inp.value); if (v === null || v < 0) { renderInventory(); return; }
-  const gpe = num(f.gramPerEnhet);
-  const grams = m ? v * (m[2].toLowerCase() === 'kg' ? 1000 : 1) : (gpe > 0 && !INV_GRAM.has(id)) ? v * gpe : v;
-  saveInv(id, Object.assign({}, r, { mengde: Math.round(grams * 10) / 10 }));
-  inp.blur(); renderInventory();
-});
-$('invList').addEventListener('focusout', () => setTimeout(() => { if (!$('invList').contains(document.activeElement)) renderInventory(); }, 0));
-function openInvEdit(id) {
-  const r = S.inv.get(id); const f = S.foods.get(id); if (!r || !f) return;
-  const body = `<p class="help" style="margin-top:0">${esc(f.kategori || '')}</p>
-    <fieldset><legend>Hvor</legend><div class="pick" id="ieSted">${STEDER.map((st) => `<button type="button" data-sted="${st.id}" class="${(r.sted || 'kjoleskap') === st.id ? 'on' : ''}">${st.navn}</button>`).join('')}</div></fieldset>
-    <label class="radio" style="margin-top:12px"><input type="checkbox" id="ieBasis" ${r.basis ? 'checked' : ''}><span>Basisvare<br><span class="d">Alltid hjemme, telles ikke og trekkes ikke fra (salt, tran, smør, krydder).</span></span><span></span></label>`;
-  const sh = openSheet(f.navn, body, `<button class="btn danger" id="ieDel">Fjern fra lageret</button><button class="btn primary" data-close>Ferdig</button>`);
-  sh.querySelector('#ieSted').addEventListener('click', (e) => {
-    const b = e.target.closest('button[data-sted]'); if (!b) return;
-    saveInv(id, Object.assign({}, S.inv.get(id), { sted: b.dataset.sted }));
-    for (const x of sh.querySelectorAll('#ieSted button')) x.classList.toggle('on', x === b);
-    renderInventory();
-  });
-  sh.querySelector('#ieBasis').addEventListener('change', (e) => { saveInv(id, Object.assign({}, S.inv.get(id), { basis: e.target.checked })); renderInventory(); });
-  sh.querySelector('#ieDel').addEventListener('click', () => { deleteInv(id); closeSheet(); renderInventory(); toast('Fjernet ' + f.navn); });
-}
-// Tick off a whole shopping trip: the picker stays open, each tap adds one unit (or 100 g).
-function openInvAdd() {
-  const added = new Set();
-  pickFood({ title: 'Legg til i lageret', keepOpen: true, filter: (id, f) => !isRett(f),
-    isPicked: (id) => added.has(id),
-    onPick: (id, f) => {
-      const gpe = num(f.gramPerEnhet); const r = S.inv.get(id);
-      const add = gpe > 0 ? gpe : 100;
-      saveInv(id, r ? Object.assign({}, r, { mengde: num(r.mengde) + add }) : { mengde: add, sted: defaultSted(f), basis: false });
-      added.add(id);
-      renderInventory();
-      toast(`${f.navn}: ${fmtAmount(f, num(S.inv.get(id).mengde))}`);
-    } });
-}
-// After the day is eaten: draw today's plan from the inventory.
-function subtractDay() {
-  const plan = currentPlan(); if (!plan) return;
-  const all = []; for (const m of MEALS) all.push(...(plan.meals?.[m.id] || []));
-  const need = needsFor(all);
-  const lines = [];
-  for (const [id, g] of need) { const r = S.inv.get(id); if (r && !r.basis && num(r.mengde) > 0) lines.push([id, g]); }
-  if (!lines.length) { toast('Ingenting å trekke fra – ingen av dagens varer er registrert i lageret.'); return; }
-  const done = S.app.lagerTrukket === todayIso() + '|' + S.planId;
-  askConfirm('Trekk fra lageret', `${done ? 'Dagens plan er allerede trukket fra i dag. ' : ''}Trekke dagens plan («${plan.navn}») fra lageret? ${lines.length} varer blir oppdatert.`, 'Trekk fra', false).then((ok) => {
-    if (!ok) return;
-    for (const [id, g] of lines) { const r = S.inv.get(id); saveInv(id, Object.assign({}, r, { mengde: Math.max(0, Math.round((num(r.mengde) - g) * 10) / 10) })); }
-    S.app.lagerTrukket = todayIso() + '|' + S.planId; saveApp();
-    renderAll(); toast(`Trakk ${lines.length} varer fra lageret`);
-  });
-}
 
 /* =============================== foods view =============================== */
 $('foodSearch').addEventListener('input', (e) => { S.foodQuery = e.target.value; renderFoods(); });
@@ -1962,9 +1806,9 @@ async function importJson(e) {
   for (const w of data.uker || []) { const { id, ...body } = w; if (id) { S.weeks.set(id, body); if (S.db) await queueWrite(() => S.db.doc('weeks/' + id).set(clone(body))); } }
   for (const m of data.maanedsmaal || []) { const { id, ...body } = m; if (id) { S.months.set(id, body); if (S.db) await queueWrite(() => S.db.doc('months/' + id).set(clone(body))); } }
   for (const o of data.okter || []) { const { id, ...body } = o; if (id) { S.okter.set(id, body); if (S.db) await queueWrite(() => S.db.doc('okter/' + id).set(clone(body))); } }
+  for (const n of data.notater || []) { const { id, ...body } = n; if (id) { S.notater.set(id, body); if (S.db) await queueWrite(() => S.db.doc('notater/' + id).set(clone(body))); } }
   if (data.profil) { S.profile = Object.assign(clone(DEFAULT_PROFILE), data.profil); saveProfile(); }
   for (const f of data.matvarer || []) { const { id, ...body } = f; if (id) { S.foods.set(id, body); await saveFood(id, body); } }
-  for (const r of data.lager || []) { const { id, ...body } = r; if (id) { S.inv.set(id, body); if (S.db) await queueWrite(() => S.db.doc('inventory/' + id).set(clone(body))); } }
   for (const m of data.maaltider || []) { const { id, ...body } = m; if (id) { S.meals.set(id, body); if (S.db) await queueWrite(() => S.db.doc('meals/' + id).set(clone(body))); } }
   for (const p of data.dagsplaner || []) { const { id, ...body } = p; if (id) { S.plans.set(id, body); if (S.db) await queueWrite(() => S.db.doc('plans/' + id).set(clone(body))); } }
   if (data.app?.currentPlanId) { S.app.currentPlanId = data.app.currentPlanId; if (data.app.tema) { S.app.tema = data.app.tema; applyTheme(S.app.tema); } saveApp(); S.planId = S.app.currentPlanId; }
@@ -2075,22 +1919,47 @@ const DAYS = ['man', 'tir', 'ons', 'tor', 'fre', 'lor', 'son'];
 const DAY_NAMES = ['Man', 'Tir', 'Ons', 'Tor', 'Fre', 'Lør', 'Søn'];
 const NB_DAYS = ['søndag', 'mandag', 'tirsdag', 'onsdag', 'torsdag', 'fredag', 'lørdag'];
 const NB_MONTHS = ['januar', 'februar', 'mars', 'april', 'mai', 'juni', 'juli', 'august', 'september', 'oktober', 'november', 'desember'];
-// Until the first-run setup saves real dates: this week's Monday, and the Saturday before it.
-const THIS_MONDAY = (() => { const d = new Date(); d.setDate(d.getDate() - ((d.getDay() + 6) % 7)); return d; })();
+// Thinner Leaner Stronger (Michael Matthews), 3-day routine: six phases, each 8 training weeks and then a deload week
+// with the same exercises (2 sets, 3–4 reps). 3 hard sets per exercise; 6–8 reps for the first two lifts, 8–10 for the last two.
+const TLS_REPS = [[6, 8], [6, 8], [8, 10], [8, 10]];
+// Until the first-run setup saves real dates: week 1 starts this Monday, or the coming one on a Saturday or Sunday.
+const START_MONDAY = (() => { const d = new Date(); const wd = (d.getDay() + 6) % 7; d.setDate(d.getDate() - wd + (wd >= 5 ? 7 : 0)); return d; })();
 const ymd = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 const DEFAULT_TRENING = {
-  start: ymd(THIS_MONDAY), baseline: ymd(new Date(THIS_MONDAY.getFullYear(), THIS_MONDAY.getMonth(), THIS_MONDAY.getDate() - 2)), fotoHverUke: 4,
-  // Thinner Leaner Stronger (Michael Matthews), 3-day routine, phase 1. 3 hard sets per exercise; reps per exercise
-  // as in the book. The days are done in turn (1, 2, 3, 1 …) on whichever days suit, so they carry a number, not a weekday.
-  program: [
-    { dag: '1', navn: 'Lower Body A', ovelser: ['Barbell Squat', 'Barbell Romanian Deadlift', 'Leg Press', 'Dumbbell Step-Up'],
-      reps: { 'Barbell Squat': [6, 8], 'Barbell Romanian Deadlift': [6, 8], 'Leg Press': [8, 10], 'Dumbbell Step-Up': [8, 10] }, oppvarming: ['Barbell Squat'] },
-    { dag: '2', navn: 'Push', ovelser: ['Barbell Bench Press', 'Incline Barbell Bench Press', 'Dumbbell Bench Press', 'Seated Triceps Press'],
-      reps: { 'Barbell Bench Press': [6, 8], 'Incline Barbell Bench Press': [6, 8], 'Dumbbell Bench Press': [8, 10], 'Seated Triceps Press': [8, 10] }, oppvarming: ['Barbell Bench Press'] },
-    { dag: '3', navn: 'Pull', ovelser: ['Barbell Deadlift', 'One-Arm Dumbbell Row', 'Lat Pulldown (Medium Grip)', 'Barbell Curl'],
-      reps: { 'Barbell Deadlift': [6, 8], 'One-Arm Dumbbell Row': [6, 8], 'Lat Pulldown (Medium Grip)': [8, 10], 'Barbell Curl': [8, 10] }, oppvarming: ['Barbell Deadlift'] },
+  start: ymd(START_MONDAY), baseline: ymd(new Date(START_MONDAY.getFullYear(), START_MONDAY.getMonth(), START_MONDAY.getDate() - 2)), fotoHverUke: 4,
+  faser: [
+    { navn: 'Fase 1', dager: [
+      { navn: 'Lower Body A', ovelser: ['Barbell Squat', 'Barbell Romanian Deadlift', 'Leg Press', 'Dumbbell Step-Up'], reps: TLS_REPS },
+      { navn: 'Push', ovelser: ['Barbell Bench Press', 'Incline Barbell Bench Press', 'Dumbbell Bench Press', 'Seated Triceps Press'], reps: TLS_REPS },
+      { navn: 'Pull', ovelser: ['Barbell Deadlift', 'One-Arm Dumbbell Row', 'Lat Pulldown (Medium-Grip)', 'Barbell Curl'], reps: TLS_REPS },
+    ] },
+    { navn: 'Fase 2', dager: [
+      { navn: 'Lower Body A', ovelser: ['Barbell Squat', 'Barbell Romanian Deadlift', 'Leg Press', 'Dumbbell Lunge'], reps: TLS_REPS },
+      { navn: 'Push', ovelser: ['Incline Barbell Bench Press', 'Dumbbell Bench Press', 'Incline Dumbbell Bench Press', 'Triceps Pushdown'], reps: TLS_REPS },
+      { navn: 'Pull', ovelser: ['Barbell Deadlift', 'Seated Cable Row', 'Lat Pulldown (Close-Grip)', 'Alternating Dumbbell Curl'], reps: TLS_REPS },
+    ] },
+    { navn: 'Fase 3', dager: [
+      { navn: 'Lower Body A', ovelser: ['Barbell Squat', 'Barbell Romanian Deadlift', 'Leg Press', 'Dumbbell Bulgarian Split Squat'], reps: TLS_REPS },
+      { navn: 'Push', ovelser: ['Dumbbell Bench Press', 'Incline Barbell Bench Press', 'Barbell Bench Press', 'Lying Triceps Extension (Skullcrusher)'], reps: TLS_REPS },
+      { navn: 'Pull', ovelser: ['Barbell Deadlift', 'Barbell Row', 'Lat Pulldown (Medium-Grip)', 'EZ-Bar Preacher Curl'], reps: TLS_REPS },
+    ] },
+    { navn: 'Fase 4', dager: [
+      { navn: 'Lower Body A', ovelser: ['Barbell Squat', 'Barbell Romanian Deadlift', 'Leg Press', 'Dumbbell Step-Up'], reps: TLS_REPS },
+      { navn: 'Push', ovelser: ['Incline Dumbbell Bench Press', 'Barbell Bench Press', 'Incline Barbell Bench Press', 'Seated Triceps Press'], reps: TLS_REPS },
+      { navn: 'Pull', ovelser: ['Barbell Deadlift', 'One-Arm Dumbbell Row', 'Lat Pulldown (Close-Grip)', 'Barbell Curl'], reps: TLS_REPS },
+    ] },
+    { navn: 'Fase 5', dager: [
+      { navn: 'Lower Body A', ovelser: ['Barbell Squat', 'Barbell Romanian Deadlift', 'Leg Press', 'Dumbbell Lunge'], reps: TLS_REPS },
+      { navn: 'Push', ovelser: ['Barbell Bench Press', 'Incline Barbell Bench Press', 'Dumbbell Bench Press', 'Triceps Pushdown'], reps: TLS_REPS },
+      { navn: 'Pull', ovelser: ['Barbell Deadlift', 'Seated Cable Row', 'Lat Pulldown (Medium-Grip)', 'Alternating Dumbbell Curl'], reps: TLS_REPS },
+    ] },
+    { navn: 'Fase 6', dager: [
+      { navn: 'Lower Body A', ovelser: ['Barbell Squat', 'Barbell Romanian Deadlift', 'Leg Press', 'Dumbbell Bulgarian Split Squat'], reps: TLS_REPS },
+      { navn: 'Push', ovelser: ['Incline Barbell Bench Press', 'Dumbbell Bench Press', 'Incline Dumbbell Bench Press', 'Lying Triceps Extension (Skullcrusher)'], reps: TLS_REPS },
+      { navn: 'Pull', ovelser: ['Barbell Deadlift', 'Barbell Row', 'Lat Pulldown (Close-Grip)', 'EZ-Bar Preacher Curl'], reps: TLS_REPS },
+    ] },
   ],
-  rotasjon: true,
+  dager: { modus: 'rotasjon', uke: [0, 2, 4] }, deloadEtter: 8,
 };
 const RATINGS = [['stolhet', 'Stølhet'], ['energi', 'Energi'], ['sovn', 'Søvn'], ['motivasjon', 'Motivasjon']];
 
@@ -2209,10 +2078,9 @@ function renderStatus() {
   const el = $('hdrStatus'); if (!el || !S.trening) return;
   const cur = currentWeekNo();
   if (cur <= 0) { el.innerHTML = `Starter ${shortDate(S.trening.start)}`; return; }
-  // Matthews: 8 training weeks, then a deload week; the cycle repeats.
-  const pos = ((cur - 1) % 9) + 1;
-  const left = 9 - pos;
-  const txt = pos === 9 ? '<span class="soon">deloaduke</span>' : left === 1 ? '<span class="soon">deload neste uke</span>' : `deload om ${left} uker`;
+  // Matthews: 8 training weeks, then a deload week; the cycle repeats (a week can be switched under Økt → ⚙).
+  let left = 0; while (left < 60 && !isDeloadWeek(cur + left)) left++;
+  const txt = left === 0 ? '<span class="soon">deloaduke</span>' : left === 1 ? '<span class="soon">deload neste uke</span>' : left >= 60 ? '' : `deload om ${left} uker`;
   el.innerHTML = `<b>Uke ${cur}</b>${txt}`;
 }
 
@@ -2264,8 +2132,6 @@ function renderWeekCard(n) {
     <div class="stats" id="wkStats"></div>
     <div class="wk-fields">
       <label class="f">Midje (cm)<input type="text" inputmode="decimal" data-wf="midje" value="${v(w.midje, 1)}"></label>
-      <label class="f">Økter (av ${programDays().length})<input type="text" inputmode="numeric" data-wf="okter" value="${v(w.okter, 0)}"></label>
-      <label class="f">Kosthold 1–5<input type="text" inputmode="numeric" data-wf="kosthold" value="${v(w.kosthold, 0)}"></label>
     </div>
     <p class="help" id="wkMidje" style="margin:6px 0 0"></p>
     <label class="f" style="margin-top:8px">Kommentar<textarea data-wf="kommentar" rows="2">${esc(w.kommentar || '')}</textarea></label>
@@ -2402,213 +2268,19 @@ function renderChart() {
     <div class="legend" style="flex-wrap:wrap"><span><i style="background:var(--blue)"></i>Vekt (kg)</span><span><i style="background:var(--ink)"></i>Midje (cm)</span><span><i style="background:var(--gold)"></i>Markløft (kg, høyre)</span></div>`;
 }
 
-/* ---- styrke view ---- */
-// Every week's 1RM for a lift, oldest first.
-function liftSeries(name) {
-  return [...S.weeks.values()].filter((w) => w.uke > 0 && w.styrke?.[name]).sort((a, b) => a.uke - b.uke)
-    .map((w) => ({ uke: w.uke, rm: epley(num(w.styrke[name].vekt), num(w.styrke[name].reps)) })).filter((p) => p.rm);
-}
-// A personal record: this week's 1RM beats every earlier week's.
-function isPr(series, uke) {
-  const cur = series.find((p) => p.uke === uke); if (!cur) return false;
-  const earlier = series.filter((p) => p.uke < uke); return earlier.length > 0 && cur.rm > Math.max(...earlier.map((p) => p.rm)) + 1e-9;
-}
-function sparkline(series, uke) {
-  const pts = series.filter((p) => p.uke <= uke); if (pts.length < 2) return '';
-  const W = 64, H = 18, lo = Math.min(...pts.map((p) => p.rm)), hi = Math.max(...pts.map((p) => p.rm));
-  const X = (i) => 2 + i * (W - 4) / (pts.length - 1), Y = (v) => hi === lo ? H / 2 : H - 2 - (v - lo) / (hi - lo) * (H - 4);
-  const d = pts.map((p, i) => `${i ? 'L' : 'M'}${X(i).toFixed(1)},${Y(p.rm).toFixed(1)}`).join(' ');
-  const dots = pts.map((p, i) => isPr(series, p.uke) ? `<circle cx="${X(i).toFixed(1)}" cy="${Y(p.rm).toFixed(1)}" r="2.4" fill="var(--gold)"/>` : '').join('');
-  return `<svg viewBox="0 0 ${W} ${H}" aria-hidden="true"><path d="${d}" fill="none" stroke="var(--line-strong)" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/>${dots}</svg>`;
-}
-function programDays() { const p = S.trening.program; return p && p.length ? p : DEFAULT_TRENING.program; }
-function renderStyrke() {
-  if (S.styrkeWeekNo === null || S.styrkeWeekNo === undefined) S.styrkeWeekNo = Math.max(1, currentWeekNo());
-  const n = S.styrkeWeekNo; const w = getWeek(n);
-  $('styrkeTitle').textContent = weekLabel(n);
-  $('styrkeSub').textContent = n > 0 ? `${shortDate(weekMonday(n))} – ${shortDate(isoOf(addDays(parseDate(weekMonday(n)), 6)))}` : '';
-  $('styrkePrev').disabled = n <= 1;
-  const maxWk = Math.max(currentWeekNo(), ...[...S.weeks.values()].map((x) => x.uke));
-  $('styrkeNext').disabled = n >= maxWk;
-  const st = w?.styrke || {};
-  const inProgram = new Set();
-  const dayHtml = (dagLabel, ovelser) => {
-    const rows = ovelser.map((name) => {
-      inProgram.add(name);
-      const e = st[name];
-      const rm = e ? epley(num(e.vekt), num(e.reps)) : null;
-      if (!e || (!e.vekt && !e.reps)) return `<button class="lift none" data-lift="${esc(name)}"><span><span class="n">${esc(name)}</span><span class="m">${e?.kommentar ? esc(e.kommentar) : 'ikke logget'}</span></span><span class="best">–</span><span class="rm"></span></button>`;
-      const series = liftSeries(name); const pr = isPr(series, n);
-      return `<button class="lift${pr ? ' pr' : ''}" data-lift="${esc(name)}"><span><span class="n">${esc(name)}</span><span class="m">${e.sett?.length ? e.sett.map((s) => `${fmt(s[0], 1).replace(/,?0+$/, '')}×${s[1]}`).join(', ') : ''}${e.kommentar ? ' · ' + esc(e.kommentar) : ''}</span></span>
-        <span class="best">${fmt(e.vekt, 1).replace(/,?0+$/, '')} × ${e.reps}</span><span class="rm"><span class="num">${rm ? fmt(rm, 1) : '–'}<small> 1RM</small></span>${sparkline(series, n)}</span></button>`;
-    }).join('');
-    return `<section class="meal"><div class="meal-head"><h3>${esc(dagLabel)}</h3></div>${rows}</section>`;
-  };
-  let out = programDays().map((d) => dayHtml(`${d.dag} · ${d.navn}`, d.ovelser)).join('');
-  // Every exercise ever logged stays on the list, so next week's entry is one tap away.
-  const known = new Set(Object.keys(st)); for (const wk of S.weeks.values()) for (const k of Object.keys(wk.styrke || {})) known.add(k);
-  const extra = [...known].filter((k) => !inProgram.has(k)).sort((a, b) => a.localeCompare(b, 'nb'));
-  if (extra.length) out += dayHtml(programDays().length ? 'Andre øvelser' : 'Øvelser', extra);
-  else if (!programDays().length) out += `<div class="empty">Ingen øvelser ennå. Legg til en øvelse manuelt, eller importer en Jefit-eksport.</div>`;
-  out += `<div class="add-row"><button class="link-btn" id="addLiftBtn">+ Legg til øvelse manuelt</button></div>`;
-  $('styrkeList').innerHTML = out;
-}
-function bindStyrke() {
-  $('styrkePrev').addEventListener('click', () => { S.styrkeWeekNo = Math.max(1, S.styrkeWeekNo - 1); renderStyrke(); });
-  $('styrkeNext').addEventListener('click', () => { S.styrkeWeekNo = S.styrkeWeekNo + 1; renderStyrke(); });
-  $('importJefitBtn').addEventListener('click', () => $('jefitFile').click());
-  $('jefitFile').addEventListener('change', importJefit);
-  $('styrkeList').addEventListener('click', (e) => {
-    const add = e.target.closest('#addLiftBtn'); if (add) { askText('Ny øvelse', 'Navn på øvelsen', '', 'Videre').then((name) => { if (name) openLiftEditor(name); }); return; }
-    const b = e.target.closest('button[data-lift]'); if (b) openLiftEditor(b.dataset.lift);
-  });
-}
-function liftHistory(name) {
-  return [...S.weeks.values()].filter((w) => w.styrke?.[name]?.vekt).sort((a, b) => a.uke - b.uke)
-    .map((w) => ({ uke: w.uke, dato: w.styrke[name].dato, vekt: num(w.styrke[name].vekt), reps: num(w.styrke[name].reps), rm: epley(num(w.styrke[name].vekt), num(w.styrke[name].reps)) }));
-}
-function openLiftEditor(name) {
-  const n = S.styrkeWeekNo; const w = ensureWeek(n);
-  const e = clone(w.styrke[name] || { dato: '', vekt: null, reps: null, sett: [], kommentar: '' });
-  const hist = liftHistory(name);
-  const v = (x) => (x === null || x === undefined) ? '' : String(x).replace('.', ',');
-  const spark = (() => {
-    if (hist.length < 2) return '';
-    const W = 320, H = 60, pad = 6; const rms = hist.map((h) => h.rm);
-    const lo = Math.min(...rms), hi = Math.max(...rms); const span = Math.max(1, hi - lo);
-    const pts = hist.map((h, i) => `${(pad + i / (hist.length - 1) * (W - 2 * pad)).toFixed(1)},${(H - pad - (h.rm - lo) / span * (H - 2 * pad)).toFixed(1)}`);
-    return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:60px;display:block;margin:6px 0"><polyline points="${pts.join(' ')}" fill="none" stroke="var(--blue)" stroke-width="2.4" stroke-linejoin="round"/>${pts.map((p) => `<circle cx="${p.split(',')[0]}" cy="${p.split(',')[1]}" r="3" fill="var(--blue)"/>`).join('')}</svg>`;
-  })();
-  const body = `<div class="stack">
-    <div class="grid3">
-      <label class="f">Vekt (kg)<input id="leVekt" inputmode="decimal" value="${v(e.vekt)}"></label>
-      <label class="f">Reps<input id="leReps" inputmode="numeric" value="${v(e.reps)}"></label>
-      <label class="f">Dato<input id="leDato" type="date" value="${esc(e.dato || '')}" style="color:var(--ink)"></label>
-    </div>
-    <label class="f">Alle serier <span class="help">(f.eks. 40x8, 47.5x4, 45x4)</span><input id="leSett" value="${esc((e.sett || []).map((s) => `${s[0]}x${s[1]}`).join(', '))}" style="color:var(--ink)"></label>
-    <label class="f">Kommentar<input id="leKomm" value="${esc(e.kommentar || '')}" style="color:var(--ink)"></label>
-    <p class="help">Estimert 1RM (Epley): <strong id="leRm">${e.vekt && e.reps ? fmt(epley(num(e.vekt), num(e.reps)), 1) + ' kg' : '–'}</strong></p>
-    ${hist.length ? `<h3 style="font-size:0.95rem;margin:8px 0 0">Historikk</h3>${spark}<div class="wide"><table class="t"><tr><th>Uke</th><th>Beste sett</th><th>Est. 1RM</th></tr>${hist.map((h) => `<tr><td>${weekLabel(h.uke)}</td><td>${fmt(h.vekt, 1).replace(/,?0+$/, '')} × ${h.reps}</td><td>${fmt(h.rm, 1)}</td></tr>`).join('')}</table></div>` : ''}
-  </div>`;
-  const sh = openSheet(name, body, `${w.styrke[name] ? '<button class="btn danger" id="leDelete">Fjern</button>' : ''}<button class="btn" data-close>Avbryt</button><button class="btn primary" id="leSave">Lagre</button>`);
-  const upd = () => { const a = parseNum(sh.querySelector('#leVekt').value), b = parseNum(sh.querySelector('#leReps').value); sh.querySelector('#leRm').textContent = (a && b) ? fmt(epley(a, b), 1) + ' kg' : '–'; };
-  sh.querySelector('#leVekt').addEventListener('input', upd); sh.querySelector('#leReps').addEventListener('input', upd);
-  sh.querySelector('#leSett').addEventListener('change', (ev) => {
-    const sets = parseSets(ev.target.value); if (!sets.length) return;
-    const best = bestSet(sets); sh.querySelector('#leVekt').value = String(best[0]).replace('.', ','); sh.querySelector('#leReps').value = String(best[1]); upd();
-  });
-  sh.querySelector('#leSave').addEventListener('click', () => {
-    const entry = { dato: sh.querySelector('#leDato').value || null, vekt: parseNum(sh.querySelector('#leVekt').value), reps: parseNum(sh.querySelector('#leReps').value),
-      sett: parseSets(sh.querySelector('#leSett').value), kommentar: sh.querySelector('#leKomm').value.trim() };
-    w.styrke[name] = entry; saveWeekNow(n); closeSheet(); renderStyrke(); toast('Lagret');
-  });
-  sh.querySelector('#leDelete')?.addEventListener('click', () => { delete w.styrke[name]; saveWeekNow(n); closeSheet(); renderStyrke(); });
-}
-function parseSets(str) {
-  return String(str || '').split(',').map((s) => s.trim()).filter(Boolean).map((s) => { const m = s.match(/^([\d.,]+)\s*[x×]\s*(\d+)/i); return m ? [Number(m[1].replace(',', '.')), Number(m[2])] : null; }).filter((x) => x && Number.isFinite(x[0]));
-}
+/* ---- program and the weekly best sets (kept up to date by Økt) ---- */
+// The program as phases: the web app has the six TLS phases, the artifact one phase (his BLS split). A phase runs for
+// `deloadEtter` training weeks and ends with its deload week; after the last phase it starts over.
+function programPhases() { const t = S.trening || DEFAULT_TRENING; if (t.faser?.length) return t.faser; const p = t.program?.length ? t.program : DEFAULT_TRENING.program; return [{ navn: '', dager: p }]; }
+const cycleLen = () => (num(S.trening?.deloadEtter) || 8) + 1;
+function phaseIndex(iso) { const ph = programPhases(); if (ph.length < 2) return 0; const n = weekNoOf(iso); return n > 0 ? Math.floor((n - 1) / cycleLen()) % ph.length : 0; }
+function programDays(iso) { return programPhases()[phaseIndex(iso || todayIso())].dager; }
+// Every `deloadEtter + 1`th week is a deload week, unless switched for that week under ⚙ (`deloadUker`).
+function isDeloadWeek(n) { const o = S.trening?.deloadUker?.[n]; if (o === true || o === false) return o; return n > 0 && n % cycleLen() === 0; }
+// Which weekday each workout falls on, or 'rotasjon': the next workout after the last one logged, on any day.
+const dagerCfg = () => Object.assign({}, DEFAULT_TRENING.dager, S.trening?.dager || {});
+const dayLabel = (i) => { const d = dagerCfg(); return d.modus === 'rotasjon' ? String(i + 1) : (DAY_NAMES[d.uke?.[i]] ?? String(i + 1)); };
 function bestSet(sets) { let best = null, bestRm = -1; for (const s of sets) { const rm = epley(s[0], s[1]) ?? -1; if (rm > bestRm) { bestRm = rm; best = s; } } return best; }
-
-/* ---- Jefit import ---- */
-function parseCsvLine(line) {
-  const out = []; let cur = '', q = false;
-  for (let i = 0; i < line.length; i++) {
-    const c = line[i];
-    if (q) { if (c === '"') { if (line[i + 1] === '"') { cur += '"'; i++; } else q = false; } else cur += c; }
-    else if (c === '"') q = true; else if (c === ',') { out.push(cur); cur = ''; } else cur += c;
-  }
-  out.push(cur); return out;
-}
-function parseJefit(text) {
-  const lines = text.replace(/^\ufeff/, '').split(/\r?\n/);
-  const start = lines.findIndex((l) => l.startsWith('### EXERCISE LOGS'));
-  if (start < 0) throw new Error('Fant ikke seksjonen EXERCISE LOGS i filen');
-  let i = start + 1; while (i < lines.length && !lines[i].trim()) i++;
-  const header = parseCsvLine(lines[i]); i++;
-  const col = (k) => header.indexOf(k);
-  const ci = { date: col('mydate'), name: col('ename'), logs: col('logs') };
-  if (ci.date < 0 || ci.name < 0 || ci.logs < 0) throw new Error('Uventet kolonneoppsett i EXERCISE LOGS');
-  const rows = [];
-  for (; i < lines.length; i++) {
-    const l = lines[i]; if (!l.trim()) continue; if (l.startsWith('#')) break;
-    const f = parseCsvLine(l); if (f.length <= Math.max(ci.date, ci.name, ci.logs)) continue;
-    const sets = parseSets(f[ci.logs]); if (!sets.length) continue;
-    rows.push({ dato: f[ci.date], navn: f[ci.name].trim(), sett: sets });
-  }
-  return rows;
-}
-async function importJefit(e) {
-  const file = e.target.files?.[0]; e.target.value = ''; if (!file) return;
-  let rows; try { rows = parseJefit(await file.text()); } catch (err) { toast(err.message); return; }
-  const startIso = S.trening.start;
-  const relevant = rows.filter((r) => r.dato >= startIso);
-  if (!relevant.length) { toast('Ingen økter på eller etter ' + startIso + ' i filen'); return; }
-  const byWeek = new Map();
-  for (const r of relevant) { const n = weekNoOf(r.dato); if (!byWeek.has(n)) byWeek.set(n, []); byWeek.get(n).push(r); }
-  const bestBefore = new Map();
-  for (const w of S.weeks.values()) for (const [name, e] of Object.entries(w.styrke || {})) { const rm = epley(num(e.vekt), num(e.reps)); if (rm && rm > (bestBefore.get(name) || 0)) bestBefore.set(name, rm); }
-  let sessions = 0, exercises = 0;
-  for (const [n, list] of byWeek) {
-    const w = ensureWeek(n);
-    const dates = new Set();
-    for (const r of list) {
-      dates.add(r.dato);
-      const best = bestSet(r.sett);
-      const prev = w.styrke[r.navn];
-      // keep the better of an existing entry for the same week (a lift done twice in one week)
-      if (prev && prev.vekt && prev.dato !== r.dato && (epley(num(prev.vekt), num(prev.reps)) ?? 0) > (epley(best[0], best[1]) ?? 0)) continue;
-      w.styrke[r.navn] = { dato: r.dato, vekt: best[0], reps: best[1], sett: r.sett, kommentar: prev?.dato === r.dato ? (prev.kommentar || '') : '' };
-      exercises++;
-    }
-    sessions += dates.size;
-    if (w.okter === null || w.okter === undefined) w.okter = dates.size;
-    await saveWeekNow(n);
-  }
-  // Every session, set by set, for the Økt history. A date already logged in the app keeps the app's own record.
-  const byDate = new Map();
-  for (const r of relevant) { if (!byDate.has(r.dato)) byDate.set(r.dato, []); byDate.get(r.dato).push(r); }
-  for (const [iso, list] of byDate) {
-    const id = oktId(iso); const had = S.okter.get(id);
-    if (had && had.kilde !== 'jefit') continue;
-    const di = programDays().findIndex((d) => list.some((r) => d.ovelser.includes(r.navn)));
-    const o = { dato: iso, dag: di >= 0 ? di : null, navn: di >= 0 ? programDays()[di].navn : 'Økt', kilde: 'jefit',
-      ovelser: list.map((r) => ({ navn: r.navn, sett: r.sett.map(([kg, reps]) => ({ kg, reps, ok: true })) })) };
-    if (di >= 0) { const order = programDays()[di].ovelser; const pos = (n) => { const k = order.indexOf(n); return k < 0 ? 99 : k; }; o.ovelser.sort((a, b) => pos(a.navn) - pos(b.navn)); }
-    S.okter.set(id, o);
-    if (S.db) await queueWrite(() => S.db.doc('okter/' + id).set(clone(o)));
-  }
-  S.styrkeWeekNo = Math.max(...byWeek.keys());
-  const prs = new Set();
-  for (const n of byWeek.keys()) for (const [name, e] of Object.entries(getWeek(n)?.styrke || {})) { const rm = epley(num(e.vekt), num(e.reps)); if (bestBefore.has(name) && rm > bestBefore.get(name) + 1e-9) prs.add(name); }
-  renderStyrke(); renderLogg();
-  toast(`Importerte ${exercises} øvelser fra ${sessions} økter over ${byWeek.size} uke${byWeek.size === 1 ? '' : 'r'}${prs.size ? ` · ★ ${prs.size} ny${prs.size === 1 ? '' : 'e'} rekord${prs.size === 1 ? '' : 'er'}` : ''}`);
-  [...document.querySelectorAll('#styrkeList .lift.pr')].filter((b) => prs.has(b.dataset.lift)).slice(0, 6)
-    .forEach((b, i) => setTimeout(() => sparkBurst(b.querySelector('.num'), { n: 7, reach: 34, y: 0.2 }), 120 + i * 140));
-}
-
-/* ---- dagbok view ---- */
-function renderDagbok() {
-  const cur = currentWeekNo();
-  const weeks = [...S.weeks.values()].filter((w) => w.uke > 0).sort((a, b) => b.uke - a.uke);
-  if (!weeks.some((w) => w.uke === cur) && cur > 0) weeks.unshift({ uke: cur, dato: weekSaturday(cur), dagbok: null });
-  $('dagbokList').innerHTML = weeks.map((w) => {
-    const d = w.dagbok;
-    return `<div class="entry"><div class="entry-head"><h3>${weekLabel(w.uke)} <span class="help" style="font-weight:400">${shortDate(w.dato)}</span></h3><button class="link-btn" data-edit-dagbok="${w.uke}">${d ? 'Rediger' : 'Skriv'}</button></div>
-      ${d ? `<div class="chips-r">${RATINGS.map(([k, l]) => typeof d[k] === 'number' ? `<span>${l} ${d[k]}</span>` : '').join('')}</div><p class="txt">${esc(d.tekst || '')}</p>` : '<p class="help">Ingen notat ennå.</p>'}</div>`;
-  }).join('') || '<div class="empty">Ingen uker ennå.</div>';
-}
-function bindDagbok() { $('dagbokList').addEventListener('click', (e) => { const b = e.target.closest('button[data-edit-dagbok]'); if (b) openDagbokEditor(Number(b.dataset.editDagbok)); }); }
-function openDagbokEditor(n) {
-  const w = ensureWeek(n); const d = clone(w.dagbok || { stolhet: null, energi: null, sovn: null, motivasjon: null, tekst: '' });
-  const body = `<div class="stack">
-    ${RATINGS.map(([k, l]) => `<div><div class="help" style="margin-bottom:4px">${l} <span style="opacity:.7">(${k === 'stolhet' ? '1 = ingen, 5 = mye' : '1 = dårlig, 5 = veldig bra'})</span></div><div class="rating" data-r="${k}">${[1, 2, 3, 4, 5].map((i) => `<button type="button" data-v="${i}" class="${d[k] === i ? 'on' : ''}">${i}</button>`).join('')}</div></div>`).join('')}
-    <label class="f">Notat<textarea id="dbTekst" rows="10" style="font-size:0.95rem">${esc(d.tekst || '')}</textarea></label>
-  </div>`;
-  const sh = openSheet(weekLabel(n) + ' · dagbok', body, `${w.dagbok ? '<button class="btn danger" id="dbDelete">Slett</button>' : ''}<button class="btn" data-close>Avbryt</button><button class="btn primary" id="dbSave">Lagre</button>`);
-  sh.addEventListener('click', (e) => { const b = e.target.closest('.rating button'); if (!b) return; const k = b.parentElement.dataset.r; const val = Number(b.dataset.v); d[k] = d[k] === val ? null : val; for (const x of b.parentElement.children) x.classList.toggle('on', Number(x.dataset.v) === d[k]); });
-  sh.querySelector('#dbSave').addEventListener('click', () => { d.tekst = sh.querySelector('#dbTekst').value.trim(); w.dagbok = d; saveWeekNow(n); closeSheet(); renderDagbok(); toast('Lagret'); });
-  sh.querySelector('#dbDelete')?.addEventListener('click', async () => { if (!(await askConfirm('Slett notat', 'Slette dagboknotatet for denne uken?'))) return; w.dagbok = null; saveWeekNow(n); renderDagbok(); });
-}
 
 /* ---- månedsmål view ---- */
 const MFIELDS = [['bryst', 'Bryst'], ['armH', 'Overarm H'], ['armV', 'Overarm V'], ['larH', 'Lår H'], ['larV', 'Lår V'], ['midje', 'Midje'], ['hofte', 'Hofte'], ['kaliperMm', 'Kaliper (mm)']];
@@ -2656,20 +2328,17 @@ async function exportXlsx() {
   const r1 = (x) => (typeof x === 'number') ? Math.round(x * 100) / 100 : (x ?? '');
   const weeks = [...S.weeks.values()].sort((a, b) => a.uke - b.uke);
   const base = getWeek(0) ? weekAvg(getWeek(0)) : null;
-  const uke = [['Uke', 'Dato', ...DAY_NAMES, 'Snittvekt', 'Endring', 'Totalt', 'Midje', 'Endring midje', 'Økter', 'Kosthold', 'Kommentar']];
+  const uke = [['Uke', 'Dato', ...DAY_NAMES, 'Snittvekt', 'Endring', 'Totalt', 'Midje', 'Endring midje', 'Kommentar']];
   for (const w of weeks) { const avg = weekAvg(w); const p = prevWeekWith(w.uke, 'avg'); const pm = prevWeekWith(w.uke, 'midje');
-    uke.push([w.uke, w.dato, ...DAYS.map((d, i) => r1(dayWeight(w, i))), r1(avg), r1(avg !== null && p ? avg - p.v : null), r1(avg !== null && base !== null && w.uke > 0 ? avg - base : null), r1(w.midje), r1(typeof w.midje === 'number' && pm ? w.midje - pm.v : null), r1(w.okter), r1(w.kosthold), w.kommentar || '']); }
+    uke.push([w.uke, w.dato, ...DAYS.map((d, i) => r1(dayWeight(w, i))), r1(avg), r1(avg !== null && p ? avg - p.v : null), r1(avg !== null && base !== null && w.uke > 0 ? avg - base : null), r1(w.midje), r1(typeof w.midje === 'number' && pm ? w.midje - pm.v : null), w.kommentar || '']); }
   XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(uke), 'Ukelogg');
   const mm = [['Uke', 'Dato', ...MFIELDS.map((f) => f[1]), 'Bilder', 'Kommentar']];
   for (const m of [...S.months.values()].sort((a, b) => (a.dato || '').localeCompare(b.dato || ''))) mm.push([m.uke, m.dato, ...MFIELDS.map(([k]) => r1(m[k])), m.bilder ? 'J' : 'N', m.kommentar || '']);
   XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(mm), 'Månedsmål');
-  const db = [['Uke', 'Dato', ...RATINGS.map((r) => r[1]), 'Notat']];
-  for (const w of weeks) if (w.dagbok) db.push([w.uke, w.dato, ...RATINGS.map(([k]) => r1(w.dagbok[k])), w.dagbok.tekst || '']);
-  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(db), 'Dagbok');
   const st = [['Uke', 'Dato', 'Dag', 'Øvelse', 'Vekt (kg)', 'Reps', 'Est. 1RM', 'Serier', 'Kommentar']];
   for (const w of weeks) { const done = new Set();
-    for (const d of programDays()) for (const name of d.ovelser) { const e = w.styrke?.[name]; done.add(name); if (!e && w.uke === 0) continue;
-      st.push([w.uke, e?.dato || '', `${d.dag} - ${d.navn}`, name, r1(e?.vekt), r1(e?.reps), r1(e?.vekt && e?.reps ? epley(num(e.vekt), num(e.reps)) : null), (e?.sett || []).map((s) => `${s[0]}x${s[1]}`).join(', '), e?.kommentar || (e ? '' : (w.uke > 0 ? 'ikke logget' : ''))]); }
+    for (const [di, d] of programDays(w.dato).entries()) for (const name of d.ovelser) { const e = w.styrke?.[name]; done.add(name); if (!e && w.uke === 0) continue;
+      st.push([w.uke, e?.dato || '', `${dayLabel(di)} - ${d.navn}`, name, r1(e?.vekt), r1(e?.reps), r1(e?.vekt && e?.reps ? epley(num(e.vekt), num(e.reps)) : null), (e?.sett || []).map((s) => `${s[0]}x${s[1]}`).join(', '), e?.kommentar || (e ? '' : (w.uke > 0 ? 'ikke logget' : ''))]); }
     for (const name of Object.keys(w.styrke || {})) if (!done.has(name)) { const e = w.styrke[name]; st.push([w.uke, e.dato || '', 'Andre', name, r1(e.vekt), r1(e.reps), r1(e.vekt && e.reps ? epley(num(e.vekt), num(e.reps)) : null), (e.sett || []).map((s) => `${s[0]}x${s[1]}`).join(', '), e.kommentar || '']); } }
   XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(st), 'Styrke');
   const plan = currentPlan();
@@ -2689,16 +2358,62 @@ async function exportXlsx() {
    last time and applies Matthews' double progression: once the working weight reached the top of the rep range
    in enough sets, the next weight up is suggested. Every set is saved as soon as it is ticked off (collection
    `okter`, one document per date), and the week's Styrke entry is rebuilt from the sessions, so there is
-   nothing to import afterwards. Warm-up sets are not logged. */
-const OKT_DEFAULT = { repsMin: 8, repsMax: 10, toppSett: 3, hvile: 180, lyd: 'synth' };
+   nothing to import afterwards. Warm-up sets are not logged (the first lift shows what to warm up with).
+   Each exercise has standing notes (seat height, safeties …) and a demonstration video. Deload weeks build
+   2 light-rep sets at the usual weight and stay out of the progression. */
+const OKT_DEFAULT = { repsMin: 8, repsMax: 10, toppSett: 1, hvile: 180, lyd: 'synth' };
 const oktCfg = () => Object.assign({}, OKT_DEFAULT, S.trening?.okt || {});
-// An exercise's rep range: the program's own (TLS: 6-8 for the first two lifts of a day, 8-10 for the rest),
-// otherwise the general range under ⚙.
-function repRange(name) {
-  for (const d of programDays()) if (d.reps?.[name]) return { min: d.reps[name][0], max: d.reps[name][1] };
-  const c = oktCfg(); return { min: c.repsMin, max: c.repsMax };
+
+/* ---- exercise library: Matthews' names and his demonstration videos (TLS bonus material) ---- */
+const YT = (id) => id.startsWith('shorts/') ? 'https://youtube.com/' + id : 'https://youtu.be/' + id;
+const MATTHEWS = [
+  ['Barbell Bench Press', 'YLBMLUfBwUo'], ['Incline Barbell Bench Press', 'cPbElRT55C8'], ['Dumbbell Bench Press', 'F1-6iSktxHc'],
+  ['Incline Dumbbell Bench Press', 'IQFBxglnH_k'], ['Close-Grip Bench Press', 'vDZ0QvMw_w0'], ['Seated Dumbbell Press', 'DevBtt_s240'],
+  ['Seated Barbell Overhead Press', 'iZ3cVBL_q4o'], ['Standing Barbell Overhead Press', '38M3yr0jsbg'], ['Arnold Dumbbell Press', 'uGxWKUbnsJ0'],
+  ['Seated Triceps Press', 'ZOUDq0fMWO8'], ['Triceps Pushdown', 'QlWG2iGsWwA'], ['Lying Triceps Extension (Skullcrusher)', 'ai_dq1UGHdc'],
+  ['Dumbbell Side Lateral Raise', 'yUNf3UGc2fQ'], ['Cable Side Raise', 'shorts/3e-D9UJwwBg'], ['Barbell Deadlift', 'oZTO3clUAWU'],
+  ['Barbell Romanian Deadlift', 'ua-Zlgpe1no'], ['One-Arm Dumbbell Row', 'BjJzsDciak8'], ['Barbell Row', 'f2MCvjTekS4'],
+  ['Lat Pulldown (Medium-Grip)', 'PJXwrqUJG9A'], ['Lat Pulldown (Close-Grip)', 'PJXwrqUJG9A'], ['Lat Pulldown (Wide-Grip)', 'PJXwrqUJG9A'],
+  ['Seated Cable Row', 'BHT2QCiyo3A'], ['Barbell Curl', 'iwYZYvWc9BY'], ['Alternating Dumbbell Curl', 'lxTiu9or6Ow'],
+  ['EZ-Bar Preacher Curl', 'shorts/kmQSZVEsAAs'], ['Dumbbell Rear Lateral Raise', 'oYTGPYLfpSM'], ['Dumbbell Rear Delt Row', 'shorts/D96_DwefWLY'],
+  ['Barbell Rear Delt Row', 'NUi2qOi1z7g'], ['Machine Reverse Fly', 'mZeq0wEazQY'], ['Barbell Squat', 'KJ_tmkdWmE0'], ['Leg Press', 'shOprEcfDPM'],
+  ['Dumbbell Lunge', '1x1sL4GwQoA'], ['Dumbbell Bulgarian Split Squat', 'DCGHjnIekw0'], ['Seated Leg Curl', '1N9BEWbf0E4'],
+  ['Lying Leg Curl', '1N9BEWbf0E4'], ['Dumbbell Step-Up', 'RjNa0T_tIBo'], ['Barbell Hip Thrust', 'MxrBskXjVHU'], ['Assisted Pull-Up', null],
+];
+const MATTHEWS_VIDEO = new Map(MATTHEWS.filter((x) => x[1]).map(([n, id]) => [n, YT(id)]));
+// The video for an exercise: one the user set under ⋯ (settings/trening.videoer), else Matthews' own.
+const videoFor = (name) => S.trening?.videoer?.[name] || MATTHEWS_VIDEO.get(name) || null;
+
+/* ---- standing notes per exercise: collection `notater`, one document per exercise {navn, notater: [{id, tekst, dato}]} ---- */
+const noteDocId = (name) => 'n-' + name.toLowerCase().normalize('NFKD').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+const notesFor = (name) => [...(S.notater.get(noteDocId(name))?.notater || [])].sort((a, b) => (b.dato || '').localeCompare(a.dato || ''));
+function saveNotes(name, list) {
+  const id = noteDocId(name);
+  if (list.length) { const d = { navn: name, notater: list }; S.notater.set(id, d); if (S.db) queueWrite(() => S.db.doc('notater/' + id).set(clone(d))); }
+  else { S.notater.delete(id); if (S.db) queueWrite(() => S.db.doc('notater/' + id).delete()); }
 }
-const warmUpFirst = (name) => programDays().some((d) => (d.oppvarming || []).includes(name));
+function openNoteEditor(name, noteId) {
+  const list = notesFor(name); const cur = noteId ? list.find((n) => n.id === noteId) : null;
+  const body = `<label class="f">Notat<textarea id="neText" rows="5">${esc(cur?.tekst || '')}</textarea></label>
+    <p class="help" style="margin:6px 0 0">Vises på øvelsen i hver økt. Fint for innstillinger som setehøyde og sikkerhetsstenger.</p>`;
+  const sh = openSheet(name, body, `${cur ? '<button class="btn danger" id="neDel">Slett</button>' : ''}<button class="btn" data-close>Avbryt</button><button class="btn primary" id="neSave">Lagre</button>`);
+  setTimeout(() => sh.querySelector('#neText')?.focus(), 50);
+  sh.querySelector('#neSave').addEventListener('click', () => {
+    const t = sh.querySelector('#neText').value.trim(); closeSheet();
+    if (!t) { if (cur) saveNotes(name, list.filter((n) => n !== cur)); renderOkt(); return; }
+    if (cur) cur.tekst = t; else list.push({ id: 'k' + Date.now().toString(36), tekst: t, dato: todayIso() });
+    saveNotes(name, list); renderOkt();
+  });
+  sh.querySelector('#neDel')?.addEventListener('click', async () => {
+    closeSheet(); if (!(await askConfirm('Slette notatet?', cur.tekst.slice(0, 120), 'Slett'))) return;
+    saveNotes(name, list.filter((n) => n !== cur)); renderOkt();
+  });
+}
+
+// An exercise's rep range: the program day's own (TLS: 6–8 for the first two lifts, 8–10 for the last two), stored on the
+// exercise when the session is built, otherwise the general range under ⚙.
+function repRange(ex) { if (ex?.rr) return { min: ex.rr[0], max: ex.rr[1] }; const c = oktCfg(); return { min: c.repsMin, max: c.repsMax }; }
+const BAR = /Barbell|Close-Grip Bench Press|EZ-Bar/, DB = /Dumbbell|Triceps Press/;
 const oktId = (iso) => 'o' + iso;
 const round2 = (v) => Math.round(v * 100) / 100;
 const kgTxt = (v) => (v === null || v === undefined || v === '') ? '' : fmt(v, 2).replace(/,?0+$/, '');
@@ -2709,7 +2424,8 @@ const oktDate = () => S.oktDato || todayIso();
 
 function knownExercises() {
   const names = new Set();
-  for (const d of programDays()) d.ovelser.forEach((n) => names.add(n));
+  for (const ph of programPhases()) for (const d of ph.dager) d.ovelser.forEach((n) => names.add(n));
+  for (const [n] of MATTHEWS) names.add(n);
   for (const w of S.weeks.values()) Object.keys(w.styrke || {}).forEach((n) => names.add(n));
   for (const o of S.okter.values()) (o.ovelser || []).forEach((e) => names.add(e.navn));
   return [...names].sort((a, b) => a.localeCompare(b, 'nb'));
@@ -2719,7 +2435,7 @@ function knownExercises() {
 function performances(name) {
   const byDate = new Map();
   for (const w of S.weeks.values()) { const e = w.styrke?.[name]; if (e?.dato && e.sett?.length) byDate.set(e.dato, e.sett.map((x) => [num(x[0]), num(x[1])])); }
-  for (const o of S.okter.values()) { const sets = loggedSets((o.ovelser || []).find((x) => x.navn === name)); if (sets.length) byDate.set(o.dato, sets); }
+  for (const o of S.okter.values()) { if (o.deload) continue; const sets = loggedSets((o.ovelser || []).find((x) => x.navn === name)); if (sets.length) byDate.set(o.dato, sets); }
   return [...byDate.entries()].map(([dato, sett]) => ({ dato, sett })).sort((a, b) => b.dato.localeCompare(a.dato));
 }
 const lastPerf = (name, iso) => performances(name).find((p) => p.dato < iso) || null;
@@ -2731,32 +2447,46 @@ function stepFor(name) {
   const v = [...ws].sort((a, b) => a - b); let step = null;
   for (let i = 1; i < v.length; i++) { const d = round2(v[i] - v[i - 1]); if (d >= 0.5 && (step === null || d < step)) step = d; }
   // A bar can always go up by 2.5 kg (1.25 a side), even when the history only shows bigger jumps.
-  if (/Barbell/.test(name)) return step ? Math.min(step, 2.5) : 2.5;
-  return (step && step <= 10) ? step : (/Dumbbell|Triceps Press/.test(name) ? 2.5 : 5);
+  if (BAR.test(name)) return step ? Math.min(step, 2.5) : 2.5;
+  return (step && step <= 10) ? step : (DB.test(name) ? 2.5 : 5);
 }
 // Matthews' double progression: up a step once the top weight hit the top of the rep range in enough sets.
-function suggestion(name, iso) {
-  const cfg = oktCfg(); const last = lastPerf(name, iso);
+function suggestion(name, iso, rr) {
+  const cfg = oktCfg(); const last = lastPerf(name, iso); const top_ = (rr || repRange(null)).max;
   if (!last) return { last: null, kg: null, reps: [], up: false };
   const top = Math.max(...last.sett.map((x) => x[0]));
   const topSets = last.sett.filter((x) => x[0] === top);
-  const up = topSets.filter((x) => x[1] >= repRange(name).max).length >= cfg.toppSett;
+  const up = topSets.filter((x) => x[1] >= top_).length >= cfg.toppSett;
   const step = stepFor(name);
   return { last, top, up, step, kg: up ? round2(top + step) : top, reps: up ? [] : topSets.map((x) => x[1]) };
 }
-function blankExercise(name, iso) {
-  const sg = suggestion(name, iso); const rr = repRange(name);
-  return { navn: name, sett: [0, 1, 2].map((i) => ({ kg: sg.kg, reps: sg.up ? rr.min : (sg.reps[i] ?? sg.reps[sg.reps.length - 1] ?? rr.max), ok: false })) };
+// A fresh exercise for a session. `pos` is its place in the program day (for the day's rep range); in a deload
+// session it gets 2 sets at the usual weight: 3 reps for the first two lifts, 4 for the rest (Matthews).
+function blankExercise(name, iso, pos = null, day = null, deload = false) {
+  const rrDay = day?.reps?.[pos]; const rr = rrDay ? { min: rrDay[0], max: rrDay[1] } : repRange(null);
+  const sg = suggestion(name, iso, rr);
+  const ex = { navn: name };
+  if (rrDay) ex.rr = [rr.min, rr.max];
+  if (deload) { const r = (pos ?? 2) < 2 ? 3 : 4; ex.sett = [0, 1].map(() => ({ kg: sg.last ? sg.top : null, reps: r, ok: false })); return ex; }
+  ex.sett = [0, 1, 2].map((i) => ({ kg: sg.kg, reps: sg.up ? rr.min : (sg.reps[i] ?? sg.reps[sg.reps.length - 1] ?? rr.max), ok: false }));
+  return ex;
 }
+// Today's workout: by weekday (fixed days), or the one after the last logged program workout (in turn).
 function templateFor(iso) {
-  if (!S.trening.rotasjon && S.trening.program?.length) { const i = dayIndexOf(iso); return i < programDays().length ? i : null; }
-  const done = [...S.okter.values()].filter((o) => o.dato < iso && o.dag !== null && o.dag !== undefined && (o.ovelser || []).some((x) => loggedSets(x).length))
-    .sort((a, b) => b.dato.localeCompare(a.dato));
-  return done.length ? (done[0].dag + 1) % programDays().length : 0;
+  const days = programDays(iso); const d = dagerCfg();
+  if (d.modus === 'rotasjon') {
+    const done = [...S.okter.values()].filter((o) => o.dato < iso && o.dag !== null && o.dag !== undefined && (o.ovelser || []).some((x) => loggedSets(x).length))
+      .sort((a, b) => b.dato.localeCompare(a.dato));
+    return done.length ? (done[0].dag + 1) % days.length : 0;
+  }
+  const i = (d.uke || []).findIndex((wd, k) => k < days.length && wd === dayIndexOf(iso)); return i >= 0 ? i : null;
 }
 function buildSession(iso, dag) {
-  const d = (dag === null || dag === undefined) ? null : programDays()[dag];
-  return { dato: iso, dag: d ? dag : null, navn: d ? d.navn : 'Fri økt', ovelser: d ? d.ovelser.map((n) => blankExercise(n, iso)) : [] };
+  const days = programDays(iso); const d = (dag === null || dag === undefined) ? null : days[dag];
+  const deload = !!d && isDeloadWeek(weekNoOf(iso));
+  const o = { dato: iso, dag: d ? dag : null, navn: d ? d.navn : 'Fri økt', ovelser: d ? d.ovelser.map((n, k) => blankExercise(n, iso, k, d, deload)) : [] };
+  if (deload) o.deload = true;
+  return o;
 }
 // The session on screen: the saved one, or a fresh one from the program that is only saved once something is changed.
 function viewSession() {
@@ -2776,11 +2506,11 @@ function saveOktNow(iso) {
   return queueWrite(() => o ? S.db.doc('okter/' + oktId(iso)).set(clone(o)) : S.db.doc('okter/' + oktId(iso)).delete()).finally(() => oktInFlight.delete(iso));
 }
 // Rebuild the week's Styrke entry for an exercise from the week's sessions: the session with the best set
-// (Epley) wins, exactly as the Jefit import chooses. An entry that came from `iso` is removed when nothing is left.
+// (Epley) wins. An entry that came from `iso` is removed when nothing is left.
 function syncStyrke(name, iso) {
   const n = weekNoOf(iso); if (n <= 0) return;
   const mon = weekMonday(n), sun = isoOf(addDays(parseDate(mon), 6));
-  const inWeek = [...S.okter.values()].filter((o) => o.dato >= mon && o.dato <= sun);
+  const inWeek = [...S.okter.values()].filter((o) => o.dato >= mon && o.dato <= sun && !o.deload);
   const w = ensureWeek(n); const prev = w.styrke[name];
   let best = null;
   for (const o of inWeek) { const ex = (o.ovelser || []).find((x) => x.navn === name); const sets = loggedSets(ex); if (!sets.length) continue;
@@ -2804,42 +2534,54 @@ function renderOkt() {
   const iso = oktDate(); const o = viewSession(); const isToday = iso === todayIso();
   const dayTxt = nbDate(iso); const wk = weekNoOf(iso);
   $('oktTitle').textContent = (isToday ? 'I dag' : dayTxt.charAt(0).toUpperCase() + dayTxt.slice(1)) + ' · ' + o.navn;
-  $('oktSub').innerHTML = (wk > 0 ? weekLabel(wk) + (isToday ? ' · ' + dayTxt : '') : dayTxt) + (isToday ? '' : ` · <button class="link-btn" id="oktToday">tilbake til i dag</button>`);
-  $('oktDays').innerHTML = programDays().map((d, i) => `<button class="chip${o.dag === i ? ' on' : ''}" data-oday="${i}">${esc(d.dag)} · ${esc(d.navn)}</button>`).join('')
+  const phases = programPhases(); const dl = wk > 0 && isDeloadWeek(wk);
+  const phTxt = (phases.length > 1 ? ' · ' + (phases[phaseIndex(iso)].navn || 'Fase ' + (phaseIndex(iso) + 1)) : '') + (dl ? ' · deload' : '');
+  $('oktSub').innerHTML = (wk > 0 ? weekLabel(wk) + phTxt + (isToday ? ' · ' + dayTxt : '') : dayTxt) + (isToday ? '' : ` · <button class="link-btn" id="oktToday">tilbake til i dag</button>`);
+  $('oktDays').innerHTML = programDays(iso).map((d, i) => `<button class="chip${o.dag === i ? ' on' : ''}" data-oday="${i}">${esc(dayLabel(i))} · ${esc(d.navn)}</button>`).join('')
     + `<button class="chip${o.dag === null ? ' on' : ''}" data-oday="free">Fri økt</button>`;
+  $('oktBanner').innerHTML = dl ? `<div class="okt-banner"><span><b>Deload-uke.</b> 2 sett med vanlig vekt og få reps – kroppen henter seg inn.</span><button class="link-btn" id="oktNoDeload">Tren vanlig</button></div>` : '';
   renderOktHistory(iso);
   const host = $('oktList'); const json = JSON.stringify(o);
   const act = document.activeElement; if (act && host.contains(act) && act.tagName === 'INPUT' && host.dataset.json === json) return;
   host.dataset.json = json;
   const saved = S.okter.has(oktId(iso));
-  host.innerHTML = o.ovelser.map((ex, i) => exHtml(ex, i, iso)).join('')
+  host.innerHTML = o.ovelser.map((ex, i) => exHtml(ex, i, iso, o)).join('')
     + (o.ovelser.length ? '' : '<div class="empty">Ingen øvelser ennå.</div>')
     + `<div class="add-row"><button class="link-btn" data-oact="addex">+ Legg til øvelse</button>${saved ? '<span class="tools"><button class="link-btn" data-oact="delsession">Slett økten</button></span>' : ''}</div>`;
 }
-function exHtml(ex, i, iso) {
-  const sg = suggestion(ex.navn, iso); const cfg = oktCfg();
+function exHtml(ex, i, iso, o) {
+  const rr = repRange(ex); const sg = suggestion(ex.navn, iso, rr);
   const last = sg.last ? `Sist ${shortDate(sg.last.dato)}: ${setsTxt(sg.last.sett)}` : 'Første gang';
-  const rr = repRange(ex.navn);
-  const hint = (!sg.last ? ` · ${rr.min}–${rr.max} reps` : sg.up ? ` · <span class="up">↑ øk til ${kgTxt(sg.kg)} kg</span>` : ` · samme vekt, mot ${rr.max} reps`)
-    + (warmUpFirst(ex.navn) ? ' · varm opp først (logges ikke)' : '');
+  const hint = o.deload ? ` · <span class="dl">deload: ${ex.sett.length} × ${ex.sett[0]?.reps ?? 3} reps, vanlig vekt</span>`
+    : !sg.last ? ` · ${rr.min}–${rr.max} reps` : sg.up ? ` · <span class="up">↑ øk til ${kgTxt(sg.kg)} kg</span>` : ` · samme vekt, mot ${rr.max} reps`;
+  const vid = videoFor(ex.navn); const notes = notesFor(ex.navn);
   const done = ex.sett.filter((x) => x.ok).length;
   return `<section class="ex" data-ex="${i}">
-    <div class="ex-head"><h3>${esc(ex.navn)}</h3><span class="ex-count${done && done === ex.sett.length ? ' all' : ''}">${done}/${ex.sett.length}</span><button class="icon-btn" data-oact="exmenu" aria-label="Valg for ${esc(ex.navn)}">⋯</button></div>
+    <div class="ex-head"><h3>${esc(ex.navn)}</h3>${vid ? `<a class="icon-btn vid" href="${esc(vid)}" target="_blank" rel="noopener" aria-label="Video av ${esc(ex.navn)}" title="Se hvordan øvelsen gjøres">▶</a>` : ''}<span class="ex-count${done && done === ex.sett.length ? ' all' : ''}">${done}/${ex.sett.length}</span><button class="icon-btn" data-oact="exmenu" aria-label="Valg for ${esc(ex.navn)}">⋯</button></div>
     <div class="ex-last">${last}${hint}</div>
-    ${ex.kommentar ? `<div class="ex-note">${esc(ex.kommentar)}</div>` : ''}
+    ${i === 0 && o.dag !== null && o.dag !== undefined ? `<div class="ex-warm">${warmUpTxt(ex)}</div>` : ''}
+    ${notes.map((n) => `<button class="ex-note" data-oact="note" data-note="${n.id}">${esc(n.tekst)}</button>`).join('')}
     ${ex.sett.map((x, j) => `<div class="set${x.ok ? ' ok' : ''}" data-set="${j}"><span class="sn">${j + 1}</span>
       <div class="stepper"><button data-oact="kg-" aria-label="Mindre vekt">−</button><input data-oact="kg" inputmode="decimal" value="${kgTxt(x.kg)}" aria-label="Vekt i kg"><span class="u">kg</span><button data-oact="kg+" aria-label="Mer vekt">+</button></div>
       <div class="stepper"><button data-oact="r-" aria-label="Færre reps">−</button><input data-oact="reps" inputmode="numeric" value="${x.reps ?? ''}" aria-label="Reps"><button data-oact="r+" aria-label="Flere reps">+</button></div>
       <button class="okbtn" data-oact="ok" aria-label="${x.ok ? 'Angre settet' : 'Logg settet'}">✓</button></div>`).join('')}
-    <div class="add-row"><button class="link-btn" data-oact="addset">+ Sett</button><span class="tools"><button class="link-btn" data-oact="note">${ex.kommentar ? 'Endre kommentar' : 'Kommentar'}</button></span></div>
+    <div class="add-row"><button class="link-btn" data-oact="addset">+ Sett</button><span class="tools"><button class="link-btn" data-oact="note">+ Notat</button></span></div>
   </section>`;
+}
+// Matthews' warm-up before the first lift: 6 reps at about 50 % and 4 reps at about 70 % of the working weight,
+// a minute's rest after each. Rounded to the exercise's weight step; never below the empty bar on a barbell lift.
+function warmUpTxt(ex) {
+  const w = num(ex.sett.find((x) => !x.ok)?.kg ?? ex.sett[0]?.kg);
+  if (!(w > 0)) return 'Oppvarming: 6 reps på ca. 50 % og 4 reps på ca. 70 % av arbeidsvekten, 1 min hvile etter hvert sett.';
+  const step = stepFor(ex.navn); const at = (p) => { let v = Math.round(w * p / step) * step; if (BAR.test(ex.navn)) v = Math.max(20, v); return kgTxt(round2(v)); };
+  return `Oppvarming: ${at(0.5)} kg × 6 · ${at(0.7)} kg × 4 · 1 min hvile etter hvert`;
 }
 function renderOktHistory(curIso) {
   const all = [...S.okter.values()].filter((o) => o.dato !== curIso && (o.ovelser || []).some((x) => loggedSets(x).length)).sort((a, b) => b.dato.localeCompare(a.dato));
   const list = all.slice(0, S.oktHistAll ? all.length : 10);
   $('oktHist').innerHTML = list.map((o) => {
     const sets = o.ovelser.reduce((a, x) => a + loggedSets(x).length, 0);
-    return `<button data-odate="${o.dato}"><span class="u">${shortDate(o.dato)}</span><span class="n">${esc(o.navn)} · ${o.ovelser.filter((x) => loggedSets(x).length).length} øvelser</span><span class="v">${sets} sett</span><span></span></button>`;
+    return `<button data-odate="${o.dato}"><span class="u">${shortDate(o.dato)}</span><span class="n">${esc(o.navn)}${o.deload ? ' (deload)' : ''} · ${o.ovelser.filter((x) => loggedSets(x).length).length} øvelser</span><span class="v">${sets} sett</span><span></span></button>`;
   }).join('') + (all.length > list.length ? `<div class="add-row"><button class="link-btn" id="oktHistMore">Vis alle ${all.length}</button></div>` : '')
     || '<div class="empty">Ingen økter logget ennå.</div>';
 }
@@ -2858,9 +2600,9 @@ function bindOkt() {
     }
     const i = Number(b.closest('[data-ex]').dataset.ex);
     if (act === 'exmenu') { exMenu(i); return; }
+    if (act === 'note') { const nm = viewSession().ovelser[i]?.navn; if (nm) openNoteEditor(nm, b.dataset.note || null); return; }
     const o = realSession(); const ex = o.ovelser[i]; if (!ex) return;
-    if (act === 'note') { const v = await askText('Kommentar', ex.navn + (ex.kommentar ? ' (skriv - for å fjerne)' : ''), ex.kommentar || '', 'Lagre'); if (v === null) return; ex.kommentar = v === '-' ? '' : v; oktChanged([ex.navn]); return; }
-    if (act === 'addset') { const l = ex.sett[ex.sett.length - 1]; ex.sett.push({ kg: l?.kg ?? null, reps: l?.reps ?? repRange(ex.navn).max, ok: false }); oktChanged([ex.navn]); return; }
+    if (act === 'addset') { const l = ex.sett[ex.sett.length - 1]; ex.sett.push({ kg: l?.kg ?? null, reps: l?.reps ?? repRange(ex).max, ok: false }); oktChanged([ex.navn]); return; }
     const j = Number(b.closest('[data-set]').dataset.set); const x = ex.sett[j]; if (!x) return;
     const step = stepFor(ex.navn);
     if (act === 'kg-') x.kg = Math.max(0, round2(num(x.kg) - step));
@@ -2913,6 +2655,7 @@ function bindOkt() {
     S.oktDato = b.dataset.odate; window.scrollTo({ top: 0 }); renderOkt();
   });
   $('oktSub').addEventListener('click', (e) => { if (e.target.closest('#oktToday')) { S.oktDato = null; renderOkt(); } });
+  $('oktBanner').addEventListener('click', (e) => { if (e.target.closest('#oktNoDeload')) setDeloadWeek(weekNoOf(oktDate()), false); });
   $('oktCfgBtn').addEventListener('click', openOktSettings);
   $('restBar').addEventListener('click', (e) => {
     const b = e.target.closest('[data-rest]'); if (!b) return;
@@ -2928,11 +2671,20 @@ function exMenu(i) {
   const hist = performances(ex.navn).slice(0, 12);
   const body = `<div class="stack">
     <div class="row"><button class="btn small" id="exSwap">Bytt øvelse</button>${i > 0 ? '<button class="btn small" id="exUp">Flytt opp</button>' : ''}<button class="btn small danger" id="exDel">Fjern fra økten</button></div>
+    <div class="row between"><span class="help">Video: ${S.trening?.videoer?.[ex.navn] ? 'egen lenke' : MATTHEWS_VIDEO.has(ex.navn) ? 'Matthews\' demonstrasjon' : 'ingen'}</span><button class="btn small" id="exVid">Endre video</button></div>
     <p class="help" style="margin:0">Vektsteg: ${kgTxt(stepFor(ex.navn))} kg (minste hopp i historikken, høyst 2,5 kg på stang). Trykk på et tall for å skrive inn en annen vekt.</p>
     ${hist.length ? `<div class="wide"><table class="t"><tr><th>Dato</th><th>Sett</th><th>Est. 1RM</th></tr>${hist.map((p) => { const b = bestSet(p.sett); return `<tr><td>${shortDate(p.dato)}</td><td>${setsTxt(p.sett)}</td><td>${fmt(epley(b[0], b[1]), 1)}</td></tr>`; }).join('')}</table></div>` : '<p class="help">Ingen historikk ennå.</p>'}
   </div>`;
   const sh = openSheet(ex.navn, body, '<button class="btn" data-close>Lukk</button>');
   sh.querySelector('#exSwap').addEventListener('click', () => { closeSheet(); pickExercise(i); });
+  sh.querySelector('#exVid').addEventListener('click', async () => {
+    closeSheet(); const cur = S.trening?.videoer?.[ex.navn] || '';
+    const v = await askText('Video for ' + ex.navn, MATTHEWS_VIDEO.has(ex.navn) ? 'Lim inn en lenke (tomt = Matthews\' video)' : 'Lim inn en lenke (tomt = ingen video)', cur, 'Lagre');
+    if (v === null) return; const t = v.trim();
+    if (t && !/^https?:\/\//i.test(t)) { toast('Lenken må starte med https://'); return; }
+    const vids = Object.assign({}, S.trening.videoer); if (t) vids[ex.navn] = t; else delete vids[ex.navn];
+    S.trening.videoer = vids; if (S.db) queueWrite(() => S.db.doc('settings/trening').set(clone(S.trening))); renderOkt(); toast('Lagret');
+  });
   sh.querySelector('#exUp')?.addEventListener('click', () => { const r = realSession(); const [m] = r.ovelser.splice(i, 1); r.ovelser.splice(i - 1, 0, m); closeSheet(); oktChanged([]); });
   sh.querySelector('#exDel').addEventListener('click', async () => {
     closeSheet();
@@ -2959,14 +2711,30 @@ function pickExercise(replace) {
   sh.querySelector('#exPick').addEventListener('click', (e) => { const b = e.target.closest('[data-pick]'); if (b) use(b.dataset.pick); });
   sh.querySelector('#exNew').addEventListener('click', async () => { const n = await askText('Ny øvelse', 'Navn på øvelsen', '', 'Legg til'); if (n) use(n); });
 }
+function setDeloadWeek(n, on) {
+  const m = Object.assign({}, S.trening.deloadUker); const auto = n > 0 && n % cycleLen() === 0;
+  if (on === auto) delete m[n]; else m[n] = on;
+  S.trening.deloadUker = m; if (S.db) queueWrite(() => S.db.doc('settings/trening').set(clone(S.trening)));
+  // a session not yet logged in follows the change
+  const iso = oktDate(); const o = S.okter.get(oktId(iso));
+  if (o && !o.ovelser.some((x) => x.sett.some((y) => y.ok))) { S.okter.delete(oktId(iso)); saveOktNow(iso); }
+  renderOkt();
+}
 function openOktSettings() {
-  const c = oktCfg();
+  const c = oktCfg(); const dg = clone(dagerCfg()); const days = programDays(oktDate()); const wk = weekNoOf(oktDate());
+  let dl = wk > 0 && isDeloadWeek(wk);
+  if (!Array.isArray(dg.uke)) dg.uke = [];
   const pick = (key, opts, fmtOpt) => `<div class="pick" data-key="${key}">${opts.map((v) => `<button type="button" data-v="${v}" class="${c[key] === v ? 'on' : ''}">${fmtOpt(v)}</button>`).join('')}</div>`;
   const body = `<div class="stack">
     <div class="grid2"><label class="f">Reps, nederst<input id="ocMin" inputmode="numeric" value="${c.repsMin}"></label><label class="f">Reps, øverst<input id="ocMax" inputmode="numeric" value="${c.repsMax}"></label></div>
     <div><div class="help" style="margin-bottom:4px">Øk vekten når toppen av intervallet er nådd i</div>${pick('toppSett', [1, 2, 3], (v) => v + (v === 1 ? ' sett' : ' sett'))}</div>
-    <p class="help" style="margin:0">Øvelsene i programmet har sitt eget rep-intervall fra boka; intervallet over gjelder øvelser du legger til selv.</p>
+    ${days.some((d) => d.reps) ? '<p class="help" style="margin:0">Øvelsene i programmet har sitt eget rep-intervall fra boka (6–8 eller 8–10); intervallet over gjelder øvelser du legger til selv.</p>' : ''}
     <p class="help" style="margin:0">Matthews: øk når du når toppen i ett, to eller tre sett – nybegynnere klarer seg ofte med ett. Vekten går opp med øvelsens minste vektsteg.</p>
+    <div><div class="help" style="margin-bottom:4px">Treningsdager</div><div class="pick" data-key="modus"><button type="button" data-v="faste" class="${dg.modus !== 'rotasjon' ? 'on' : ''}">Faste dager</button><button type="button" data-v="rotasjon" class="${dg.modus === 'rotasjon' ? 'on' : ''}">I tur og orden</button></div></div>
+    <div id="ocDays" ${dg.modus === 'rotasjon' ? 'hidden' : ''}>${days.map((d, k) => `<div class="ocday"><span class="n">${esc(d.navn)}</span><div class="pick wd" data-day="${k}">${DAY_NAMES.map((nm, wd) => `<button type="button" data-wd="${wd}" class="${dg.uke[k] === wd ? 'on' : ''}">${nm}</button>`).join('')}</div></div>`).join('')}</div>
+    <p class="help" style="margin:0" id="ocDaysHelp">${dg.modus === 'rotasjon' ? 'Økt åpner neste økt etter den du sist logget, uansett dag.' : 'På andre dager kan du velge en økt selv.'}</p>
+    ${wk > 0 ? `<div><div class="help" style="margin-bottom:4px">Denne uken (uke ${wk})</div><div class="pick" data-key="dl"><button type="button" data-v="0" class="${dl ? '' : 'on'}">Vanlig</button><button type="button" data-v="1" class="${dl ? 'on' : ''}">Deload</button></div></div>
+    <p class="help" style="margin:0">Deload kommer av seg selv hver ${cycleLen()}. uke (etter ${cycleLen() - 1} treningsuker).</p>` : ''}
     <div><div class="help" style="margin-bottom:4px">Hviletid mellom sett</div>${pick('hvile', [120, 150, 180, 210, 240], (v) => Math.floor(v / 60) + ':' + String(v % 60).padStart(2, '0'))}</div>
     <div><div class="help" style="margin-bottom:4px">Lyd de siste 3 sekundene (trykk for å høre)</div><div class="pick" data-key="lyd">${Object.entries(SOUNDS).map(([k, v]) => `<button type="button" data-v="${k}" class="${c.lyd === k ? 'on' : ''}">${v.navn}</button>`).join('')}</div></div>
     <p class="help" style="margin:0">Lyden følger telefonens medievolum, samme som musikken.</p>
@@ -2974,6 +2742,10 @@ function openOktSettings() {
   const sh = openSheet('Innstillinger for økter', body, '<button class="btn" data-close>Avbryt</button><button class="btn primary" id="ocSave">Lagre</button>');
   sh.addEventListener('click', (e) => {
     const b = e.target.closest('.pick button'); if (!b) return; const k = b.parentElement.dataset.key;
+    if (b.parentElement.dataset.day !== undefined) { dg.uke[Number(b.parentElement.dataset.day)] = Number(b.dataset.wd); for (const x of b.parentElement.children) x.classList.toggle('on', x === b); return; }
+    if (k === 'modus') { dg.modus = b.dataset.v; for (const x of b.parentElement.children) x.classList.toggle('on', x === b); sh.querySelector('#ocDays').hidden = dg.modus === 'rotasjon';
+      sh.querySelector('#ocDaysHelp').textContent = dg.modus === 'rotasjon' ? 'Økt åpner neste økt etter den du sist logget, uansett dag.' : 'På andre dager kan du velge en økt selv.'; return; }
+    if (k === 'dl') { dl = b.dataset.v === '1'; for (const x of b.parentElement.children) x.classList.toggle('on', x === b); return; }
     c[k] = k === 'lyd' ? b.dataset.v : Number(b.dataset.v);
     for (const x of b.parentElement.children) x.classList.toggle('on', x === b);
     if (k === 'lyd') { unlockAudio(); playSound('pip', c.lyd); setTimeout(() => playSound('pip', c.lyd), 1000); setTimeout(() => playSound('done', c.lyd), 2000); }
@@ -2981,8 +2753,10 @@ function openOktSettings() {
   sh.querySelector('#ocSave').addEventListener('click', () => {
     const lo = parseNum(sh.querySelector('#ocMin').value), hi = parseNum(sh.querySelector('#ocMax').value);
     if (lo > 0 && hi >= lo) { c.repsMin = Math.round(lo); c.repsMax = Math.round(hi); }
-    S.trening.okt = c; if (S.db) queueWrite(() => S.db.doc('settings/trening').set(clone(S.trening)));
-    closeSheet(); renderOkt(); toast('Lagret');
+    S.trening.okt = c; S.trening.dager = dg; if (S.db) queueWrite(() => S.db.doc('settings/trening').set(clone(S.trening)));
+    closeSheet();
+    if (wk > 0 && dl !== isDeloadWeek(wk)) setDeloadWeek(wk, dl); else renderOkt();
+    toast('Lagret');
   });
 }
 
@@ -3112,7 +2886,7 @@ async function keepAwake() { try { if (!wakeLock && document.visibilityState ===
 function releaseAwake() { try { wakeLock?.release(); } catch (e) { /* ignore */ } wakeLock = null; }
 
 /* ---- section / tab plumbing ---- */
-const SEC_TABS = { kosthold: ['plan', 'lager', 'foods'], trening: ['okt', 'logg', 'styrke', 'dagbok', 'maal'] };
+const SEC_TABS = { kosthold: ['plan', 'foods'], trening: ['okt', 'logg', 'maal'] };
 function setSection(sec, tab) {
   S.section = sec;
   for (const b of document.querySelectorAll('.seg button')) b.classList.toggle('on', b.dataset.sec === sec);
@@ -3121,11 +2895,11 @@ function setSection(sec, tab) {
 }
 function renderTrening() {
   if (!S.ready.weeks || !S.ready.months || !S.ready.trening) return;
-  renderLogg(); renderStyrke(); renderDagbok(); renderMaal();
+  renderLogg(); renderMaal();
   if (S.tab === 'okt') renderOkt();
 }
 function bindTrening() {
-  bindLogg(); bindStyrke(); bindDagbok(); bindMaal(); bindOkt();
+  bindLogg(); bindMaal(); bindOkt();
   $('exportXlsxBtn').addEventListener('click', exportXlsx);
   $('useAvgBtn').addEventListener('click', () => {
     const cur = currentWeekNo(); let src = null;

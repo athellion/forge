@@ -447,6 +447,8 @@ header.top h1 { font-family: var(--display); font-weight: 800; font-size: 1.85re
 .ex-last { color: var(--muted); font-size: 0.85rem; margin: 2px 0 6px; }
 .ex-last .up { color: var(--gold); font-weight: 600; }
 .ex-note { display: block; width: 100%; text-align: left; font: inherit; font-size: 0.85rem; color: var(--ink); background: var(--surface-2); border: 0; border-radius: 8px; padding: 5px 9px; margin: 0 0 6px; white-space: pre-line; overflow-wrap: anywhere; }
+.ex-head .nbtn { width: auto; padding: 0 6px; color: var(--muted); font-size: 0.85rem; white-space: nowrap; }
+.ex-head .nbtn.on { color: var(--blue); }
 .ex-head .vid { display: inline-flex; align-items: center; justify-content: center; text-decoration: none; color: var(--blue); font-size: 0.95rem; }
 .ex-warm { color: var(--muted); font-size: 0.82rem; margin: -2px 0 6px; }
 .ex-last .dl { color: var(--blue); font-weight: 600; }
@@ -705,7 +707,7 @@ const S = {
   section: 'kosthold', lastTab: {},
   weeks: new Map(), months: new Map(), trening: null, weeksDirty: new Set(),
   loggWeekNo: null,
-  okter: new Map(), notater: new Map(), oktDato: null, oktDayChoice: {},
+  okter: new Map(), notater: new Map(), notesOpen: new Set(), oktDato: null, oktDayChoice: {},
 };
 
 /* =============================== helpers =============================== */
@@ -2159,7 +2161,7 @@ function openNoteEditor(name, noteId) {
   sh.querySelector('#neSave').addEventListener('click', () => {
     const t = sh.querySelector('#neText').value.trim(); closeSheet();
     if (!t) { if (cur) saveNotes(name, list.filter((n) => n !== cur)); renderOkt(); return; }
-    if (cur) cur.tekst = t; else list.push({ id: 'k' + Date.now().toString(36), tekst: t, dato: todayIso() });
+    if (cur) cur.tekst = t; else { list.push({ id: 'k' + Date.now().toString(36), tekst: t, dato: todayIso() }); S.notesOpen.add(name); }
     saveNotes(name, list); renderOkt();
   });
   sh.querySelector('#neDel')?.addEventListener('click', async () => {
@@ -2312,13 +2314,13 @@ function exHtml(ex, i, iso, o) {
   const last = sg.last ? `Sist ${shortDate(sg.last.dato)}: ${setsTxt(sg.last.sett)}` : 'Første gang';
   const hint = o.deload ? ` · <span class="dl">deload: ${ex.sett.length} × ${ex.sett[0]?.reps ?? 3} reps, vanlig vekt</span>`
     : !sg.last ? ` · ${rr.min}–${rr.max} reps` : sg.up ? ` · <span class="up">↑ øk til ${kgTxt(sg.kg)} kg</span>` : ` · samme vekt, mot ${rr.max} reps`;
-  const vid = videoFor(ex.navn); const notes = notesFor(ex.navn);
+  const vid = videoFor(ex.navn); const notes = notesFor(ex.navn); const open = S.notesOpen.has(ex.navn);
   const done = ex.sett.filter((x) => x.ok).length;
   return `<section class="ex" data-ex="${i}">
-    <div class="ex-head"><h3>${esc(ex.navn)}</h3>${vid ? `<a class="icon-btn vid" href="${esc(vid)}" target="_blank" rel="noopener" aria-label="Video av ${esc(ex.navn)}" title="Se hvordan øvelsen gjøres">▶</a>` : ''}<span class="ex-count${done && done === ex.sett.length ? ' all' : ''}">${done}/${ex.sett.length}</span><button class="icon-btn" data-oact="exmenu" aria-label="Valg for ${esc(ex.navn)}">⋯</button></div>
+    <div class="ex-head"><h3>${esc(ex.navn)}</h3>${notes.length ? `<button class="icon-btn nbtn${open ? ' on' : ''}" data-oact="notes" aria-expanded="${open}" aria-label="${open ? 'Skjul' : 'Vis'} notater (${notes.length})" title="Notater">✎ ${notes.length}</button>` : ''}${vid ? `<a class="icon-btn vid" href="${esc(vid)}" target="_blank" rel="noopener" aria-label="Video av ${esc(ex.navn)}" title="Se hvordan øvelsen gjøres">▶</a>` : ''}<span class="ex-count${done && done === ex.sett.length ? ' all' : ''}">${done}/${ex.sett.length}</span><button class="icon-btn" data-oact="exmenu" aria-label="Valg for ${esc(ex.navn)}">⋯</button></div>
     <div class="ex-last">${last}${hint}</div>
     ${i === 0 && o.dag !== null && o.dag !== undefined ? `<div class="ex-warm">${warmUpTxt(ex)}</div>` : ''}
-    ${notes.map((n) => `<button class="ex-note" data-oact="note" data-note="${n.id}">${esc(n.tekst)}</button>`).join('')}
+    ${open ? notes.map((n) => `<button class="ex-note" data-oact="note" data-note="${n.id}">${esc(n.tekst)}</button>`).join('') : ''}
     ${ex.sett.map((x, j) => `<div class="set${x.ok ? ' ok' : ''}" data-set="${j}"><span class="sn">${j + 1}</span>
       <div class="stepper"><button data-oact="kg-" aria-label="Mindre vekt">−</button><input data-oact="kg" inputmode="decimal" value="${kgTxt(x.kg)}" aria-label="Vekt i kg"><span class="u">kg</span><button data-oact="kg+" aria-label="Mer vekt">+</button></div>
       <div class="stepper"><button data-oact="r-" aria-label="Færre reps">−</button><input data-oact="reps" inputmode="numeric" value="${x.reps ?? ''}" aria-label="Reps"><button data-oact="r+" aria-label="Flere reps">+</button></div>
@@ -2358,6 +2360,7 @@ function bindOkt() {
     }
     const i = Number(b.closest('[data-ex]').dataset.ex);
     if (act === 'exmenu') { exMenu(i); return; }
+    if (act === 'notes') { const nm = viewSession().ovelser[i]?.navn; if (nm) { S.notesOpen.has(nm) ? S.notesOpen.delete(nm) : S.notesOpen.add(nm); renderOkt(); } return; }
     if (act === 'note') { const nm = viewSession().ovelser[i]?.navn; if (nm) openNoteEditor(nm, b.dataset.note || null); return; }
     const o = realSession(); const ex = o.ovelser[i]; if (!ex) return;
     if (act === 'addset') { const l = ex.sett[ex.sett.length - 1]; ex.sett.push({ kg: l?.kg ?? null, reps: l?.reps ?? repRange(ex).max, ok: false }); oktChanged([ex.navn]); return; }

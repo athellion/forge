@@ -67,6 +67,8 @@ const MOCK = (fix) => {
   console.log('videos:', await p.$$eval('#oktList .ex-head a.vid', (e) => e.length));
   await p.screenshot({ path: 'a1-okt-push.png', fullPage: true });
   await p.click('#oktDays [data-oday="3"]'); await sleep(300);
+  console.log('legs notes hidden:', await p.$$eval('#oktList [data-ex="0"] .ex-note', (e) => e.length), '| toggle:', await p.textContent('#oktList [data-ex="0"] [data-oact=notes]'));
+  await p.click('#oktList [data-ex="0"] [data-oact=notes]'); await sleep(200);
   console.log('legs notes:', await p.$$eval('#oktList [data-ex="0"] .ex-note', (e) => e.map((x) => x.textContent)));
   console.log('legs hints:', await p.$$eval('#oktList .ex-last', (e) => e.map((x) => x.textContent)));
   await p.screenshot({ path: 'a2-okt-legs.png', fullPage: true });

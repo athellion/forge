@@ -77,7 +77,8 @@ without sharing a database with him. It must never contain his personal data —
   Sessions with `kilde: 'jefit'` came from the old Jefit importer (full history from 14 Sep 2026).
   Added 15 Nov 2026 (both apps):
   - **Notes** per exercise (not per day): collection `notater`, doc id `noteDocId(name)` = `n-` + slug,
-    `{navn, notater: [{id, tekst, dato}]}`. Shown on the card newest first; tap to edit/delete, "+ Notat" to add.
+    `{navn, notater: [{id, tekst, dato}]}`. Hidden by default: the ✎ N button in the card header shows them (newest first; open state in
+    `S.notesOpen`, not saved); tap a note to edit/delete, "+ Notat" to add (a new note opens the list).
     His Jefit notes (51, from 2015 on) were imported by exercise id with Matthews' names; they are in backups.
   - **Videos:** `MATTHEWS` = Matthews' exercise names with his TLS demonstration videos (34 links; the three lat
     pulldown grips share one; Assisted Pull-Up has none). ▶ on the card opens it (plain link). Own link per

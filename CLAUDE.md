@@ -69,7 +69,7 @@ without sharing a database with him. It must never contain his personal data —
   Rest timer (fixed bar above the tabs) starts on each ticked set, end time kept in localStorage `forge.rest`,
   plays the chosen sound (`okt.lyd`: synth (default: detuned saws through a plucked low-pass + echo; E5+E4 ×3, then an A major chord), nedtelling (3 warm E5 notes, then a long A5), alarm, bjelle, klokke, myk) at 3-2-1 s and at zero via Web Audio through a compressor; screen wake lock while Økt is open, where allowed. New best Epley → toast + sparks.
   The Jefit importer also stores every set of every imported date as an `okter` doc (`kilde: 'jefit'`), unless that
-  date was logged in the app. The web app (sister's) does not have Økt yet.
+  date was logged in the app. The web app got Økt on 15 Nov 2026 (ported unchanged, plus the program differences below).
 - Week numbers count from `settings/trening.start` (a Monday); `baseline` is the Saturday before.
 - **Data model** (collections): `foods`, `plans`, `meals`, `inventory` (doc id = food id), `weeks`
   (`w000`…), `months`, `okter` (workout sessions), and `settings/{app, profile, trening}`.
@@ -90,8 +90,13 @@ without sharing a database with him. It must never contain his personal data —
   (File System Access API, handle kept in `meta`) gets an automatic copy at most daily when something changed.
   Restore marks the data as backed up. Status shown under Profil → Sikkerhetskopi.
 - **Profil** also has "Første treningsuke starter" (start date) and install instructions/button.
-- **Styrke** has no fixed program (`program: []`): it lists every exercise ever logged. The artifact has his
-  5-day BLS split.
+- **Program:** Matthews' *Thinner Leaner Stronger* 3-day routine, phase 1 (for his sister): days `1 · Lower Body A`,
+  `2 · Push`, `3 · Pull`, exercise names as in the book. Each day carries `reps` (per-exercise range, 6–8 / 8–10) and
+  `oppvarming` (first lift: "varm opp først" hint). `repRange(name)` uses the program's range, else `okt.repsMin/Max`
+  (default 8–10). `rotasjon: true`: Økt opens the workout after the last one logged (1→2→3→1), on any day, instead of
+  by weekday. `programDays()` falls back to the default when the stored program is empty (installs from before
+  15 Nov saved `program: []`). `stepFor()` matches Barbell/Dumbbell anywhere in the name. Logg shows "Økter (av 3)".
+  Phase 2 and the deloads from the book are not in yet. The artifact has his 5-day BLS split and weekday mapping.
 - No fullscreen button once installed (standalone already hides browser bars).
 - The folder backup could not be tested in the cloud workspace (no folder picker in headless Chromium).
 
@@ -100,5 +105,7 @@ without sharing a database with him. It must never contain his personal data —
 python3 -m http.server 8765          # from the repo root
 cd tests && npm install && node web.test.js
 ```
+If Playwright's own browser download is blocked, point it at an installed Chromium:
+`CHROMIUM_PATH=/opt/pw-browsers/chromium-1243/chrome-linux64/chrome node web.test.js`.
 Expect `errors []` at the end. The artifact version has no test file here; it was tested with Playwright and a
 mocked `window.claude.use('db')` backed by a copy of the database.

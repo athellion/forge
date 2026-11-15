@@ -80,6 +80,11 @@ const MOCK = (fix) => {
   console.log('menu video row:', await p.textContent('#sheetRoot .sheet-body .row.between'));
   await p.click('#exVid'); await sleep(200); await p.fill('#sheetRoot input', 'https://youtu.be/abc123'); await p.click('#sheetRoot .sheet-foot .btn.primary'); await sleep(300);
   console.log('custom video:', await p.$eval('#oktList [data-ex="1"] a.vid', (e) => e.href));
+  // empty the link again -> Matthews' video is back
+  await p.click('#oktList [data-ex="1"] [data-oact=exmenu]'); await sleep(200);
+  console.log('reset button:', !!(await p.$('#exVidReset')));
+  await p.click('#exVid'); await sleep(200); await p.fill('#sheetRoot input', ''); await p.click('#sheetRoot .sheet-foot .btn.primary'); await sleep(300);
+  console.log('after emptying:', await p.$eval('#oktList [data-ex="1"] a.vid', (e) => e.href), '| sheet open:', !!(await p.$('#sheetRoot .sheet')));
   // Logg: fields gone
   await p.click('nav.tabs button[data-tab=logg]'); await sleep(300);
   console.log('logg fields:', await p.$$eval('#loggWeek .wk-fields label', (e) => e.map((x) => x.textContent.trim())), '| header:', await p.textContent('#hdrStatus'));

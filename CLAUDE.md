@@ -99,6 +99,9 @@ without sharing a database with him. It must never contain his personal data —
 - **Data model** (collections): `foods`, `plans`, `meals`, `inventory` (doc id = food id), `weeks`
   (`w000`…), `months`, `okter` (workout sessions), `notater` (exercise notes), and `settings/{app, profile, trening}`.
   (`inventory` is gone.)
+- Sheets with a text field: `fitSheet()` lifts the sheet by `keyboardHeight()` while a field in it has focus on a touch
+  screen (claude.ai's frame often doesn't report the keyboard, so it falls back to an estimate); only text fields move
+  it, so a tapped button never jumps away. `askText(..., { allowEmpty: true })` accepts an empty answer.
 - claude.ai blocks `prompt()`/`confirm()` in artifacts — the app uses its own `askText`/`askConfirm` sheets.
   Keep it that way in both versions.
 

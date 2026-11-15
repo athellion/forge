@@ -1835,13 +1835,13 @@ function openSheet(title, bodyHtml, footHtml) {
 function closeSheet() { $('sheetRoot').innerHTML = ''; document.body.style.overflow = ''; }
 // The browser's own prompt() and confirm() are blocked where the app runs (inside claude.ai),
 // so questions are asked in the app's own sheet instead. Both return a Promise.
-function askText(title, label, value = '', okLabel = 'Lagre') {
+function askText(title, label, value = '', okLabel = 'Lagre', opts = {}) {
   return new Promise((resolve) => {
     let done = false; const finish = (v) => { if (done) return; done = true; resolve(v); };
     const sh = openSheet(title, `<label class="f">${esc(label)}<input id="askInput" value="${esc(value)}" autocomplete="off"></label>`,
       `<button class="btn" data-close>Avbryt</button><button class="btn primary" id="askOk">${esc(okLabel)}</button>`);
     const inp = sh.querySelector('#askInput');
-    const ok = () => { const v = inp.value.trim(); if (!v) { inp.focus(); return; } finish(v); closeSheet(); };
+    const ok = () => { const v = inp.value.trim(); if (!v && !opts.allowEmpty) { inp.focus(); return; } finish(v); closeSheet(); };
     sh.querySelector('#askOk').addEventListener('click', ok);
     inp.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); ok(); } });
     for (const b of document.querySelectorAll('#sheetRoot [data-close]')) b.addEventListener('click', () => finish(null));
@@ -1859,13 +1859,23 @@ function askConfirm(title, text, okLabel = 'Slett', danger = true) {
 }
 // Keep the sheet inside the part of the screen the on-screen keyboard leaves visible,
 // so its header, search field and close button never end up out of reach.
+// Inside claude.ai's frame the browser often doesn't report the keyboard, so while a field in the sheet has focus
+// on a touch screen, keyboardHeight() falls back to its estimate.
 function fitSheet() {
-  const sh = document.querySelector('#sheetRoot .sheet'); const vv = window.visualViewport;
-  if (!sh || !vv) return;
-  sh.style.maxHeight = Math.round(vv.height * 0.92) + 'px';
-  sh.style.bottom = Math.max(0, Math.round(window.innerHeight - vv.height - vv.offsetTop)) + 'px';
+  const sh = document.querySelector('#sheetRoot .sheet'); if (!sh) return;
+  const a = document.activeElement;
+  const typing = isTouch() && a && sh.contains(a) && a.matches('input:not([type=checkbox]):not([type=file]), textarea');
+  const vv = window.visualViewport;
+  const kb = typing ? keyboardHeight() : (vv ? Math.max(0, Math.round(window.innerHeight - vv.height - vv.offsetTop)) : 0);
+  sh.style.maxHeight = Math.round((window.innerHeight - kb) * 0.92) + 'px';
+  sh.style.bottom = kb + 'px';
 }
 if (window.visualViewport) { visualViewport.addEventListener('resize', fitSheet); visualViewport.addEventListener('scroll', fitSheet); }
+// Only a text field moves the sheet; tapping a button in it (which may take focus) must not move it under the finger,
+// so the sheet comes down a moment after the field loses focus, once the tap has landed.
+const isTextField = (el) => el?.matches?.('input:not([type=checkbox]):not([type=file]), textarea');
+document.addEventListener('focusin', (e) => { if (isTextField(e.target) && e.target.closest('#sheetRoot .sheet')) { fitSheet(); setTimeout(fitSheet, 350); } });
+document.addEventListener('focusout', (e) => { if (isTextField(e.target) && e.target.closest('#sheetRoot .sheet')) setTimeout(() => { if (!isTextField(document.activeElement)) fitSheet(); }, 300); });
 // Autofocus only where there is a real keyboard; on phones it pops the keyboard and shoves the sheet off-screen.
 const hasFinePointer = () => { try { return window.matchMedia('(pointer: fine)').matches; } catch (e) { return false; } };
 document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && $('sheetRoot').childElementCount) closeSheet(); });
@@ -2674,15 +2684,19 @@ function exMenu(i) {
   const hist = performances(ex.navn).slice(0, 12);
   const body = `<div class="stack">
     <div class="row"><button class="btn small" id="exSwap">Bytt øvelse</button>${i > 0 ? '<button class="btn small" id="exUp">Flytt opp</button>' : ''}<button class="btn small danger" id="exDel">Fjern fra økten</button></div>
-    <div class="row between"><span class="help">Video: ${S.trening?.videoer?.[ex.navn] ? 'egen lenke' : MATTHEWS_VIDEO.has(ex.navn) ? 'Matthews\' demonstrasjon' : 'ingen'}</span><button class="btn small" id="exVid">Endre video</button></div>
+    <div class="row between"><span class="help">Video: ${S.trening?.videoer?.[ex.navn] ? 'egen lenke' : MATTHEWS_VIDEO.has(ex.navn) ? 'Matthews\' demonstrasjon' : 'ingen'}</span><span class="row">${S.trening?.videoer?.[ex.navn] && MATTHEWS_VIDEO.has(ex.navn) ? '<button class="btn small" id="exVidReset">Bruk Matthews\'</button>' : ''}<button class="btn small" id="exVid">Endre video</button></span></div>
     <p class="help" style="margin:0">Vektsteg: ${kgTxt(stepFor(ex.navn))} kg (minste hopp i historikken, høyst 2,5 kg på stang). Trykk på et tall for å skrive inn en annen vekt.</p>
     ${hist.length ? `<div class="wide"><table class="t"><tr><th>Dato</th><th>Sett</th><th>Est. 1RM</th></tr>${hist.map((p) => { const b = bestSet(p.sett); return `<tr><td>${shortDate(p.dato)}</td><td>${setsTxt(p.sett)}</td><td>${fmt(epley(b[0], b[1]), 1)}</td></tr>`; }).join('')}</table></div>` : '<p class="help">Ingen historikk ennå.</p>'}
   </div>`;
   const sh = openSheet(ex.navn, body, '<button class="btn" data-close>Lukk</button>');
   sh.querySelector('#exSwap').addEventListener('click', () => { closeSheet(); pickExercise(i); });
+  sh.querySelector('#exVidReset')?.addEventListener('click', () => {
+    closeSheet(); const vids = Object.assign({}, S.trening.videoer); delete vids[ex.navn];
+    S.trening.videoer = vids; if (S.db) queueWrite(() => S.db.doc('settings/trening').set(clone(S.trening))); renderOkt(); toast('Matthews\' video er tilbake');
+  });
   sh.querySelector('#exVid').addEventListener('click', async () => {
     closeSheet(); const cur = S.trening?.videoer?.[ex.navn] || '';
-    const v = await askText('Video for ' + ex.navn, MATTHEWS_VIDEO.has(ex.navn) ? 'Lim inn en lenke (tomt = Matthews\' video)' : 'Lim inn en lenke (tomt = ingen video)', cur, 'Lagre');
+    const v = await askText('Video for ' + ex.navn, MATTHEWS_VIDEO.has(ex.navn) ? 'Lim inn en lenke (tomt = Matthews\' video)' : 'Lim inn en lenke (tomt = ingen video)', cur, 'Lagre', { allowEmpty: true });
     if (v === null) return; const t = v.trim();
     if (t && !/^https?:\/\//i.test(t)) { toast('Lenken må starte med https://'); return; }
     const vids = Object.assign({}, S.trening.videoer); if (t) vids[ex.navn] = t; else delete vids[ex.navn];

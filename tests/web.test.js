@@ -47,7 +47,8 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
   await p.click('#restBar [data-rest=stop]'); await sleep(200);
   // notes: add one, it shows on the card
   await p.click('#oktList [data-ex="0"] .tools [data-oact=note]'); await sleep(200);
-  await p.fill('#neText', 'Stangholder på hull 24\nSikkerhetsstenger på 12'); await p.click('#neSave'); await sleep(400);
+  await p.focus('#neText'); await sleep(450); console.log('sheet lifted for keyboard (px):', await p.$eval('#sheetRoot .sheet', (e) => e.style.bottom));
+  await p.fill('#neText', 'Stangholder på hull 24\nSikkerhetsstenger på 12'); await p.click('#neSave'); await sleep(400); console.log('after save: sheet open', !!(await p.$('#sheetRoot .sheet')), '| toggle', await p.$$eval('#oktList [data-ex="0"] [data-oact=notes]', (e) => e.map((x) => x.textContent)));
   console.log('notes on card:', await p.$$eval('#oktList [data-ex="0"] .ex-note', (e) => e.map((x) => x.textContent)));
   console.log('video links:', await p.$$eval('#oktList .ex-head a.vid', (e) => e.map((x) => x.href)));
   console.log('warm-up:', await p.textContent('#oktList [data-ex="0"] .ex-warm'));

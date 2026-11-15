@@ -1,7 +1,7 @@
 // End-to-end test of the standalone web app (repo root), in a phone-sized Chromium.
 // Serve the repo root first:  python3 -m http.server 8765   (from the repo root)
 // Then:  cd tests && npm install && node web.test.js      (cloud workspace: CHROMIUM_PATH is not needed)
-// Checks: welcome screen, starter foods, removed tabs, Økt (TLS phases, logging, rest timer, notes, videos, warm-up, training days, deload), reload, offline start, backup file, reminder banner, restore.
+// Checks: welcome screen, starter foods, removed tabs, Økt (TLS phases, logging, rest timer, notes, videos, warm-up, training days, deload), reload, offline start, backup file, no reminder banner, restore.
 const { chromium } = require('playwright'); const fs = require('fs'); const pathMod = require('path');
 const URL = process.env.FORGE_URL || 'http://localhost:8765/';
 const OUT = pathMod.join(__dirname, 'out'); fs.mkdirSync(OUT, { recursive: true });
@@ -86,7 +86,7 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
   const path = 'backup.json'; await dl.saveAs(path); const bk = JSON.parse(fs.readFileSync(path, 'utf8'));
   console.log('backup week records:', bk.uker.map((w) => w.id + ':' + Object.keys(w.styrke || {}).join('/'))); console.log('backup okter:', (bk.okter || []).map((o) => o.id + ':' + o.navn), 'notater', (bk.notater || []).length); console.log('backup file:', dl.suggestedFilename(), 'foods', bk.matvarer.length, 'weeks', bk.uker.length, 'vekt', bk.profil.vekt, 'start', bk.trening.start);
   console.log('safety after backup:', (await p.textContent('#safetyStatus')).replace(/\s+/g, ' ').slice(0, 80));
-  // reminder banner
+  // reminder banner: switched off, must stay hidden even 9 days after the last backup
   await p.evaluate(() => { localStorage.setItem('forge.lastBackup', Date.now() - 9 * 86400000); localStorage.setItem('forge.changed', Date.now()); });
   await p.reload(); await sleep(800);
   console.log('banner:', await p.isVisible('#backupBanner'), await p.textContent('#backupText'));

@@ -114,7 +114,7 @@ without sharing a database with him. It must never contain his personal data —
   training start = this Monday, or the coming Monday when started on a Saturday or Sunday, placeholder profile: woman, 80 kg, 168 cm, 40 y, 35 %) or "Gjenopprett
   sikkerhetskopi".
 - **Data safety:** `navigator.storage.persist()`; weekly reminder banner when there are changes since the last
-  backup (7 days after the last backup or first use); one-tap backup (`TheForge-sikkerhetskopi_DATE.json`,
+  backup (7 days after the last backup or first use) — **switched off 15 Nov 2026** at his request (`BACKUP_REMINDER = false`); one-tap backup (`TheForge-sikkerhetskopi_DATE.json`,
   same format as the artifact's JSON export, so backups move between versions); on a PC an optional folder
   (File System Access API, handle kept in `meta`) gets an automatic copy at most daily when something changed.
   Restore marks the data as backed up. Status shown under Profil → Sikkerhetskopi.

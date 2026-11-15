@@ -944,7 +944,7 @@ const localFiles = {
 /* =============================== keeping the data safe ===============================
    Three layers, because the data lives only on this device:
    1. Ask the browser to treat the storage as persistent, so it is never cleared to free up space.
-   2. A weekly reminder banner with a one-tap backup (the phone's share sheet → Google Drive, Files, e-mail).
+   2. One-tap backup under Profil (the phone's share sheet → Google Drive, Files, e-mail). The weekly reminder banner is off (BACKUP_REMINDER).
    3. On a computer: pick a folder once, and a dated backup file is written there automatically. */
 const ls = { get: (k) => { try { return localStorage.getItem(k); } catch (e) { return null; } }, set: (k, v) => { try { localStorage.setItem(k, String(v)); } catch (e) { /* ignore */ } } };
 const DAY_MS = 86400000;
@@ -957,6 +957,7 @@ function noteChange() {
 const lastBackup = () => Number(ls.get('forge.lastBackup')) || 0;
 const lastChange = () => Number(ls.get('forge.changed')) || 0;
 const unsaved = () => lastChange() > lastBackup();
+const BACKUP_REMINDER = false; // true brings the weekly reminder banner back
 function reminderDue() { // a week since the last backup (or since the app was set up), with changes not yet backed up
   const since = lastBackup() || Number(ls.get('forge.firstUse')) || Date.now();
   return S.db && unsaved() && Date.now() - since > 7 * DAY_MS;
@@ -1010,7 +1011,8 @@ async function autoBackup() {
 }
 function renderBackupBanner() {
   const b = $('backupBanner'); if (!b) return;
-  const due = reminderDue(); b.hidden = !due; if (!due) return;
+  // The weekly reminder is switched off (15 Nov 2026, at Bjørnar's request); backups are taken under Profil → Sikkerhetskopi.
+  const due = BACKUP_REMINDER && reminderDue(); b.hidden = !due; if (!due) return;
   const days = lastBackup() ? Math.floor((Date.now() - lastBackup()) / DAY_MS) : null;
   $('backupText').textContent = days === null ? 'Du har ikke tatt sikkerhetskopi ennå. Dataene finnes bare på denne enheten.' : `Det er ${days} dager siden forrige sikkerhetskopi.`;
 }

@@ -93,6 +93,12 @@ without sharing a database with him. It must never contain his personal data —
     records) and `syncStyrke()`. The header counts down to the next deload week.
   - **Warm-up** line under the first lift of a program session: 6 reps at ~50 % and 4 at ~70 % of the working
     weight (rounded to the weight step, never under a 20 kg bar).
+  - **Assisted exercises** (name contains "Assisted"; added 21 Nov 2026, both apps): the weight field is the machine's
+    help, stored per set as `hjelp` (the number on the stack; his gym's stack goes 5, 12, 19 … 103 in 7 kg steps). `kg`
+    holds the lifted load = bodyweight that day (`bodyWeightOn()`, latest weigh-in, scale-corrected) − help, set by
+    `setLoad()`, so Epley, records and `weeks.styrke` work as before. `machinePerfs()` gives the history in help;
+    `suggestion()` counts down (least help = top weight, next = help − step). His Jefit-era sets were given `hjelp`
+    from the stack (68 → 61 → 54) on 21 Nov 2026.
   - Rep range per exercise: the program day's positional `reps` (stored on the exercise as `rr`), else `okt.repsMin/Max`.
   The web app got Økt on 15 Nov 2026; the Økt code is identical in both files except `OKT_DEFAULT`.
 - Week numbers count from `settings/trening.start` (a Monday); `baseline` is the Saturday before.

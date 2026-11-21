@@ -2189,6 +2189,32 @@ const round2 = (v) => Math.round(v * 100) / 100;
 const kgTxt = (v) => (v === null || v === undefined || v === '') ? '' : fmt(v, 2).replace(/,?0+$/, '');
 const setsTxt = (sets) => sets.map((x) => `${kgTxt(x[0])}×${x[1]}`).join(', ');
 const loggedSets = (ex) => (ex?.sett || []).filter((x) => x.ok && x.kg > 0 && x.reps > 0).map((x) => [x.kg, x.reps]);
+/* ---- assisted exercises (Assisted Pull-Up) ----
+   The weight field holds the machine's help (`hjelp`): the number on the stack, as set on the machine.
+   The load actually lifted is bodyweight − help; it is kept in `kg`, so records, Epley and the weekly Styrke
+   entries mean the same as for every other exercise. Less help = heavier, so progression counts down. */
+const isAssist = (name) => /Assisted/i.test(name || '');
+const hasHelp = (x) => x && x.hjelp !== null && x.hjelp !== undefined && x.hjelp !== '';
+// Bodyweight on a date: the latest weigh-in on or before it (scale-corrected), else the profile weight.
+function bodyWeightOn(iso) {
+  let best = null;
+  for (const w of S.weeks.values()) {
+    const n = num(w.uke); if (!(n > 0) || !w.vekt) continue;
+    const mon = parseDate(weekMonday(n));
+    DAYS.forEach((k, i) => { const v = num(w.vekt[k], NaN); if (!(v > 0)) return; const d = isoOf(addDays(mon, i));
+      if (d <= iso && (!best || d > best.d)) best = { d, v: v + scaleOffset(d) }; });
+  }
+  return best ? best.v : num(S.profile?.vekt, 0);
+}
+// Work out the lifted load of a set from its help and that day's bodyweight.
+function setLoad(x, iso) { x.kg = hasHelp(x) ? Math.max(0, Math.round((bodyWeightOn(iso) - num(x.hjelp)) * 10) / 10) : null; }
+// Past sessions of an assisted exercise in machine terms, newest first: [[help, reps], …].
+function machinePerfs(name) {
+  return [...S.okter.values()].filter((o) => !o.deload).map((o) => {
+    const ex = (o.ovelser || []).find((x) => x.navn === name);
+    return { dato: o.dato, sett: (ex?.sett || []).filter((x) => x.ok && hasHelp(x) && x.reps > 0).map((x) => [num(x.hjelp), x.reps]) };
+  }).filter((p) => p.sett.length).sort((a, b) => b.dato.localeCompare(a.dato));
+}
 const oktTimers = new Map(); const oktInFlight = new Set();
 const oktDate = () => S.oktDato || todayIso();
 
@@ -2213,7 +2239,7 @@ function bestRmBefore(name, iso) { let best = 0; for (const p of performances(na
 // The weight step for an exercise: the smallest jump seen in its history (machines and dumbbells come in odd
 // steps), otherwise 2.5 kg for bars and dumbbells and 5 kg for machines and cables.
 function stepFor(name) {
-  const ws = new Set(); for (const p of performances(name)) p.sett.forEach((x) => ws.add(x[0]));
+  const ws = new Set(); for (const p of (isAssist(name) ? machinePerfs(name) : performances(name))) p.sett.forEach((x) => ws.add(x[0]));
   const v = [...ws].sort((a, b) => a - b); let step = null;
   for (let i = 1; i < v.length; i++) { const d = round2(v[i] - v[i - 1]); if (d >= 0.5 && (step === null || d < step)) step = d; }
   // A bar can always go up by 2.5 kg (1.25 a side), even when the history only shows bigger jumps.
@@ -2222,13 +2248,16 @@ function stepFor(name) {
 }
 // Matthews' double progression: up a step once the top weight hit the top of the rep range in enough sets.
 function suggestion(name, iso, rr) {
-  const cfg = oktCfg(); const last = lastPerf(name, iso); const top_ = (rr || repRange(null)).max;
-  if (!last) return { last: null, kg: null, reps: [], up: false };
-  const top = Math.max(...last.sett.map((x) => x[0]));
+  const cfg = oktCfg(); const top_ = (rr || repRange(null)).max; const assist = isAssist(name);
+  const last = assist ? (machinePerfs(name).find((p) => p.dato < iso) || null) : lastPerf(name, iso);
+  if (!last) return { last: null, kg: null, reps: [], up: false, assist };
+  // the hardest weight of the last session: the heaviest, or for an assisted exercise the least help
+  const top = assist ? Math.min(...last.sett.map((x) => x[0])) : Math.max(...last.sett.map((x) => x[0]));
   const topSets = last.sett.filter((x) => x[0] === top);
   const up = topSets.filter((x) => x[1] >= top_).length >= cfg.toppSett;
   const step = stepFor(name);
-  return { last, top, up, step, kg: up ? round2(top + step) : top, reps: up ? [] : topSets.map((x) => x[1]) };
+  const next = assist ? Math.max(0, round2(top - step)) : round2(top + step);
+  return { last, top, up, step, assist, kg: up ? next : top, reps: up ? [] : topSets.map((x) => x[1]) };
 }
 // A fresh exercise for a session. `pos` is its place in the program day (for the day's rep range); in a deload
 // session it gets 2 sets at the usual weight: 3 reps for the first two lifts, 4 for the rest (Matthews).
@@ -2237,8 +2266,9 @@ function blankExercise(name, iso, pos = null, day = null, deload = false) {
   const sg = suggestion(name, iso, rr);
   const ex = { navn: name };
   if (rrDay) ex.rr = [rr.min, rr.max];
-  if (deload) { const r = (pos ?? 2) < 2 ? 3 : 4; ex.sett = [0, 1].map(() => ({ kg: sg.last ? sg.top : null, reps: r, ok: false })); return ex; }
-  ex.sett = [0, 1, 2].map((i) => ({ kg: sg.kg, reps: sg.up ? rr.min : (sg.reps[i] ?? sg.reps[sg.reps.length - 1] ?? rr.max), ok: false }));
+  if (deload) { const r = (pos ?? 2) < 2 ? 3 : 4; ex.sett = [0, 1].map(() => ({ kg: sg.last ? sg.top : null, reps: r, ok: false })); }
+  else ex.sett = [0, 1, 2].map((i) => ({ kg: sg.kg, reps: sg.up ? rr.min : (sg.reps[i] ?? sg.reps[sg.reps.length - 1] ?? rr.max), ok: false }));
+  if (sg.assist) for (const x of ex.sett) { x.hjelp = x.kg; setLoad(x, iso); }   // the suggestion is in help
   return ex;
 }
 // Today's workout: by weekday (fixed days), or the one after the last logged program workout (in turn).
@@ -2321,18 +2351,24 @@ function renderOkt() {
 }
 function exHtml(ex, i, iso, o) {
   const rr = repRange(ex); const sg = suggestion(ex.navn, iso, rr);
-  const last = sg.last ? `Sist ${shortDate(sg.last.dato)}: ${setsTxt(sg.last.sett)}` : 'Første gang';
+  const assist = isAssist(ex.navn);
+  const last = sg.last ? `Sist ${shortDate(sg.last.dato)}: ${setsTxt(sg.last.sett)}${assist ? ' kg hjelp' : ''}` : 'Første gang';
   const hint = o.deload ? ` · <span class="dl">deload: ${ex.sett.length} × ${ex.sett[0]?.reps ?? 3} reps, vanlig vekt</span>`
-    : !sg.last ? ` · ${rr.min}–${rr.max} reps` : sg.up ? ` · <span class="up">↑ øk til ${kgTxt(sg.kg)} kg</span>` : ` · samme vekt, mot ${rr.max} reps`;
+    : !sg.last ? ` · ${rr.min}–${rr.max} reps` : sg.up ? (assist ? ` · <span class="up">↑ ned til ${kgTxt(sg.kg)} kg hjelp</span>` : ` · <span class="up">↑ øk til ${kgTxt(sg.kg)} kg</span>`) : ` · samme vekt, mot ${rr.max} reps`;
+  const load = assist ? ex.sett.find((x) => x.kg > 0)?.kg : null;
+  const assistTxt = assist ? `<div class="ex-warm">Vekten er hjelpen på maskinen${load ? ` · du løfter ca. ${kgTxt(load)} kg (kroppsvekt ${kgTxt(bodyWeightOn(iso))} kg)` : ''}</div>` : '';
   const vid = videoFor(ex.navn); const notes = notesFor(ex.navn); const open = S.notesOpen.has(ex.navn);
   const done = ex.sett.filter((x) => x.ok).length;
   return `<section class="ex" data-ex="${i}">
     <div class="ex-head"><h3>${esc(ex.navn)}</h3>${notes.length ? `<button class="icon-btn nbtn${open ? ' on' : ''}" data-oact="notes" aria-expanded="${open}" aria-label="${open ? 'Skjul' : 'Vis'} notater (${notes.length})" title="Notater">✎ ${notes.length}</button>` : ''}${vid ? `<a class="icon-btn vid" href="${esc(vid)}" target="_blank" rel="noopener" aria-label="Video av ${esc(ex.navn)}" title="Se hvordan øvelsen gjøres">▶</a>` : ''}<span class="ex-count${done && done === ex.sett.length ? ' all' : ''}">${done}/${ex.sett.length}</span><button class="icon-btn" data-oact="exmenu" aria-label="Valg for ${esc(ex.navn)}">⋯</button></div>
     <div class="ex-last">${last}${hint}</div>
+    ${assistTxt}
     ${i === 0 && o.dag !== null && o.dag !== undefined ? `<div class="ex-warm">${warmUpTxt(ex)}</div>` : ''}
     ${open ? notes.map((n) => `<button class="ex-note" data-oact="note" data-note="${n.id}">${esc(n.tekst)}</button>`).join('') : ''}
     ${ex.sett.map((x, j) => `<div class="set${x.ok ? ' ok' : ''}" data-set="${j}"><span class="sn">${j + 1}</span>
-      <div class="stepper"><button data-oact="kg-" aria-label="Mindre vekt">−</button><input data-oact="kg" inputmode="decimal" value="${kgTxt(x.kg)}" aria-label="Vekt i kg"><span class="u">kg</span><button data-oact="kg+" aria-label="Mer vekt">+</button></div>
+      ${assist
+        ? `<div class="stepper"><button data-oact="kg-" aria-label="Mindre hjelp (tyngre)">−</button><input data-oact="kg" inputmode="decimal" value="${kgTxt(x.hjelp)}" aria-label="Hjelp på maskinen i kg"><span class="u">hjelp</span><button data-oact="kg+" aria-label="Mer hjelp (lettere)">+</button></div>`
+        : `<div class="stepper"><button data-oact="kg-" aria-label="Mindre vekt">−</button><input data-oact="kg" inputmode="decimal" value="${kgTxt(x.kg)}" aria-label="Vekt i kg"><span class="u">kg</span><button data-oact="kg+" aria-label="Mer vekt">+</button></div>`}
       <div class="stepper"><button data-oact="r-" aria-label="Færre reps">−</button><input data-oact="reps" inputmode="numeric" value="${x.reps ?? ''}" aria-label="Reps"><button data-oact="r+" aria-label="Flere reps">+</button></div>
       <button class="okbtn" data-oact="ok" aria-label="${x.ok ? 'Angre settet' : 'Logg settet'}">✓</button></div>`).join('')}
     <div class="add-row"><button class="link-btn" data-oact="addset">+ Sett</button><span class="tools"><button class="link-btn" data-oact="note">+ Notat</button></span></div>
@@ -2373,21 +2409,26 @@ function bindOkt() {
     if (act === 'notes') { const nm = viewSession().ovelser[i]?.navn; if (nm) { S.notesOpen.has(nm) ? S.notesOpen.delete(nm) : S.notesOpen.add(nm); renderOkt(); } return; }
     if (act === 'note') { const nm = viewSession().ovelser[i]?.navn; if (nm) openNoteEditor(nm, b.dataset.note || null); return; }
     const o = realSession(); const ex = o.ovelser[i]; if (!ex) return;
-    if (act === 'addset') { const l = ex.sett[ex.sett.length - 1]; ex.sett.push({ kg: l?.kg ?? null, reps: l?.reps ?? repRange(ex).max, ok: false }); oktChanged([ex.navn]); return; }
+    const assist = isAssist(ex.navn);
+    if (act === 'addset') { const l = ex.sett[ex.sett.length - 1]; const y = { kg: l?.kg ?? null, reps: l?.reps ?? repRange(ex).max, ok: false };
+      if (assist) { y.hjelp = l?.hjelp ?? null; setLoad(y, iso); } ex.sett.push(y); oktChanged([ex.navn]); return; }
     const j = Number(b.closest('[data-set]').dataset.set); const x = ex.sett[j]; if (!x) return;
     const step = stepFor(ex.navn);
-    if (act === 'kg-') x.kg = Math.max(0, round2(num(x.kg) - step));
+    if (assist && (act === 'kg-' || act === 'kg+')) { x.hjelp = Math.max(0, round2(num(x.hjelp) + (act === 'kg+' ? step : -step))); setLoad(x, iso); }
+    else if (act === 'kg-') x.kg = Math.max(0, round2(num(x.kg) - step));
     else if (act === 'kg+') x.kg = round2(num(x.kg) + step);
     else if (act === 'r-') x.reps = Math.max(0, num(x.reps) - 1);
     else if (act === 'r+') x.reps = num(x.reps) + 1;
     else if (act === 'ok') {
       if (x.ok) { x.ok = false; oktChanged([ex.navn]); return; }
+      if (assist) { if (!hasHelp(x)) { toast('Fyll inn hjelpen på maskinen først'); return; } setLoad(x, iso);
+        if (!(x.kg > 0)) { toast('Hjelpen er like stor som kroppsvekten'); return; } }
       if (!(x.kg > 0) || !(x.reps > 0)) { toast('Fyll inn vekt og reps først'); return; }
       // a record: better than anything before this session and earlier in it
       let before = bestRmBefore(ex.navn, iso); for (const y of ex.sett) if (y.ok && y !== x) before = Math.max(before, epley(y.kg, y.reps) || 0);
       const rm = epley(x.kg, x.reps);
       x.ok = true;
-      for (const y of ex.sett.slice(j + 1)) if (!y.ok) y.kg = x.kg;   // a changed weight carries on to the next sets
+      for (const y of ex.sett.slice(j + 1)) if (!y.ok) { y.kg = x.kg; if (assist) y.hjelp = x.hjelp; }   // a changed weight carries on to the next sets
       startRest();
       oktChanged([ex.navn]);
       if (before > 0 && rm > before + 1e-9) {
@@ -2403,7 +2444,9 @@ function bindOkt() {
     const i = Number(inp.closest('[data-ex]').dataset.ex), j = Number(inp.closest('[data-set]').dataset.set);
     const v = parseNum(inp.value); const o = realSession(); const ex = o.ovelser[i]; const x = ex?.sett[j]; if (!x) return;
     if (v === null || v < 0) { renderOkt(); return; }
-    if (inp.dataset.oact === 'kg') x.kg = round2(v); else x.reps = Math.round(v);
+    if (inp.dataset.oact === 'reps') x.reps = Math.round(v);
+    else if (isAssist(ex.navn)) { x.hjelp = round2(v); setLoad(x, oktDate()); }
+    else x.kg = round2(v);
     oktChanged([ex.navn]);
   });
   $('oktDays').addEventListener('click', async (e) => {

@@ -23,6 +23,9 @@ const FIX = {
     styrke: { 'Machine Leg Press': { dato: '2026-11-05', vekt: 183, reps: 6, sett: [[183, 6]], kommentar: '' }, 'Barbell Squat': { dato: '2026-11-05', vekt: 47.5, reps: 6, sett: [[47.5, 6]] } } },
   'okter/o2026-11-02': { dato: '2026-11-02', dag: 0, navn: 'Push', ovelser: [ex('Barbell Bench Press', 52.5, 6), ex('Barbell Incline Bench Press', 47.5, 5), ex('Dumbbell Bench Press', 20, 6), ex('Cable Tricep Pushdown (V-Bar)', 25, 8)] },
   'okter/o2026-11-05': { dato: '2026-11-05', dag: 3, navn: 'Legs', ovelser: [ex('Barbell Squat', 47.5, 6), ex('Machine Seated Leg Curl', 89, 6), ex('Machine Leg Press', 183, 6), ex('Dumbbell Lunge', 8, 6)] },
+  // assisted pull-up logged with the machine's help (54 kg on the stack) at 94.5 kg bodyweight
+  'okter/o2026-11-06': { dato: '2026-11-06', dag: 4, navn: 'Upper Body B', ovelser: [{ navn: 'Machine Assisted Chin-Up', sett: [0, 1, 2].map(() => ({ hjelp: 54, kg: 40.5, reps: 6, ok: true })) }] },
+  'weeks/w010': { uke: 10, dato: '2026-11-21', vekt: { man: 93, fre: 92.5 } },
   'notater/n-barbell-squat': { navn: 'Barbell Squat', notater: [{ id: 'j52', tekst: 'Høyde på stang-holder er 24. hull fra gulvet.', dato: '2026-09-17' }, { id: 'j48', tekst: 'Husk sikkerhetsstenger!', dato: '2025-07-24' }] },
 };
 const MOCK = (fix) => {
@@ -107,6 +110,21 @@ const MOCK = (fix) => {
   await p.screenshot({ path: 'a4-settings.png', fullPage: true });
   await p.click('.pick[data-key=modus] [data-v=rotasjon]'); await p.click('#ocSave'); await sleep(400);
   console.log('in turn: chips', await p.$$eval('#oktDays .chip', (e) => e.map((x) => x.textContent)), '| title', await p.textContent('#oktTitle'));
+  await p.context().close();
+  // ---- Friday 20 Nov 2026: assisted pull-up in machine terms, counting down
+  p = await open('2026-11-20T17:00:00');
+  await p.click('.seg button[data-sec=trening]'); await p.click('nav.tabs button[data-tab=okt]'); await sleep(400);
+  const apu = '#oktList [data-ex="1"]';
+  console.log('assisted:', await p.textContent(apu + ' h3'), '|', await p.textContent(apu + ' .ex-last'), '|', await p.textContent(apu + ' .ex-warm'));
+  console.log('assisted fields:', await p.$$eval(apu + ' input[data-oact=kg]', (e) => e.map((x) => x.value)), await p.$$eval(apu + ' .set .u', (e) => e.map((x) => x.textContent)));
+  await p.click(apu + ' [data-set="0"] [data-oact="kg-"]'); await sleep(200);
+  console.log('after − :', await p.$eval(apu + ' [data-set="0"] input[data-oact=kg]', (e) => e.value));
+  await p.click(apu + ' [data-set="0"] [data-oact="kg+"]'); await sleep(200);
+  await p.click(apu + ' [data-set="0"] [data-oact="ok"]'); await sleep(700);
+  const so = await p.evaluate(() => window.__store.get('okter/o2026-11-20'));
+  const sx = so.ovelser.find((x) => x.navn === 'Assisted Pull-Up');
+  console.log('stored set:', JSON.stringify(sx.sett[0]), '| week styrke:', JSON.stringify(await p.evaluate(() => window.__store.get('weeks/w010').styrke?.['Assisted Pull-Up'])));
+  await p.screenshot({ path: 'a5-assisted.png', fullPage: true });
   console.log('errors', errs.filter((e) => !/status of 404/.test(e))); // the 404 is the browser's favicon request
   await b.close();
 })();
